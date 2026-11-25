@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco biomeccanico ciclista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: clinico-sportivo, preciso, da laboratorio di fisiologia
+   IDEA: il banco di prova del biomeccanico: rulli, bici, gamba strumentata, letture dal vivo
+   PICTURE: ciclista in sezione sagittale che pedala, muscoli come tiranti colorati, vettore di forza sul pedale
+   COLOUR and TYPE: bianco pieno, inchiostro #15191f, rosa maglia #e5007d come unico accento; Barlow Condensed + Barlow
+   LAYOUT: figura grande + letture a destra, cursori raggruppati sotto, poi grafici, tabelle muscoli e metodo */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#12151a);--ink:light-dark(#15191f,#eef0f3);--mut:light-dark(#5c6470,#9aa3af);--line:light-dark(#e4e6ea,#2a2f37);--soft:light-dark(#f5f6f8,#1a1e24);--acc:#e5007d;--acc2:light-dark(#b8005f,#ff5aa8);--warn:light-dark(#9a5b00,#f0b050)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,.big{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(32px,5vw,48px)}h2{font-size:28px;margin-bottom:6px}
+.band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.lede{color:var(--mut);max-width:68ch;margin:8px 0 0}
+.top{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;margin-top:20px;align-items:stretch}
+.fig{position:relative;min-height:340px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+#bike{min-height:0;height:clamp(380px,42vw,560px);align-self:start;background:var(--soft);border-radius:14px}
+.read{display:flex;flex-direction:column;gap:14px}
+.res{border-top:4px solid var(--acc);padding-top:12px}
+.big{font-size:clamp(56px,9vw,96px);font-weight:700;white-space:nowrap}
+.big small{font-size:.4em;color:var(--mut);font-weight:600;margin-left:6px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 14px;border-top:1px solid var(--line);padding-top:12px}
+.kv span:nth-child(even){text-align:right;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--mut)}
+.warn{color:var(--warn);font-weight:600;font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:500 15px Barlow,sans-serif;min-height:44px;padding:0 16px;border-radius:22px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button[aria-pressed=true],button:hover{border-color:var(--acc);color:var(--acc2)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 28px;margin-top:18px}
+fieldset{border:0;border-top:2px solid var(--ink);margin:0;padding:10px 0 0}
+legend{font:600 20px "Barlow Condensed",sans-serif;padding:0 8px 0 0}
+.sl{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;margin:6px 0 10px}
+.sl label{font-size:15px}.sl output{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sl input{grid-column:1/-1;width:100%;accent-color:var(--acc);height:28px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px}
+.charts .fig{min-height:260px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-weight:600;font-size:14px;color:var(--mut)}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.bar{height:8px;border-radius:4px;background:var(--acc);display:block;margin-top:4px}
+.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px}th{white-space:normal}
+[hidden]{display:none!important}
+.lookp{display:grid;gap:8px;align-content:start}
+#bike{overflow:hidden}
+.figbtn{position:absolute;top:12px;right:12px;z-index:2;background:var(--bg);min-height:40px}
+.drawer{position:fixed;z-index:30;top:0;right:0;bottom:0;width:min(420px,100vw);background:var(--bg);border-left:1.5px solid var(--line);box-shadow:-16px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.dhead h2{font-size:26px;margin:0}
+.dhead button{min-height:40px}
+.tabs{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{min-height:40px;padding:0 14px}
+.tabs button[aria-selected=true]{border-color:var(--acc);color:var(--acc2);background:color-mix(in srgb,var(--acc) 10%,var(--bg))}
+.dbody{overflow-y:auto;padding:14px 16px 20px;flex:1;overscroll-behavior:contain}
+.dbody [data-p]{display:grid;gap:12px}
+.scenes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.scn{display:grid;gap:6px;padding:6px;border-radius:12px;min-height:0;text-align:left}
+.scn svg{width:100%;height:auto;aspect-ratio:16/9;border-radius:8px;display:block;background:var(--soft)}
+.scn span{padding:0 4px 2px;font-weight:600}
+@media(max-width:900px){.drawer{top:auto;left:0;width:100%;height:min(58vh,560px);border-left:0;border-top:1.5px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -16px 40px rgba(0,0,0,.2)}}
+.lrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lrow>span{flex:1 1 100%;font-size:14px;color:var(--mut)}
+.lrow input[type=color]{width:44px;height:36px;border:1.5px solid var(--line);border-radius:8px;padding:2px;background:var(--bg)}
+.lrow select{font:15px Barlow,sans-serif;min-height:40px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.up{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:20px;border:1.5px dashed var(--acc);color:var(--acc2);cursor:pointer;font-size:14px}
+.up input{position:absolute;width:1px;height:1px;opacity:0}
+.lrow button{min-height:40px;font-size:14px}
+.rot input[type=range]{flex:1 1 160px;accent-color:var(--acc);height:28px}.rot output{min-width:3.2em;font-weight:600;font-variant-numeric:tabular-nums}
+#bike{touch-action:pan-y;cursor:grab}
+@media(min-width:901px){#bike{position:sticky;top:16px}}
+.lrow .tx{flex:1 1 140px;font:16px Barlow,sans-serif;min-height:40px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.ath{margin-top:28px;border-top:2px solid var(--ink);padding-top:14px}
+.savef{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.savef input{flex:1 1 220px;font:16px Barlow,sans-serif;min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.sub{font:600 20px "Barlow Condensed",sans-serif;margin:18px 0 8px}
+#ccode{font-variant-numeric:tabular-nums;font-size:14px}
+.alist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.alist li{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.alist li.on{border-color:var(--acc)}
+.alist b{font:600 20px "Barlow Condensed",sans-serif;overflow-wrap:anywhere}
+.alist .meta{grid-column:1/-1;font-size:14px;color:var(--mut)}
+.alist .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.alist button{min-height:40px;padding:0 14px;font-size:14px}
+fieldset .cb{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}
+.cb input{width:20px;height:20px;accent-color:var(--acc);flex:none;margin:0}
+#tfit td:first-child{min-width:12em}
+.out,.dpeg{color:var(--warn);font-weight:600;font-size:13px}
+.dmeg{color:var(--acc2);font-weight:600;font-size:13px}
+button:disabled{opacity:.45;cursor:default;border-color:var(--line);color:var(--ink)}
+details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}
+.method p,.method li{max-width:72ch}
+pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
+@media(max-width:1100px){.cols{grid-template-columns:minmax(0,1fr)}}@media(max-width:900px){.top,.cols{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){#bike{height:320px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+<body>
+<section class="band"><div class="wrap">
+<h1>Banco biomeccanico: da dove nasce la tua soglia</h1>
+<p class="lede">Modello dinamico della pedalata: proporzioni del corpo, assetto, scarpe e tacchette, muscoli, tendini e mitocondri determinano angoli articolari, lavoro delle fibre ed efficienza, e da lì la soglia (FTP) in W/kg. Lo sprint è la potenza massimale alla cadenza migliore.</p>
+<div class="top">
+  <div class="fig" id="bike"><svg id="bsvg" role="img" aria-label="Ciclista in vista laterale con muscoli della gamba e vettore di forza sul pedale"></svg><button type="button" id="dopen" class="figbtn" aria-expanded="false" aria-controls="drawer">Personalizza</button></div>
+  <div class="read">
+    <div class="res"><div class="note">Soglia (FTP) pedalando a <b id="cadl">90</b> rpm</div><div class="big" id="pw">–</div><div class="big" style="font-size:clamp(34px,5vw,48px)" id="wkg">–</div></div>
+    <div class="kv">
+      <span>Potenza massima (sprint)</span><span id="ftp">–</span>
+      <span>Efficienza lorda alla soglia (lunghezza · velocità · lavoro negativo)</span><span id="ge">–</span>
+      <span>Muscolo delle cosce (due gambe)</span><span id="mm">–</span>
+      <span>Mitocondri attivi → O₂ che il muscolo può usare</span><span id="mi">–</span>
+      <span>O₂ che cuore e sangue portano (VO₂max)</span><span id="vc">–</span>
+      <span>Cosa limita la soglia</span><span id="lim">–</span>
+      <span>Frazione di VO₂max sostenibile alla soglia</span><span id="fth">–</span>
+      <span>Attivazione dei muscoli alla soglia</span><span id="opt">–</span>
+      <span>Indice di efficacia (forza utile / totale)</span><span id="ie">–</span>
+      <span>Ginocchio al punto morto inferiore</span><span id="kbdc">–</span>
+      <span>Velocità massima di accorciamento</span><span id="vm">–</span>
+    </div>
+    <div class="warn" id="warn" role="status"></div>
+    <div class="btns"><button id="play" aria-pressed="true">Pausa</button><button id="reset">Valori iniziali</button></div>
+    <div class="btns" id="presets"></div>
+  </div>
+</div>
+<aside class="drawer" id="drawer" aria-label="Personalizza" hidden>
+  <div class="dhead"><h2>Personalizza</h2><button type="button" id="dclose">Chiudi</button></div>
+  <div class="tabs" role="tablist" aria-label="Sezioni">
+    <button type="button" role="tab" data-t="vista" aria-selected="true">Vista</button><button type="button" role="tab" data-t="atleta" aria-selected="false">Atleta</button><button type="button" role="tab" data-t="bici" aria-selected="false">Bici</button><button type="button" role="tab" data-t="sfondo" aria-selected="false">Sfondo</button>
+  </div>
+  <div class="dbody lookp" id="lookp">
+    <div data-p="vista" role="tabpanel">
+      <div class="lrow"><span>Cosa mostrare</span><div class="btns" id="views" role="group" aria-label="Vista del modello"><button type="button" data-v="muscoli">Muscoli</button><button type="button" data-v="atleta">Atleta</button><button type="button" data-v="entrambi">Atleta + muscoli</button></div></div>
+      <div class="lrow rot"><span>Rotazione sul piano orizzontale (o trascina la figura)</span><input type="range" id="rot" min="0" max="359" step="1" aria-label="Rotazione"><output id="rot-o"></output><button type="button" id="spin" aria-pressed="false">Gira</button><button type="button" id="rot0">Di lato</button><button type="button" id="rot90">Da dietro</button><button type="button" id="rot270">Di fronte</button></div>
+    </div>
+    <div data-p="atleta" role="tabpanel" hidden>
+      <div class="lrow"><span>Maglia</span><input type="color" id="l-jersey" aria-label="Colore maglia"><input type="color" id="l-jersey2" aria-label="Secondo colore maglia"><select id="l-pattern" aria-label="Motivo maglia"><option value="unita">Tinta unita</option><option value="fascia">Fascia</option><option value="righe">Righe</option><option value="fianchi">Fondo a contrasto</option></select></div>
+      <div class="lrow"><span>Logo sul petto</span><label class="up">Carica immagine<input type="file" id="l-logo" accept="image/*"></label><button type="button" id="l-nologo">Togli</button></div>
+      <div class="lrow"><span>Copricapo</span><select id="l-head" aria-label="Copricapo"><option value="casco">Casco da strada</option><option value="aero">Casco aero</option><option value="cappellino">Cappellino</option><option value="bandana">Bandana</option><option value="nessuno">Nessuno</option></select><input type="color" id="l-headc" aria-label="Colore copricapo"><input type="color" id="l-headc2" aria-label="Colore dettaglio casco"></div>
+      <div class="lrow"><span>Occhiali</span><select id="l-glasses" aria-label="Occhiali"><option value="nessuno">Nessuno</option><option value="sportivi">Sportivi</option><option value="mascherina">A mascherina</option></select><input type="color" id="l-lens" aria-label="Colore lenti"></div>
+      <div class="lrow"><span>Pantaloncini · scarpe · guanti</span><input type="color" id="l-shorts" aria-label="Colore pantaloncini"><input type="color" id="l-shoes" aria-label="Colore scarpe"><input type="color" id="l-gloves" aria-label="Colore guanti"></div>
+      <div class="lrow"><span>Pelle</span><select id="l-skin" aria-label="Tono della pelle"><option value="chiara">Chiara</option><option value="media">Media</option><option value="olivastra">Olivastra</option><option value="scura">Scura</option></select></div>
+    </div>
+    <div data-p="bici" role="tabpanel" hidden>
+      <div class="lrow"><span>Telaio</span><input type="color" id="l-frame" aria-label="Colore telaio"><input type="color" id="l-frame2" aria-label="Secondo colore telaio"><select id="l-fstyle" aria-label="Stile verniciatura"><option value="unita">Tinta unita</option><option value="sfumata">Sfumata</option><option value="bicolore">Carro a contrasto</option></select></div>
+      <div class="lrow"><span>Scritta sul tubo obliquo · logo sul tubo sterzo</span><input id="l-ftext" maxlength="18" placeholder="Scritta telaio" class="tx"><label class="up">Logo telaio<input type="file" id="l-flogo" accept="image/*"></label><button type="button" id="l-noflogo">Togli</button></div>
+      <div class="lrow"><span>Ruote: profilo, colore cerchio, scritta</span><select id="l-wheels" aria-label="Profilo ruote"><option value="basso">Basso profilo (30 mm)</option><option value="medio">Medio profilo (50 mm)</option><option value="alto">Alto profilo (80 mm)</option><option value="lenticolare">Lenticolare dietro</option></select><input type="color" id="l-rim" aria-label="Colore cerchio"><input id="l-wtext" maxlength="18" placeholder="Scritta cerchio" class="tx"></div>
+    </div>
+    <div data-p="sfondo" role="tabpanel" hidden>
+      <div class="scenes" id="scenes" role="group" aria-label="Sfondo"></div>
+      <p class="note">Lo sfondo si vede nelle viste Atleta e Atleta + muscoli (nella vista Muscoli resta tenue) e scorre mentre il ciclista pedala.</p>
+    </div>
+    <p class="note" id="lnote">L'aspetto si salva insieme all'atleta.</p>
+  </div>
+</aside>
+<div class="ctrls" id="ctrls"></div>
+<section class="ath" aria-labelledby="fit-h">
+  <h2 id="fit-h">Bike fit: confronta due assetti</h2>
+  <p class="note" id="fitn">Fissa l'assetto attuale come A, poi cambia sella, pedivelle, busto, scarpe, tacchette o cadenza: la tabella confronta A con l'assetto attuale (B) e la figura mostra la gamba di A tratteggiata.</p>
+  <div class="btns"><button type="button" id="fitA">Fissa questo assetto come A</button><button type="button" id="fitBack" disabled>Torna ad A</button><button type="button" id="fitOff" disabled>Togli il confronto</button></div>
+  <div class="scroll" style="margin-top:12px"><table class="stack" id="tfit"><thead><tr><th>Misura</th><th>A</th><th>B (attuale)</th><th>Differenza</th><th>Riferimento</th></tr></thead><tbody></tbody></table></div>
+</section>
+<section class="ath" aria-labelledby="ath-h">
+  <h2 id="ath-h">Atleti salvati</h2>
+  <p class="note" id="anote"></p>
+  <form id="savef" class="savef"><label for="aname" class="sr">Nome atleta</label><input id="aname" maxlength="40" placeholder="Nome atleta, es. Marco" autocomplete="off"><button type="submit" id="savebtn">Salva atleta</button></form>
+  <p class="note" id="astat" role="status">Collegamento all'archivio condiviso…</p>
+  <div class="ath-list">
+    <div id="arch" hidden><h3 class="sub">Archivio condiviso</h3>
+    <ul class="alist" id="alist"></ul></div>
+    <h3 class="sub">Su questo dispositivo</h3>
+    <ul class="alist" id="llist"></ul>
+  </div>
+  <h3 class="sub">Scarica e importa</h3>
+  <p class="note">Il file JSON contiene parametri, aspetto, codice e i risultati del modello (soglia, efficienza, frazione di VO₂max, sprint, angoli) e si può reimportare; il CSV si apre con Excel o Fogli.</p>
+  <div class="btns"><button type="button" id="xcur">Scarica configurazione attuale (.json)</button><button type="button" id="xall">Scarica atleti del dispositivo (.json)</button><button type="button" id="xcsv">Scarica tabella (.csv)</button><label class="up">Importa file .json<input type="file" id="ximp" accept=".json,application/json"></label></div>
+  <h3 class="sub">Condividi con un codice</h3>
+  <p class="note">Il codice contiene tutta la configurazione: corpo, bici, scarpe, fisiologia, sfondo e colori principali. Chi lo incolla qui sotto vede lo stesso atleta; aggiunto in fondo al link della pagina dopo il simbolo #, apre direttamente quella configurazione.</p>
+  <div class="savef"><label for="ccode" class="sr">Codice della configurazione attuale</label><input id="ccode" readonly><button type="button" id="ccopy">Copia codice</button></div>
+  <form class="savef" id="cimp"><label for="cin" class="sr">Codice da aprire</label><input id="cin" placeholder="Incolla un codice atleta (cfg1-…)" autocomplete="off"><button type="submit">Apri codice</button></form>
+</section>
+</div></section>
+
+<section class="band" style="background:var(--soft)"><div class="wrap">
+<h2>La pedalata alla soglia, giro per giro</h2>
+<p class="lede" style="margin-bottom:16px">La coppia sul movimento centrale alla potenza di soglia (due gambe sommate), poi soglia e sprint al variare della cadenza. Pedalando troppo agile l'efficienza cala perché le fibre lente si accorciano troppo in fretta e i muscoli non fanno in tempo ad accendersi e spegnersi. Pedalando troppo duro manca velocità.</p>
+<div class="charts"><div class="fig" id="ctq"><svg></svg></div><div class="fig" id="cftp"><svg></svg></div><div class="fig" id="ccad"><svg></svg></div></div>
+<h2 style="margin-top:32px">Quando si accendono i muscoli</h2>
+<p class="note" style="max-width:72ch">Attivazione alla soglia lungo il giro (0° = punto morto superiore): più pieno il colore, più attivo il muscolo. Il comando parte quando il muscolo inizia ad accorciarsi e si spegne con anticipo, perché per disattivarsi servono circa 40 ms. Le strisce tenui fuori dalla fase attiva sono la co-contrazione.</p>
+<div class="fig" id="cact" style="min-height:330px;margin-top:8px"><svg></svg></div>
+</div></section>
+
+<section class="band"><div class="wrap cols">
+<div><h2>Muscoli alla soglia: chi lavora e quanto si accorcia</h2>
+<p class="note">Accorciamento = escursione della fibra nel giro, in % della sua lunghezza ottimale (con tendini elastici è minore di quella del muscolo intero). Oltre il 40–50% la fibra lavora lontano dalla zona di forza massima. Potenza e quota sono quelle alla soglia.</p>
+<div class="scroll"><table class="stack" id="tm"><thead><tr><th>Muscolo</th><th>Sezione (cm²)</th><th>Forza max (N)</th><th>Accorciamento</th><th>Potenza (W)</th><th>Quota</th></tr></thead><tbody></tbody></table></div></div>
+<div><h2>Escursione articolare (ROM)</h2>
+<p class="note">Angoli nel giro completo. Anca: flessione rispetto al busto; ginocchio: 0° = gamba tesa; caviglia: positivo = punta verso l'alto.</p>
+<table id="tr"><thead><tr><th>Articolazione</th><th>Min</th><th>Max</th><th>Escursione</th></tr></thead><tbody></tbody></table></div>
+</div></section>
+
+<section class="band method" style="background:var(--soft)"><div class="wrap">
+<h2>Come calcola il modello e dove sbaglia</h2>
+<details open><summary>Il metodo in 8 passaggi</summary><ol>
+<li><b>Geometria.</b> Dal cavallo e dall'altezza ricava la gamba (anca → caviglia), divisa in femore e tibia secondo il rapporto scelto. La sella è al valore % del cavallo sul tubo sella; il centro dell'anca sta 3,3% dell'altezza sopra il punto di appoggio.</li>
+<li><b>Piede, scarpa e tacchetta.</b> Il piede è un corpo rigido: caviglia 4% dell'altezza sopra la pianta, testa del 1° metatarso 9% davanti alla caviglia. L'asse del pedale sta sotto la pianta di quanto vale lo stack (pedale + suola) e indietro rispetto al metatarso di quanto è arretrata la tacchetta. La suola oscilla nel giro (ankling): tallone giù in spinta, punta giù in risalita, con l'ampiezza scelta.</li>
+<li><b>Cinematica inversa.</b> Per 72 posizioni della pedivella calcola dove stanno ginocchio e caviglia e quindi gli angoli anatomici di anca, ginocchio e caviglia (la caviglia come angolo tra tibia e pianta).</li>
+<li><b>Muscoli di Hill.</b> 8 gruppi muscolari con lunghezza ottimale della fibra e sezione trasversale. La forza dipende da quanto è lunga la fibra (forza-lunghezza) e da quanto velocemente si accorcia o si allunga (forza-velocità, fino a 1,5 volte in allungamento). Il diametro della coscia scala la sezione (al quadrato), le fibre lente abbassano la velocità massima (3,5 contro 10 lunghezze/s), l'età riduce forza (−0,6%/anno) e velocità (−0,4%/anno) dopo i 30.</li>
+<li><b>Leve, tendini e attivazione.</b> Il braccio di leva di ogni muscolo cambia con l'angolo (es. quello dei vasti è massimo intorno a 30° di flessione del ginocchio); la lunghezza del muscolo-tendine è l'integrale del braccio. Il tendine è una molla (si allunga del 4% della sua lunghezza alla forza massima): ruba accorciamento alla fibra quando la forza sale e lo restituisce quando scende. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa; biarticolari e tibiale co-contraggono nella fase in cui non spingono. Ogni muscolo è simulato nel tempo per 3 giri, fino a regime.</li>
+<li><b>Soglia (FTP).</b> L'ossigeno disponibile è il VO₂max (× massa), che cuore e sangue riescono a portare, con un tetto dato dai mitocondri dei muscoli attivi (volume muscolare × densità mitocondriale × circa 5 mL di O₂ al minuto per mL): i due limiti si combinano in un minimo morbido. Alla soglia se ne usa una frazione, dal 75% al 94%, che cresce con la densità mitocondriale e con le fibre lente (Coyle; Holloszy e Coyle) e cala quando la forza per pedalata è così alta da reclutare le fibre veloci, che producono lattato (principio di Henneman: per questo a cadenza bassa la soglia scende). L'ossigeno diventa watt attraverso l'efficienza lorda, calcolata simulando la pedalata proprio alla potenza di soglia: è massima con fibre vicine alla lunghezza ottimale, che si accorciano a circa un quarto della loro velocità massima, poco lavoro negativo e più fibre lente (Coyle 1992). Quattro costanti globali (efficienza di base, frazione minima, peso del lattato da fibre veloci, soglia di reclutamento) sono tarate su valori pubblicati: FTP di amatori, ProTeam (5,4 W/kg) e WorldTour (5,8 W/kg), cadenza di soglia ottimale.</li>
+<li><b>Sprint.</b> Stessa simulazione con attivazione massimale e tempi di comando che massimizzano la potenza, ripetuta da 40 a 160 rpm: lo sprint è il massimo della curva.</li>
+<li><b>Vettori e bike fit.</b> Le coppie alle articolazioni diventano forza sul pedale (minimi quadrati sullo jacobiano della gamba); l'indice di efficacia è la parte di forza che spinge davvero la pedivella. Le misure di bike fit (ginocchio ai punti morti, angolo busto-coscia, ginocchio sul pedale a ore 3) vengono dalla stessa cinematica.</li></ol></details>
+<details><summary>Limiti da tenere presenti</summary><ul>
+<li>Modello 2D sagittale: niente movimenti laterali del ginocchio, rotazione del piede (float della tacchetta) né rotazioni del bacino.</li>
+<li>Il comando nervoso è una regola fissa (acceso mentre il muscolo si accorcia, con anticipi diversi per sprint e soglia), non un'ottimizzazione completa come in OpenSim Moco. Niente forza passiva delle fibre.</li>
+<li>Calibrazione: un fattore 1,45 su tutte le forze compensa muscoli non modellati (adduttori, tensore della fascia lata, tronco e braccia). Pesa sullo sprint, non sulla soglia, che dipende da ossigeno ed efficienza.</li>
+<li>Soglia: la densità mitocondriale va da circa 3–4% (sedentario) a 8–10% (endurance d'élite); consumo per mL di mitocondri, massa muscolare attiva e le quattro costanti tarate sono stime con incertezza. Sui profili tipo il modello resta entro circa ±10% dai valori pubblicati, ma l'efficienza lorda tende al 22–24%, un po' sopra il 19–23% misurato: le costanti compensano tra loro, e il passo successivo è una taratura bayesiana con validazione su dati reali.</li>
+<li>Analisi di sensibilità (DoWhy, 3000 atleti virtuali): oggi la soglia dipende soprattutto da densità mitocondriale, VO₂max e fibre lente; assetto, pedivelle, tacchette e stack la spostano dello 0–1%, in linea con gli studi. Il diametro della coscia pesa ancora più del dovuto.</li>
+<li>Assetto, scarpe e tacchette spostano la soglia di pochi centesimi di W/kg finché gli angoli restano nei range consigliati: il loro effetto si vede soprattutto negli angoli articolari. Il lavoro di ogni muscolo dipende dal movimento, non dalla coppia richiesta alla caviglia: per questo la tacchetta arretrata qui non scarica i polpacci come accade nella realtà.</li>
+<li>Strumento didattico e di esplorazione, non un bike fit né una diagnosi.</li></ul></details>
+<details><summary>Fonti dei parametri</summary><p>Modello muscolare di Hill (forza-lunghezza gaussiana, forza-velocità iperbolica) con tendine elastico e dinamica di attivazione (Zajac, 1989); frazione sostenibile e tipo di fibre (Coyle et al. 1988, 1991, 1992; Holloszy e Coyle 1984); reclutamento per taglia (Henneman); profili di riferimento: Lucía et al. 2001–2002, studio Vuelta 2020 su WorldTour e ProTeam; sezioni e lunghezze di fibra in linea con i modelli muscoloscheletrici OpenSim degli arti inferiori; sella a 0,883 × cavallo (formula di LeMond). Per simulazioni complete: OpenSim + Moco, progetto <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> di Stanford (Clancy et al., 2023).</p></details>
+</div></section>
+
+<script>
+// Modello biomeccanico ciclista — nucleo di calcolo (condiviso tra test e pagina)
+const MODEL = (() => {
+  const D = Math.PI / 180;
+  // c = braccio di leva medio (m/rad) a 178 cm, per [anca(flessione), ginocchio(flessione), caviglia(dorsiflessione)]; + = il muscolo si allunga
+  // s = forma del braccio di leva (leve variabili): [angolo di picco (°), calo relativo a 60° dal picco] per articolazione
+  // g = rapporto fibra/muscolo-tendine nel modello a tendine rigido; pen = pennazione (°); Ls = lunghezza di riposo del tendine (m)
+  // L0 = lunghezza ottimale fibra (m), A = PCSA di riferimento (cm2); co = muscolo che co-contrae (biarticolari e tibiale)
+  const MUSCLES = [
+    { id: 'glut', n: 'Grande gluteo', c: [0.060, 0, 0], s: [[40, 0.35], null, null], g: 1.0, pen: 5, Ls: 0.125, L0: 0.14, Le: 0.142, A: 60, col: '#c2185b' },
+    { id: 'hams', co: 1, n: 'Ischiocrurali', c: [0.070, -0.030, 0], s: [[50, 0.25], [60, 0.35], null], g: 0.9, pen: 12, Ls: 0.33, L0: 0.09, Le: 0.095, A: 50, col: '#7b1fa2' },
+    { id: 'vast', n: 'Vasti (quadricipite)', c: [0, 0.045, 0], s: [null, [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.14, L0: 0.09, Le: 0.087, A: 180, col: '#d32f2f' },
+    { id: 'rf', co: 1, n: 'Retto femorale', c: [-0.040, 0.045, 0], s: [[0, 0.18], [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.33, L0: 0.075, Le: 0.084, A: 20, col: '#f57c00' },
+    { id: 'ilio', n: 'Ileopsoas', c: [-0.025, 0, 0], s: [[70, 0.25], null, null], g: 0.9, pen: 7, Ls: 0.10, L0: 0.10, Le: 0.1, A: 30, col: '#fbc02d' },
+    { id: 'gast', co: 1, n: 'Gastrocnemio', c: [0, -0.020, 0.050], s: [null, [60, 0.30], [15, 0.15]], g: 0.6, pen: 15, Ls: 0.39, L0: 0.055, Le: 0.06, A: 45, col: '#388e3c' },
+    { id: 'sol', n: 'Soleo', c: [0, 0, 0.050], s: [null, null, [15, 0.15]], g: 0.4, pen: 25, Ls: 0.26, L0: 0.035, Le: 0.05, A: 100, col: '#00796b' },
+    { id: 'ta', co: 1, n: 'Tibiale anteriore', c: [0, 0, -0.035], s: [null, null, [-20, 0.20]], g: 0.8, pen: 5, Ls: 0.23, L0: 0.07, Le: 0.098, A: 15, col: '#1976d2' },
+  ];
+  const SIGMA = 30;   // tensione specifica N/cm2
+  const CAL = 1.45;   // fattore di calibrazione (vedi test)
+  const N = 72;       // punti per giro
+  // costanti: E0 = deformazione del tendine alla forza massima;
+  // TACT/TDEA = costanti di tempo di attivazione e disattivazione (s, Zajac 1989);
+  // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
+  // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
+  const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
+    EB: 0.29, F0: 0.75, FII: 1.0, TAU: 0.3 }; // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+
+  let HO = 0.033;
+  function geom(p) {
+    const H = p.h / 100, ins = p.ins / 100, Lc = p.crank / 1000;
+    const L = ins + 0.011 * H;                  // anca-caviglia
+    const Lf = L * p.ratio / (1 + p.ratio), Lt = L - Lf;
+    const S = p.saddle * ins;                   // movimento centrale - sella
+    const sta = (p.sta || 73) * D;
+    const hO = HO * H;                       // centro dell'anca sopra il punto di appoggio sulla sella
+    const hip = [-S * Math.cos(sta), S * Math.sin(sta) + hO];
+    // piede rigido: x lungo la pianta verso la punta, y verso l'alto, origine nella caviglia
+    const hA = 0.040 * H, Lb = 0.090 * H;       // caviglia sopra la pianta; testa del 1° metatarso davanti alla caviglia
+    const st = (p.stack ?? 22) / 1000, cl = (p.cleat ?? 0) / 1000; // stack pedale+suola; tacchetta arretrata verso il tallone
+    const fx = Lb - cl, fy = -(hA + st);        // asse del pedale nel sistema del piede
+    const Lfoot = Math.hypot(fx, fy), beta = Math.atan2(-fy, fx);
+    const al = p.trunk * D, ank = p.ankl ?? 12;
+    return { H, L, Lf, Lt, Lc, S, sad: [-S * Math.cos(sta), S * Math.sin(sta)], hip, hA, Lb, st, cl, Lfoot, beta, al, ank };
+  }
+
+  // cinematica inversa: angoli anatomici e posizioni a un angolo di pedivella th (0 = punto morto superiore)
+  function pose(G, th) {
+    const ped = [G.Lc * Math.sin(th), G.Lc * Math.cos(th)];
+    const sig = (18 - G.ank * Math.sin(th - 30 * D)) * D; // inclinazione della suola, punta in giù positiva: tallone giù in spinta, punta giù in risalita
+    const phi = sig + G.beta;                   // inclinazione della retta caviglia → asse del pedale
+    const ank = [ped[0] - G.Lfoot * Math.cos(phi), ped[1] + G.Lfoot * Math.sin(phi)];
+    let dx = ank[0] - G.hip[0], dy = ank[1] - G.hip[1];
+    let d = Math.hypot(dx, dy), over = false;
+    if (d > G.Lf + G.Lt - 1e-4) { over = true; d = G.Lf + G.Lt - 1e-4; }
+    if (d < Math.abs(G.Lf - G.Lt) + 1e-3) d = Math.abs(G.Lf - G.Lt) + 1e-3;
+    const ux = dx / Math.hypot(dx, dy), uy = dy / Math.hypot(dx, dy);
+    const a = Math.acos((G.Lf ** 2 + d ** 2 - G.Lt ** 2) / (2 * G.Lf * d));
+    const kx = ux * Math.cos(a) - uy * Math.sin(a), ky = ux * Math.sin(a) + uy * Math.cos(a);
+    const knee = [G.hip[0] + G.Lf * kx, G.hip[1] + G.Lf * ky];
+    const A1 = Math.atan2(ky, kx);
+    const ankR = over ? [knee[0] + G.Lt * (ux), knee[1] + G.Lt * (uy)] : ank;
+    const A2 = Math.atan2(ankR[1] - knee[1], ankR[0] - knee[0]);
+    const A3 = Math.atan2(ped[1] - ankR[1], ped[0] - ankR[0]) + G.beta; // direzione della pianta
+    const wrap = x => { while (x > Math.PI) x -= 2 * Math.PI; while (x < -Math.PI) x += 2 * Math.PI; return x; };
+    const hf = wrap(A1 - (Math.PI + G.al));
+    const kf = wrap(A1 - A2);
+    const df = wrap(A3 - A2 - Math.PI / 2);
+    return { ped, ank: ankR, knee, hip: G.hip, q: [hf, kf, df], A: [A1, A2, A3], sole: A3, over };
+  }
+
+  // derivata della posizione del pedale rispetto agli angoli anatomici (catena aperta)
+  function jac(G, P) {
+    const seg = [G.Lf, G.Lt, G.Lfoot];
+    const fk = A => {
+      let x = G.hip[0], y = G.hip[1];
+      for (let i = 0; i < 3; i++) { const a = A[i] - (i === 2 ? G.beta : 0); x += seg[i] * Math.cos(a); y += seg[i] * Math.sin(a); }
+      return [x, y];
+    };
+    const toA = q => { const A1 = Math.PI + G.al + q[0], A2 = A1 - q[1]; return [A1, A2, A2 + Math.PI / 2 + q[2]]; };
+    const e = 1e-5, J = [];
+    for (let j = 0; j < 3; j++) {
+      const qp = P.q.slice(); qp[j] += e; const qm = P.q.slice(); qm[j] -= e;
+      const a = fk(toA(qp)), b = fk(toA(qm));
+      J.push([(a[0] - b[0]) / (2 * e), (a[1] - b[1]) / (2 * e)]);
+    }
+    return J;
+  }
+
+  // curve muscolari (Hill)
+  const fl = x => Math.exp(-(((x - 1) / 0.45) ** 2));                        // forza-lunghezza, x = l/L0
+  const fv = r => r >= 0 ? Math.max(0, (1 - r) / (1 + r / 0.25))              // forza-velocità, r = accorciamento/vmax
+    : 1 + 0.5 * (-r) / (-r + 0.06);                                            // allungamento (eccentrico): fino a 1,5
+  const fvInv = y => y <= 1 ? (1 - y) / (1 + 4 * y) : -0.06 * (y - 1) / (1.5 - y); // velocità relativa che dà la forza y (y < 1,5)
+
+  let REF = null;
+
+  function run(p, opts = {}) {
+    const G = geom(p);
+    const sH = G.H / 1.78, sL = G.L / (0.84 + 0.011 * 1.78);
+    const age = Math.max(0, p.age - 30);
+    const fA = (1 - 0.006 * age), vA = (1 - 0.004 * age);
+    const slow = p.slow / 100;
+    const vmax = (slow * 3.5 + (1 - slow) * 10) * vA;     // L0/s
+    const area = (p.thigh / 17.5) ** 2;                    // sezione muscolare scala col diametro coscia
+    const lev = p.lev ?? 1, ten = p.ten ?? 1, act = p.act ?? 1, cc = (p.cc ?? 0) / 100;
+    const csaT = Math.PI * (p.thigh / 2) ** 2 * 0.70;          // cm2 di muscolo a metà coscia (70% della sezione)
+    const volT = csaT * G.Lf * 100 * 0.6;                      // cm3 per coscia (fattore di forma 0,6)
+    const volAct = 2 * volT * 1.7;                             // muscoli attivi: cosce + glutei, polpacci, flessori dell'anca e tronco
+    const volMito = volAct * p.mito / 100;                     // mL di mitocondri
+    const w = p.cad * 2 * Math.PI / 60, dt = 2 * Math.PI / w / N;
+    const NS = opts.fast ? 4 : 8, CYC = opts.fast ? 2 : 3, dts = dt / NS;
+    const P = [], qs = [];
+    for (let i = 0; i < N; i++) { const th = 2 * Math.PI * i / N; const ps = pose(G, th); P.push(ps); qs.push(ps.q); }
+    const ref = REF || (REF = qs.reduce((s, q) => s.map((v, k) => v + q[k] / N), [0, 0, 0]));
+    const qd = qs.map((q, i) => { const a = qs[(i + 1) % N], b = qs[(i - 1 + N) % N]; return a.map((v, k) => (v - b[k]) / (2 * 2 * Math.PI / N) * w); });
+    const ms = MUSCLES.map(m => ({ ...m, c: m.c.map(c => c * sH), L0: m.L0 * sL, Le: m.Le * sL, Ls: m.Ls * sL, ca: Math.cos(m.pen * D), F0: m.A * SIGMA * CAL * area * fA }));
+    // leve variabili: braccio(q) = c · forma(q) / forma(riferimento); lunghezza = integrale del braccio
+    const W2 = (60 * D) ** 2;
+    const shp = (s, q) => !lev || !s ? 1 : 1 - s[1] * (q - s[0] * D) ** 2 / W2;
+    const itg = (s, q) => { if (!lev || !s) return q; const x = q - s[0] * D; return x - s[1] * x ** 3 / (3 * W2); };
+    const MT = ms.map(m => {
+      const fr = m.s.map((s, k) => shp(s, ref[k])), ir = m.s.map((s, k) => itg(s, ref[k]));
+      const dl = [], v = [], R = [];
+      for (let i = 0; i < N; i++) {
+        const r = m.c.map((c, k) => c ? c * shp(m.s[k], qs[i][k]) / fr[k] : 0);
+        dl.push(m.c.reduce((s, c, k) => s + (c ? c * (itg(m.s[k], qs[i][k]) - ir[k]) / fr[k] : 0), 0));
+        v.push(-r.reduce((s, rk, k) => s + rk * qd[i][k], 0));     // accorciamento del muscolo-tendine (m/s)
+        R.push(r);
+      }
+      return { dl, v, R };
+    });
+    const lerp = (arr, x) => { const i0 = Math.floor(x), f = x - i0, a = ((i0 % N) + N) % N; return arr[a] * (1 - f) + arr[(a + 1) % N] * f; };
+    // un giro simulato: eccitazione 'al' (1 = sprint massimale) quando il muscolo deve accorciarsi, 'cc' (co-contrazione) altrimenti
+    const onI = act ? (opts.max ? K.SON : K.LON) / dt : 0, offI = act ? (opts.max ? K.SOFF : K.LOFF) / dt : 0;
+    function sim(al) {
+      const out = ms.map(() => []);
+      let sF = 0, sFl = 0, sFv = 0, sFr = 0, Ppos = 0, Pneg = 0;   // integrati su tutti i sottopassi dell'ultimo giro, pesati sul lavoro positivo
+      ms.forEach((m, j) => {
+        // tendine elastico (rigidezza costante): stato = allungamento del tendine x, forza F = F0·x/(Ls·E0).
+        // Dalla forza si ricava la velocità della fibra (inversa forza-velocità); la fibra vede Δl − x: lf = L0 + g·(Δl − x)
+        const T = MT[j], vm = vmax * m.L0, xs = m.Ls * K.E0, vs = 0.08 * Math.max(...T.v.map(Math.abs)) + 1e-9;
+        const sg = v => 1 / (1 + Math.exp(-v / vs));               // comando continuo: cresce con la velocità di accorciamento
+        let a = 0, x = 0;
+        for (let cy = 0; cy < CYC; cy++) for (let i = 0; i < N; i++) for (let s = 1; s <= NS; s++) {
+          const q = i + s / NS, vmt = lerp(T.v, q), dl = lerp(T.dl, q), on = sg(lerp(T.v, q + onI)) * sg(lerp(T.v, q + offI)), u = al * on + (m.co ? cc * al : 0) * (1 - on);
+          a = act ? a + (u - a) * dts / (u > a ? K.TACT : K.TDEA) : u;
+          let F, lf, vf;
+          if (!ten) { lf = m.L0 + m.g * dl; vf = m.g * vmt; F = a * m.F0 * fl(lf / m.L0) * fv(vf / vm); }
+          else {
+            lf = m.L0 + m.g * (dl - x); F = m.F0 * x / xs;
+            const cap = 1.3 * a * fl(lf / m.L0) * m.F0;                // oltre questa forza la fibra cede (tratto eccentrico piatto)
+            if (F >= cap) { const xn = xs * cap / m.F0; vf = m.g * ((xn - x) / dts + vmt); x = xn; F = (F + cap) / 2; } // la fibra cede (forza media del passo)
+            else { vf = fvInv(F / (a * fl(lf / m.L0) * m.F0)) * vm; x = Math.max(0, x + (vf / m.g - vmt) * dts); }
+          }
+          if (cy === CYC - 1) {
+            const pf = F * vf / m.g;
+            if (pf > 0) Ppos += pf; else Pneg -= pf;
+            if (pf > 0) { sF += pf; sFl += pf * fl(lf / m.L0); sFv += pf * vf / m.L0; sFr += pf * F / m.F0; }
+            if (s === NS) out[j][(i + 1) % N] = { F, lf: lf / m.L0, vf: vf / m.L0, a, vmt };
+          }
+        }
+      });
+      const leg = []; // per istante: potenza, forze muscolari, coppie generalizzate, forza al pedale
+      for (let i = 0; i < N; i++) {
+        let pw = 0; const Q = [0, 0, 0], mf = [], mp = [];
+        ms.forEach((m, j) => {
+          const o = out[j][i], pm = o.F * o.vmt;
+          mf.push({ F: o.F, lf: o.lf, a: o.a }); mp.push(pm); pw += pm;
+          MT[j].R[i].forEach((r, k) => Q[k] += -o.F * r);
+        });
+        if (opts.max) { leg.push({ pw }); continue; }
+        const J = jac(G, P[i]);
+        let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
+        J.forEach((r, k) => { a11 += r[0] * r[0]; a12 += r[0] * r[1]; a22 += r[1] * r[1]; b1 += r[0] * Q[k]; b2 += r[1] * Q[k]; });
+        const det = a11 * a22 - a12 * a12;
+        leg.push({ pw, mf, mp, Q, f: [(a22 * b1 - a12 * b2) / det, (a11 * b2 - a12 * b1) / det] });
+      }
+      // due gambe sfasate di 180°
+      const tq = leg.map((l, i) => (l.pw + leg[(i + N / 2) % N].pw) / w);
+      const Pavg = tq.reduce((s, t) => s + t, 0) / N * w;
+      if (opts.max) return { Pavg };
+      const mpow = ms.map((m, k) => 2 * leg.reduce((s, l) => s + l.mp[k], 0) / N);
+      const short = ms.map((m, k) => { const ls = leg.map(l => l.mf[k].lf); return Math.max(...ls) - Math.min(...ls); });
+      // indice di efficacia: forza tangenziale positiva / modulo forza
+      let ft = 0, fm = 0;
+      leg.forEach((l, i) => { const th = 2 * Math.PI * i / N; const t = [Math.cos(th), -Math.sin(th)]; ft += l.f[0] * t[0] + l.f[1] * t[1]; fm += Math.hypot(l.f[0], l.f[1]); });
+      // efficienza: fibre vicine alla lunghezza ottimale (ROM), fibre lente a ~1/4 della velocità massima, lavoro negativo che costa
+      const eLen = sF ? sFl / sF : 0;
+      // reclutamento per taglia (Henneman): oltre una forza relativa che cresce con la quota di fibre lente entrano le fibre veloci,
+      // meno efficienti (−20%) e con l'ottimo di velocità più alto (10 contro 3,5 lunghezze/s)
+      const vfm = sF ? sFv / sF : 0, fr = sF ? sFr / sF : 0, tau = K.TAU * slow;
+      const wII = (1 - slow) * Math.min(1, Math.max(0, (fr - tau) / 0.1));
+      // efficienza-velocità: massima a ~1/4 della velocità massima, curva larga (Barclay 1996; He et al. 2000)
+      const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / 0.6) ** 2), rv = vfm / (3.5 * vA);
+      const eVel = (1 - wII) * eV(vfm, 3.5 * vA) + wII * 0.8 * eV(vfm, 10 * vA);
+      const eNeg = Ppos ? Math.max(0.2, (Ppos - Pneg) / (Ppos + 0.3 * Pneg)) : 1;
+      const eTyp = 0.85 + 0.3 * slow;                         // efficienza di base più alta con più fibre lente (Coyle 1992)
+      return { al, leg, tq, Pavg, mpow, short, IE: ft / fm, eLen, eVel, eNeg, eTyp, rv, fr, wII, GE: K.EB * eTyp * eLen * eVel * eNeg, Ppos: 2 * Ppos / (N * NS), Pneg: 2 * Pneg / (N * NS) };
+    }
+    if (opts.max) return sim(1);
+    if (opts.alpha) return sim(opts.alpha);
+    const over = P.some(x => x.over);
+    const rom = [0, 1, 2].map(k => { const v = qs.map(q => q[k] / D); return [Math.min(...v), Math.max(...v)]; });
+    const VO2mus = volMito * 5.0 / 1000;                       // L O2/min che i mitocondri possono usare (~5 mL/min per mL, Schwerzmann 1989)
+    const VO2cen = (p.vo2 || 99) * p.mass / 1000;              // L O2/min che cuore e sangue possono portare (VO2max)
+    const VO2 = (VO2mus ** -10 + VO2cen ** -10) ** -0.1, lim = VO2cen < VO2mus ? 'centrale' : 'muscolare'; // minimo morbido: i due limiti si sommano vicino al pareggio
+    const O2W = VO2 * 20.9 * 1000 / 60;                        // W metabolici al VO2max
+    // pedalata alla soglia: si cerca l'attivazione che produce proprio la potenza di soglia (l'efficienza dipende dall'intensità)
+    // bisezione su f(α) = potenza simulata − potenza di soglia ottenibile con quell'efficienza
+    // frazione di VO2max sostenibile alla soglia: capacità ossidativa (mitocondri) e fibre lente (Coyle 1988; Holloszy e Coyle 1984);
+    // più fibre veloci reclutate (forza alta per pedalata) → più lattato → frazione più bassa
+    const m6 = Math.min(1, Math.max(0, (p.mito - 3.5) / 6)), s6 = Math.min(1, Math.max(-1, (p.slow - 50) / 30));
+    const f0 = Math.min(0.94, Math.max(0.65, K.F0 + 0.19 * m6 + 0.03 * s6));
+    const fth = S => f0 * (1 - K.FII * S.wII);
+    const fz = S => S.Pavg - O2W * S.GE * fth(S);
+    let lo = 0.04, hi = 1, al = 0.3, S = sim(al);
+    for (let it = 0; it < 10 && Math.abs(fz(S)) > 1; it++) { if (fz(S) > 0) hi = al; else lo = al; al = (lo + hi) / 2; S = sim(al); }
+    const GE = S.GE, Paer = O2W * GE;                          // W al VO2max
+    const fthr = fth(S), Pthr = Paer * fthr;                   // soglia = frazione sostenibile della potenza al VO2max
+    // misure di bike fit
+    const P3 = P[N / 4];
+    const fit = { kneeBDC: rom[1][0], kneeTDC: rom[1][1], hipMin: 180 - rom[0][1], ankle: rom[2][1] - rom[2][0],
+      kops: (P3.knee[0] + 0.028 * sH - P3.ped[0]) * 100, saddleH: G.S * 100, setback: G.S * Math.cos((p.sta || 73) * D) * 100, crankPct: p.crank / (G.L * 10), stack: G.st * 1000, cleat: G.cl * 1000 };
+    return { ...S, G, P, ms, over, rom, vmax, csaT, volT, volAct, volMito, GE, VO2, VO2mus, VO2cen, lim, Paer, Pthr, fthr, al, fit };
+  }
+
+  // potenza massimale (sprint) a ogni cadenza
+  function curve(p) {
+    const out = [];
+    for (let c = 40; c <= 160; c += 5) out.push([c, run({ ...p, cad: c }, { fast: true, max: true }).Pavg]);
+    return out;
+  }
+  // sprint: cadenza ottimale e potenza massima (ricerca grossolana poi fine)
+  function sprint(p) {
+    const P = c => run({ ...p, cad: c }, { fast: true, max: true }).Pavg;
+    let best = [70, P(70)];
+    for (let c = 85; c <= 160; c += 15) { const v = P(c); if (v > best[1]) best = [c, v]; }
+    for (const c of [best[0] - 10, best[0] - 5, best[0] + 5, best[0] + 10]) { if (c < 40 || c > 160) continue; const v = P(c); if (v > best[1]) best = [c, v]; }
+    return best;
+  }
+
+  return { MUSCLES, run, curve, sprint, pose, geom, K, setHO: v => { HO = v; } };
+})();
+if (typeof module !== 'undefined') module.exports = MODEL;
+
+{
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SL = [
+ ['Antropometria', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['mass','Massa corporea',45,110,0.5,'kg']]],
+ ['Bici e posizione', [['crank','Pedivella',150,185,2.5,'mm'],['saddle','Altezza sella (× cavallo)',0.84,0.92,0.001,''],['trunk','Inclinazione busto',10,80,1,'°'],['sta','Angolo tubo sella',70,80,0.5,'°']]],
+ ['Scarpe e pedali', [['stack','Stack pedale + suola',12,40,1,'mm'],['cleat','Tacchetta arretrata dal metatarso',-5,40,1,'mm'],['ankl','Ankling (oscillazione della suola)',0,25,1,'°']]],
+ ['Muscolo e mitocondri', [['thigh','Diametro coscia',12,24,0.5,'cm'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%']]],
+ ['Atleta e gesto', [['age','Età',18,80,1,'anni'],['vo2','VO₂max',25,90,1,'mL/kg/min'],['cad','Cadenza di pedalata',50,130,1,'rpm']]],
+ ['Realismo del modello', [['cc','Co-contrazione (biarticolari e tibiale)',0,20,1,'%']]],
+];
+// interruttori del modello (0/1): si salvano con l'atleta come i cursori
+const CB = [['lev','Bracci di leva che cambiano con l\'angolo'],['ten','Tendini elastici'],['act','Attivazione con ritardo (10 ms su, 40 ms giù)']];
+const DEF = {h:178,ins:84,mass:72,ratio:1.15,crank:172.5,saddle:0.883,trunk:45,sta:73,stack:22,cleat:0,ankl:12,thigh:17.5,mito:6,slow:50,age:35,vo2:50,cad:90,cc:5,lev:1,ten:1,act:1};
+const PRE = {'Amatore':{},'Scalatore':{h:172,ins:81,mass:60,slow:70,thigh:16,mito:8.5,vo2:68,cad:90},'Velocista':{h:180,ins:84,mass:85,slow:25,thigh:21,mito:5,vo2:55,cad:95,trunk:35},'Master 60':{age:60,mass:75,slow:60,thigh:16.5,mito:5.5,vo2:40,cad:85}};
+let p = {...DEF};
+try { const s = JSON.parse(localStorage.getItem('bio-cicl3')); if (s) p = {...DEF, ...s}; } catch (e) {}
+MODEL.run(DEF); // riferimento angolare fisso
+
+$('#ctrls').innerHTML = SL.map(([g, items]) => `<fieldset><legend>${g}</legend>${items.map(([k,l,mi,ma,st,u]) =>
+ `<div class="sl"><label for="s-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`).join('')}${g === 'Realismo del modello' ? CB.map(([k, l]) => `<label class="cb"><input type="checkbox" id="s-${k}"><span>${l}</span></label>`).join('') : ''}</fieldset>`).join('');
+const BIKES = {'Endurance': {p: {sta: 72.5, trunk: 55}}, 'Scalatrice': {p: {sta: 73.5, trunk: 45}}, 'Aero': {p: {sta: 73.5, trunk: 36}, l: {wheels: 'alto'}}, 'Crono': {p: {sta: 78, trunk: 15}, l: {wheels: 'lenticolare', head: 'aero'}}};
+{ const fs = document.querySelectorAll('#ctrls fieldset')[1]; const d = document.createElement('div'); d.className = 'btns'; d.id = 'bikes'; d.setAttribute('role', 'group'); d.setAttribute('aria-label', 'Tipo di bici');
+  d.innerHTML = Object.keys(BIKES).map(n => `<button type="button" data-b="${n}">${n}</button>`).join(''); fs.appendChild(d); }
+$('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
+
+const fmt = (k, v) => k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3) : k === 'ratio' ? v.toFixed(2) : k === 'crank' ? v.toFixed(1) : (+v).toFixed(Number.isInteger(+v) ? 0 : 1);
+function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } i.value = p[k]; $('#o-' + k).textContent = fmt(k, +p[k]) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
+
+const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
+const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna'};
+const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS), scene: ['nessuno', 'montagna', 'mare', 'citta', 'campagna']};
+const cleanLook = q => { const o = {...LOOK0}; if (!q || typeof q !== 'object') return o;
+  for (const k in LOOK0) { const v = q[k]; if (typeof v !== 'string') continue;
+    if (ENUM[k]) { if (ENUM[k].includes(v)) o[k] = v; }
+    else if (k === 'ftext' || k === 'wtext') o[k] = v.replace(/[^\p{L}\p{N} .\-]/gu, '').slice(0, 18);
+    else if (k === 'logo' || k === 'flogo') { if (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) && v.length < 200000) o[k] = v; }
+    else if (/^#[0-9a-f]{6}$/i.test(v)) o[k] = v; }
+  return o; };
+const contrast = c => { const n = [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)); return (n[0] * 0.299 + n[1] * 0.587 + n[2] * 0.114) > 150 ? '#15191f' : '#ffffff'; };
+const shade = (c, f) => '#' + [1, 3, 5].map(i => Math.round(parseInt(c.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+let LOOK = LOOK0; try { LOOK = cleanLook(JSON.parse(localStorage.getItem('bio-look'))); } catch (e) {}
+let ROT = 0, SPIN = false; try { ROT = +localStorage.getItem('bio-rot') || 0; } catch (e) {}
+let VIEW = 'muscoli'; try { VIEW = localStorage.getItem('bio-vista') || 'muscoli'; } catch (e) {}
+let R = null, CUR = null, SP = [90, 0], CURT = null, th = 0, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches, last = 0;
+let RA = null, PA = null, SPA = null, CURTA = null; // assetto A fissato per il confronto
+const nf = (v, d) => (+v).toLocaleString('it', {minimumFractionDigits: d, maximumFractionDigits: d});
+const calf = r => { const t = r.mpow.reduce((a, b) => a + b, 0); return t ? (r.mpow[5] + r.mpow[6]) / t * 100 : 0; };
+// righe del confronto: etichetta, valore, decimali, unità, riferimento [min, max, testo], verso migliore (+1 = più alto è meglio)
+const FITR = [
+  ['Soglia (FTP)', (r, q) => r.Pthr / q.mass, 2, 'W/kg', null, 1],
+  ['Soglia in watt', r => r.Pthr, 0, 'W', null, 1],
+  ['Efficienza lorda alla soglia', r => r.GE * 100, 1, '%', [18, 24, '18–24%'], 1],
+  ['Sprint (potenza massima)', (r, q, sp) => sp[1], 0, 'W', null, 1],
+  ['Ginocchio al punto morto inferiore', r => r.fit.kneeBDC, 0, '°', [30, 40, '30–40° (dinamico)'], 0],
+  ['Ginocchio al punto morto superiore', r => r.fit.kneeTDC, 0, '°', [null, 122, '≤ 122°'], 0],
+  ['Angolo busto–coscia più chiuso', r => r.fit.hipMin, 0, '°', [45, null, '≥ 45°'], 0],
+  ['Escursione della caviglia', r => r.fit.ankle, 0, '°', [15, 35, '15–35°'], 0],
+  ['Ginocchio sul pedale a ore 3 (+ = avanti)', r => r.fit.kops, 1, 'cm', [-2, 2, '−2 … +2 cm'], 0],
+  ['Pedivella / gamba', r => r.fit.crankPct, 1, '%', [19, 21, '19–21%'], 0],
+  ['Altezza sella (movimento centrale → sella)', r => r.fit.saddleH, 1, 'cm', null, 0],
+  ['Arretramento sella', r => r.fit.setback, 1, 'cm', null, 0],
+    ['Indice di efficacia', r => r.IE * 100, 0, '%', null, 1],
+];
+function renderFit() {
+  $('#tfit tbody').innerHTML = FITR.map(([l, f, d, u, rg, dir]) => {
+    const b = f(R, p, SP), a = RA ? f(RA, PA, SPA) : null;
+    const out = v => rg && ((rg[0] != null && v < rg[0]) || (rg[1] != null && v > rg[1]));
+    const cell = v => `${nf(v, d)} ${u}${out(v) ? ' <span class="out">fuori</span>' : ''}`;
+    let df = '–';
+    if (a != null) { const x = b - a, z = Math.abs(x) < 0.5 * 10 ** -d;
+      df = z ? 'uguale' : `${x > 0 ? '+' : '−'}${nf(Math.abs(x), d)} ${u}${dir ? ` <span class="${x * dir > 0 ? 'dmeg' : 'dpeg'}">${x * dir > 0 ? 'meglio' : 'peggio'}</span>` : ''}`; }
+    return `<tr><td>${l}</td><td>${a == null ? '–' : cell(a)}</td><td>${cell(b)}</td><td>${df}</td><td>${rg ? rg[2] : ''}</td></tr>`;
+  }).join('');
+  $('#fitBack').disabled = $('#fitOff').disabled = !RA;
+  $('#fitA').textContent = RA ? 'Fissa di nuovo come A' : 'Fissa questo assetto come A';
+}
+// soglia al variare della cadenza: calcolata a pezzi dopo che i cursori si fermano, per non bloccare la pagina
+let ftok = 0;
+function ftpCurve() {
+  const my = ++ftok, q = {...p}, cs = [], res = []; for (let c = 50; c <= 130; c += 10) cs.push(c);
+  let i = 0;
+  const step = () => { if (my !== ftok) return; const c = cs[i++]; res.push([c, MODEL.run({...q, cad: c}).Pthr / q.mass]);
+    if (i < cs.length) setTimeout(step, 0); else { CURT = res; if (PA && !CURTA && JSON.stringify(q) === JSON.stringify(PA)) CURTA = res; drawFtp(); } };
+  setTimeout(step, 220);
+}
+let onCompute = null; // aggiorna il codice atleta
+function compute() {
+  R = MODEL.run(p); CUR = MODEL.curve(p); SP = CUR.reduce((a, x) => x[1] > a[1] ? x : a);
+  try { localStorage.setItem('bio-cicl3', JSON.stringify(p)); } catch (e) {}
+  const f = R.Pthr;
+  $('#cadl').textContent = p.cad;
+  $('#pw').innerHTML = `${nf(f / p.mass, 2)}<small>W/kg</small>`;
+  $('#wkg').innerHTML = `${Math.round(f)}<small>W</small>`;
+  $('#ftp').textContent = `${Math.round(SP[1])} W · ${nf(SP[1] / p.mass, 1)} W/kg a ${SP[0]} rpm`;
+  $('#ge').textContent = `${nf(R.GE * 100, 1)}% (${Math.round(R.eLen * 100)} · ${Math.round(R.eVel * 100)} · ${Math.round(R.eNeg * 100)}%)`;
+  $('#mm').textContent = `${(2 * R.volT * 1.06 / 1000).toFixed(1)} kg · circ. ${Math.round(Math.PI * p.thigh)} cm`;
+  $('#mi').textContent = `${Math.round(R.volMito)} mL → ${R.VO2mus.toFixed(1)} L/min`;
+  $('#vc').textContent = `${R.VO2cen.toFixed(1)} L/min`;
+  $('#lim').textContent = R.lim === 'centrale' ? 'trasporto di O₂ (cuore)' : 'muscolo (mitocondri)';
+  $('#opt').textContent = `${Math.round(R.al * 100)}% del massimo`;
+  $('#fth').textContent = `${Math.round(R.fthr * 100)}%${R.wII > 0.01 ? ` (fibre veloci ${Math.round(R.wII * 100)}% del lavoro)` : ''}`;
+  $('#ie').textContent = `${Math.round(R.IE * 100)}%`;
+  $('#kbdc').textContent = `${Math.round(R.rom[1][0])}° di flessione`;
+  $('#vm').textContent = `${R.vmax.toFixed(1)} lunghezze/s`;
+  const w = [], r = p.ins / p.h;
+  if (R.over) w.push('Sella troppo alta: la gamba arriva tesa e il bacino dovrebbe oscillare.');
+  else if (R.rom[1][0] < 25) w.push('Ginocchio quasi teso in basso (< 25°): sella al limite alto.');
+  else if (R.rom[1][0] > 40) w.push('Ginocchio molto flesso in basso (> 40°): sella bassa, più carico sulla rotula.');
+  if (r < 0.42 || r > 0.52) w.push(`Cavallo/altezza = ${r.toFixed(2)}: proporzione insolita (tipico 0,44–0,49).`);
+  if (R.fit.hipMin < 45) w.push(`Angolo busto-coscia di ${Math.round(R.fit.hipMin)}° in alto: anca molto chiusa.`);
+  if (Math.abs(R.fit.kops) > 3) w.push(`A ore 3 il ginocchio è ${nf(Math.abs(R.fit.kops), 1)} cm ${R.fit.kops > 0 ? 'davanti al' : 'dietro il'} pedale.`);
+  $('#warn').textContent = w.join(' ');
+  const tot = R.mpow.reduce((a, b) => a + b, 0), mx = Math.max(...R.short);
+  $('#tm tbody').innerHTML = R.ms.map((m, k) => `<tr><td><span class="sw" style="background:${m.col}"></span>${m.n}</td><td>${(m.F0 / 30 / 1.45).toFixed(0)}</td><td>${Math.round(m.F0).toLocaleString('it')}</td><td>${Math.round(R.short[k] * 100)}%<span class="bar" style="width:${R.short[k] / mx * 100}%;background:${m.col}"></span></td><td>${Math.round(R.mpow[k])}</td><td>${Math.round(R.mpow[k] / tot * 100)}%</td></tr>`).join('');
+  const J = ['Anca', 'Ginocchio', 'Caviglia'];
+  $('#tr tbody').innerHTML = R.rom.map((r, k) => `<tr><td>${J[k]}</td><td>${Math.round(r[0])}°</td><td>${Math.round(r[1])}°</td><td>${Math.round(r[1] - r[0])}°</td></tr>`).join('');
+  ftpCurve(); renderFit();
+  drawTq(); drawFtp(); drawCad(); drawAct(); drawBike();
+  if (onCompute) onCompute();
+}
+
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ln = (a, b, c, w, o = 1, d = '') => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" opacity="${o}" ${d}/>`;
+
+// ---- Sfondi: scene a strati in parallasse, in pixel. gy = linea della strada, off = metri percorsi × px/m, s = px/m ----
+const hsh = i => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const SCN = [['nessuno', 'Nessuno'], ['montagna', 'Montagna'], ['mare', 'Mare'], ['citta', 'Città'], ['campagna', 'Campagna']];
+// ripete un motivo largo tw sulla larghezza W, spostato di sh pixel; restituisce [x iniziale, indice del motivo]
+const tiles = (W, tw, sh) => { const o = ((sh % tw) + tw) % tw, b = Math.floor(sh / tw), out = []; for (let k = -1; k * tw - o < W + tw; k++) out.push([k * tw - o, k + b]); return out; };
+const sky = (W, h, id, c1, c2) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="${W}" height="${h}" fill="url(#${id})"/>`;
+const ridge = (W, gy, tw, sh, pts, fill) => { let d = `M-2,${gy}`; for (const [x0] of tiles(W, tw, sh)) for (const [fx, fy] of pts) d += `L${(x0 + fx * tw).toFixed(1)},${(fy * gy).toFixed(1)}`; return `<path d="${d}L${W + 2},${gy}Z" fill="${fill}"/>`; };
+const wave = (W, gy, sh, base, amp, fill) => { let d = `M-2,${gy}`; for (let x = -2; x <= W + 10; x += 10) { const u = x + sh; d += `L${x},${(gy * (base + amp * Math.sin(u / 97) + amp * 0.6 * Math.sin(u / 41 + 1.3))).toFixed(1)}`; } return `<path d="${d}L${W + 2},${gy}Z" fill="${fill}"/>`; };
+const road = (W, H, gy, off, s) => { const dl = 0.5 * s, per = 1.3 * s, y = gy + (H - gy) * 0.55;
+  let o = `<rect x="0" y="${gy - 2}" width="${W}" height="${H - gy + 2}" fill="#474b52"/><rect x="0" y="${gy - 2}" width="${W}" height="3" fill="#2c2f34"/>`;
+  if (H - gy > 14) { const sh = ((off % per) + per) % per; for (let x = -sh; x < W; x += per) o += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${dl.toFixed(1)}" height="${Math.max(2, s * 0.06).toFixed(1)}" fill="#f2f2f2" opacity=".8"/>`; }
+  return o; };
+const pine = (x, b, h) => `<path d="M${x},${b - h}L${x + h * .2},${b - h * .55}L${x + h * .11},${b - h * .55}L${x + h * .27},${b - h * .14}L${x - h * .27},${b - h * .14}L${x - h * .11},${b - h * .55}L${x - h * .2},${b - h * .55}Z" fill="#2f5a46"/><rect x="${x - h * .03}" y="${b - h * .14}" width="${h * .06}" height="${h * .14}" fill="#4a3a2c"/>`;
+const SCENE = {
+  montagna: (W, H, gy, off, s) => {
+    const far = [[0, .62], [.1, .40], [.2, .52], [.33, .20], [.46, .44], [.58, .28], [.72, .50], [.86, .33], [1, .62]], sf = off * 0.02;
+    let o = sky(W, gy, 'skM', '#7db7e6', '#e3f0f9') + ridge(W, gy, 560, sf, far, '#a9bdd0');
+    for (const [x0] of tiles(W, 560, sf)) far.forEach(([fx, fy], j) => { if (fy > 0.36 || !j || j === far.length - 1) return;
+      const x = x0 + fx * 560, y = fy * gy, L = far[j - 1], Rr = far[j + 1], t = 0.28, lx = x + (x0 + L[0] * 560 - x) * t, ly = y + (L[1] * gy - y) * t, rx = x + (x0 + Rr[0] * 560 - x) * t, ry = y + (Rr[1] * gy - y) * t;
+      o += `<path d="M${lx},${ly}L${x},${y}L${rx},${ry}L${(x + rx) / 2},${(y + ry) / 2 + 4}L${x},${ly - 2}L${(x + lx) / 2},${(y + ly) / 2 + 5}Z" fill="#f6f9fc"/>`; });
+    o += ridge(W, gy, 420, off * 0.07, [[0, .80], [.15, .58], [.3, .72], [.45, .52], [.62, .70], [.8, .56], [1, .80]], '#6f8f84');
+    o += `<rect x="0" y="${gy * .9}" width="${W}" height="${gy * .1}" fill="#5d7f55"/>`;
+    for (const [x0, k] of tiles(W, 300, off * 0.35)) for (let j = 0; j < 4; j++) o += pine(x0 + (j + hsh(k * 7 + j) * .8) * 75, gy * .97, gy * (.2 + .15 * hsh(k * 13 + j)));
+    return o + road(W, H, gy, off, s); },
+  mare: (W, H, gy, off, s) => {
+    const hz = gy * .52;
+    let o = sky(W, hz + 1, 'skS', '#5fb0e8', '#d6eefb') + `<circle cx="${W * .8}" cy="${gy * .2}" r="${gy * .07}" fill="#fff3c4"/>`;
+    o += ridge(W, gy, 900, off * 0.01, [[0, .52], [.1, .52], [.15, .45], [.21, .41], [.28, .46], [.33, .52], [1, .52]], '#7d9db0');
+    o += `<defs><linearGradient id="seS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d9fd9"/><stop offset="1" stop-color="#17649d"/></linearGradient></defs><rect x="0" y="${hz}" width="${W}" height="${gy - hz}" fill="url(#seS)"/>`;
+    for (const [x0, k] of tiles(W, 700, off * 0.04)) { const x = x0 + 280 + 200 * hsh(k), y = hz + (gy - hz) * .22, h = gy * .09;
+      o += `<path d="M${x - h * .45},${y}L${x + h * .5},${y}L${x + h * .35},${y + h * .16}L${x - h * .32},${y + h * .16}Z" fill="#f4f1ea"/><path d="M${x},${y - 2}L${x},${y - h}L${x + h * .42},${y - 3}Z" fill="#fffdf6"/><path d="M${x - 2},${y - 3}L${x - 2},${y - h * .8}L${x - h * .3},${y - 3}Z" fill="#e9eef2"/>`; }
+    for (const [x0, k] of tiles(W, 160, off * 0.12)) for (let j = 0; j < 3; j++) { const x = x0 + hsh(k * 5 + j) * 140, y = hz + (gy - hz) * (.35 + .2 * j);
+      o += `<path d="M${x},${y}q8,-4 16,0t16,0" stroke="#bfe6fa" stroke-width="1.5" fill="none" opacity=".7"/>`; }
+    const wh = Math.max(6, gy * .06);
+    o += `<rect x="0" y="${gy - wh}" width="${W}" height="${wh}" fill="#d9cdb3"/>`;
+    for (const [x0] of tiles(W, 2.5 * s, off)) o += `<rect x="${x0.toFixed(1)}" y="${gy - wh}" width="2" height="${wh}" fill="#b9ab8e"/>`;
+    return o + road(W, H, gy, off, s); },
+  citta: (W, H, gy, off, s) => {
+    let o = sky(W, gy, 'skC', '#3f5b8e', '#f3b07c');
+    const layer = (tw, f, col, hmin, hmax, n, id, seed) => { const sh = off * f;
+      o += `<defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="12" height="16" patternTransform="translate(${(-sh).toFixed(1)} 0)"><rect x="3" y="4" width="5" height="7" fill="#ffd98a" opacity=".85"/></pattern></defs>`;
+      for (const [x0, k] of tiles(W, tw, sh)) { let x = x0; for (let j = 0; j < n; j++) { const w = tw / n * (.75 + .25 * hsh(seed + k * 11 + j)), h = gy * (hmin + (hmax - hmin) * hsh(seed + k * 17 + j * 3));
+        o += `<rect x="${x.toFixed(1)}" y="${(gy - h).toFixed(1)}" width="${(w - 3).toFixed(1)}" height="${h.toFixed(1)}" fill="${col}"/><rect x="${(x + 3).toFixed(1)}" y="${(gy - h + 6).toFixed(1)}" width="${(w - 9).toFixed(1)}" height="${(h - 12).toFixed(1)}" fill="url(#${id})" opacity="${(.35 + .5 * hsh(seed + k + j)).toFixed(2)}"/>`; x += tw / n; } } };
+    layer(260, 0.05, '#5b6a93', .35, .75, 5, 'wnF', 1);
+    layer(320, 0.18, '#2f3b5c', .22, .5, 4, 'wnN', 9);
+    o += `<rect x="0" y="${gy * .96}" width="${W}" height="${gy * .04 + 1}" fill="#8a8f99"/>`;
+    for (const [x0] of tiles(W, 7 * s, off)) { const h = Math.min(gy * .8, 6 * s); o += `<rect x="${x0.toFixed(1)}" y="${(gy - h).toFixed(1)}" width="3" height="${h.toFixed(1)}" fill="#22272f"/><rect x="${(x0 - 10).toFixed(1)}" y="${(gy - h).toFixed(1)}" width="16" height="4" rx="2" fill="#22272f"/><circle cx="${(x0 - 6).toFixed(1)}" cy="${(gy - h + 6).toFixed(1)}" r="3" fill="#ffe7a8"/>`; }
+    return o + road(W, H, gy, off, s); },
+  campagna: (W, H, gy, off, s) => {
+    let o = sky(W, gy, 'skT', '#8ccbf0', '#eef8ff') + wave(W, gy, off * 0.03, .5, .05, '#b5c98f') + wave(W, gy, off * 0.09, .66, .06, '#8fb06a');
+    for (const [x0, k] of tiles(W, 520, off * 0.09)) { const x = x0 + 300 * hsh(k + 3) + 60, b = gy * .66, h = gy * .06;
+      o += `<rect x="${x}" y="${b - h}" width="${h * 1.8}" height="${h}" fill="#ead6ab"/><path d="M${x - 3},${b - h}L${x + h * .9},${b - h * 1.6}L${x + h * 1.8 + 3},${b - h}Z" fill="#b5523b"/><rect x="${x + h * .3}" y="${b - h * .7}" width="${h * .3}" height="${h * .3}" fill="#6b4a32"/>`; }
+    o += `<rect x="0" y="${gy * .88}" width="${W}" height="${gy * .12 + 1}" fill="#7a9c4f"/>`;
+    for (const [x0, k] of tiles(W, 240, off * 0.3)) for (let j = 0; j < 3; j++) { const x = x0 + (j + hsh(k * 3 + j) * .7) * 80, h = gy * (.28 + .14 * hsh(k * 19 + j)), w = h * .13, b = gy * .95;
+      o += `<path d="M${x},${b}Q${x - w * 1.6},${b - h * .45} ${x},${b - h}Q${x + w * 1.6},${b - h * .45} ${x},${b}Z" fill="#2f4a2b"/>`; }
+    return o + road(W, H, gy, off, s); },
+};
+$('#scenes').innerHTML = SCN.map(([k, l]) => `<button type="button" class="scn" data-s="${k}" aria-pressed="false"><svg viewBox="0 0 160 90" aria-hidden="true">${SCENE[k] ? SCENE[k](160, 90, 70, 40, 18) : ''}</svg><span>${l}</span></button>`).join('');
+let DIST = 0; // metri percorsi, per far scorrere lo sfondo
+
+function drawBike() {
+  const s = $('#bsvg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
+  const G = R.G, sc = Math.min(W / 1.85, (H - 24) / 1.68), oy = H - 0.30 * sc - 12;
+  const ps = (VIEW === 'muscoli' ? 0 : ROT) * Math.PI / 180, c = Math.cos(ps), sn = Math.sin(ps), cx = 0.1, ox = W / 2 - 0.0 * sc;
+  // proiezione: rotazione attorno all'asse verticale passante per il centro bici
+  const T = q => [ox + ((q[0] - cx) * c + (q[2] || 0) * sn) * sc, oy - q[1] * sc];
+  const mix = (a, b, f) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, (a[2] || 0) * (1 - f) + (b[2] || 0) * f];
+  const Z = (q, z) => [q[0], q[1], z];
+  const ink = 'var(--ink)', mut = 'var(--mut)', ac = Math.abs(c), fx = (c < 0 ? -1 : 1) * Math.max(ac, 0.25);
+  const sH = G.H / 1.78, bf = Math.sqrt(p.mass / (G.H * G.H) / 22.7), zl = 0.11 * sH, za = 0.19 * bf * sH;
+  const i = Math.round(th / (2 * Math.PI) * 72) % 72, L = R.leg[i];
+  const ZP = (Q, z) => ({hip: Z(Q.hip, z * 0.85), knee: Z(Q.knee, z), ank: Z(Q.ank, z), ped: Z(Q.ped, z * 1.05), sole: Q.sole});
+  const PR = ZP(R.P[i], zl), PL = ZP(R.P[(i + 36) % 72], -zl), rightNear = c >= 0, PN = rightNear ? PR : PL, PF = rightNear ? PL : PR, zs = rightNear ? 1 : -1;
+  const wr = 0.335, ra = [-0.41, 0.07, 0], fa = [0.60, 0.07, 0];
+  const hip0 = Z(G.hip, 0), sad = [G.sad[0] - 0.02, G.sad[1] - 0.01, 0];
+  const u = [Math.cos(G.al), Math.sin(G.al)], sh = [G.hip[0] + u[0] * 0.30 * G.H, G.hip[1] + u[1] * 0.30 * G.H, 0];
+  const ht = [0.50, 0.58, 0], hb = [0.54, 0.42, 0], bar = [ht[0] + 0.06, ht[1] + 0.10, 0], head = [sh[0] + u[0] * 0.13 + 0.03, sh[1] + u[1] * 0.13, 0];
+  const tt = p.trunk < 28; // posizione da crono: avambracci sulle protesi
+  const arm = z => { const S = Z(sh, z * 0.9); if (tt) { const E = [sh[0] + 0.05, sh[1] - 0.26, z * 0.6], Hn = [E[0] + 0.30, E[1] + 0.05, z * 0.35]; return {S, E, Hn}; }
+    return {S, E: [(sh[0] + bar[0]) / 2 - 0.02, (sh[1] + bar[1]) / 2 - 0.08, z], Hn: Z(bar, z * 1.05)}; };
+  const AN = arm(za * zs), AF = arm(-za * zs);
+  const bodyV = VIEW !== 'muscoli', musc = VIEW !== 'atleta', LK = LOOK;
+  const fw = Math.max(4, sc * 0.018), st = [G.sad[0] * 0.80, G.sad[1] * 0.80, 0];
+  const ell = (q, r, attrs) => { const a = T(q); return `<ellipse cx="${a[0]}" cy="${a[1]}" rx="${Math.max(r * sc * ac, 1)}" ry="${r * sc}" ${attrs}/>`; };
+  const cap = (A, B, rA, rB, fill, extra = '') => { const a = T(A), b = T(B), d = [b[0] - a[0], b[1] - a[1]], n = Math.hypot(...d) || 1, q = [-d[1] / n, d[0] / n], ra = rA * sc, rb = rB * sc;
+    return `<g fill="${fill}" ${extra}><path d="M${a[0] + q[0] * ra},${a[1] + q[1] * ra}L${b[0] + q[0] * rb},${b[1] + q[1] * rb}L${b[0] - q[0] * rb},${b[1] - q[1] * rb}L${a[0] - q[0] * ra},${a[1] - q[1] * ra}Z"/><circle cx="${a[0]}" cy="${a[1]}" r="${ra}"/><circle cx="${b[0]}" cy="${b[1]}" r="${rb}"/></g>`; };
+  const eff = (r, w) => Math.hypot(r * c, w * sn); // raggio apparente del busto (profondità vs larghezza)
+  const flip = (q, inner) => { const a = T(q); return `<g transform="translate(${a[0]} ${a[1]}) scale(${fx} 1) translate(${-a[0]} ${-a[1]})">${inner}</g>`; };
+  const gyS = T([0, 0.07 - wr])[1], scO = (VIEW === 'muscoli' ? 0.25 : 1) * Math.max(0, Math.min(1, ac * 1.4 - 0.4));
+  let o = SCENE[LK.scene] && scO > 0 ? `<g opacity="${scO.toFixed(2)}">${SCENE[LK.scene](W, H, gyS, DIST * 0.35 * sc, sc)}</g>` : '';
+  o += `<line x1="0" y1="${gyS}" x2="${W}" y2="${gyS}" stroke="var(--line)" stroke-width="2"/>`;
+  o += '<!--FRAME-->';
+  const crank = (Q, col, w, op) => ln(T([0, 0, Q.ped[2] * 0.6]), T(Q.ped), col, w, op) + `<circle cx="${T(Q.ped)[0]}" cy="${T(Q.ped)[1]}" r="5" fill="${col}" opacity="${op}"/>`;
+  // scarpa, tacchetta e pedale nel sistema del piede (x lungo la pianta verso la punta, y verso l'alto, origine nella caviglia)
+  const footW = (Q, x, y) => { const cs = Math.cos(Q.sole), s1 = Math.sin(Q.sole); return [Q.ank[0] + x * cs - y * s1, Q.ank[1] + x * s1 + y * cs, Q.ank[2]]; };
+  const shoeSvg = (Q, fill, line, op = 1) => {
+    const hA = G.hA, Lb = G.Lb, yb = -hA - 0.009, ax = Lb - G.cl, ay = -hA - G.st, k2 = sH;
+    const P2 = pts => pts.map(([x, y], j) => { const a = T(footW(Q, x, y)); return `${j ? 'L' : 'M'}${a[0].toFixed(1)},${a[1].toFixed(1)}`; }).join('') + 'Z';
+    const up = [[-0.05 * k2, yb], [Lb + 0.06 * k2, yb], [Lb + 0.075 * k2, yb + 0.012], [Lb + 0.06 * k2, -hA + 0.03 * k2], [Lb * 0.45, -hA + 0.06 * k2], [0.035 * k2, 0.035 * k2], [-0.035 * k2, 0.03 * k2], [-0.06 * k2, -hA + 0.02 * k2]];
+    const so = [[-0.05 * k2, yb], [Lb + 0.06 * k2, yb], [Lb + 0.055 * k2, yb + 0.008], [-0.05 * k2, yb + 0.008]];
+    const cl = [[ax - 0.026, yb], [ax + 0.026, yb], [ax + 0.02, yb - 0.006], [ax - 0.02, yb - 0.006]];
+    const pt = Math.max(yb - 0.006, ay + 0.004), pb = Math.min(ay - 0.008, pt - 0.012);
+    const pd = [[ax - 0.045, pt], [ax + 0.04, pt], [ax + 0.042, pb], [ax - 0.04, pb]];
+    return `<g opacity="${op}"><path d="${P2(up)}" fill="${fill}" stroke="${line}" stroke-width="1.2" stroke-linejoin="round"/><path d="${P2(so)}" fill="#1b1f26" opacity="${fill === 'none' ? 0.5 : 1}"/><path d="${P2(cl)}" fill="var(--acc)"/><path d="${P2(pd)}" fill="#3a3f47"/></g>`;
+  };
+  if (!bodyV) {
+    for (const a of [ra, fa]) o += ell(a, wr, `fill="none" stroke="${mut}" stroke-width="${Math.max(3, sc * 0.012)}" opacity=".45"`) + ell(a, wr * 0.88, 'fill="none" stroke="var(--line)" stroke-width="1"');
+    o += ln(T([0, 0, 0]), T(st), ink, fw, .9) + ln(T(st), T(ht), ink, fw, .9) + ln(T([0, 0, 0]), T(hb), ink, fw, .9) + ln(T(ht), T(hb), ink, fw, .9) + ln(T([0, 0, 0]), T(ra), ink, fw, .9) + ln(T(st), T(ra), ink, fw, .9) + ln(T(hb), T(fa), ink, fw, .9) + ln(T(ht), T(bar), ink, fw, .9) + ln(T(Z(bar, -0.21)), T(Z(bar, 0.21)), ink, fw, .9);
+  } else {
+    const prof = {basso: 0.03, medio: 0.05, alto: 0.08, lenticolare: 0.08}, tyre = 0.025;
+    [[ra, 'r'], [fa, 'f']].forEach(([a, w]) => { const C = T(a), pr = LK.wheels === 'lenticolare' && w === 'f' ? 'alto' : LK.wheels, d = prof[pr], rIn = wr - tyre - d;
+      let s2 = ell(a, wr - tyre / 2, `fill="none" stroke="#1b1f26" stroke-width="${tyre * sc}"`);
+      if (pr === 'lenticolare') s2 += ell(a, wr - tyre, `fill="${LK.rim}" opacity=".92"`);
+      else { const n = {basso: 24, medio: 20, alto: 18}[pr]; for (let k = 0; k < n; k++) { const an = k / n * 2 * Math.PI + th * 0.6, e2 = T([a[0] + Math.cos(an) * rIn, a[1] + Math.sin(an) * rIn, 0]); s2 += `<line x1="${C[0]}" y1="${C[1]}" x2="${e2[0]}" y2="${e2[1]}" stroke="${mut}" stroke-width="1" opacity=".55"/>`; }
+        s2 += ell(a, wr - tyre - d / 2, `fill="none" stroke="${LK.rim}" stroke-width="${d * sc}"`);
+        if (LK.wtext && ac > 0.45) { const id = 'wt' + w, rr = (wr - tyre - d / 2) * sc, rx = rr * ac; s2 += `<path id="${id}" d="M${C[0] - rx},${C[1]} A${rx},${rr} 0 0 1 ${C[0] + rx},${C[1]}" fill="none"/><text font-size="${Math.min(d * sc * 0.62, 18)}" font-weight="700" fill="${contrast(LK.rim)}" dominant-baseline="central" letter-spacing="1"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(LK.wtext)}</textPath></text>`; } }
+      s2 += `<circle cx="${C[0]}" cy="${C[1]}" r="${0.02 * sc}" fill="${mut}"/>`;
+      o += s2; });
+    const A0 = T([0, 0, 0]), Bh = T(ht), Hb = T(hb);
+    o += `<defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="${T(ra)[0]}" y1="0" x2="${Bh[0] === T(ra)[0] ? Bh[0] + 1 : Bh[0]}" y2="0"><stop offset="0" stop-color="${LK.frame}"/><stop offset="1" stop-color="${LK.frame2}"/></linearGradient></defs>`;
+    const fc = LK.fstyle === 'sfumata' ? 'url(#fgrad)' : LK.frame, rc = LK.fstyle === 'bicolore' ? LK.frame2 : fc, W2 = fw * 1.15;
+    o += ln(A0, T(ra), rc, W2 * 0.8) + ln(T(st), T(ra), rc, W2 * 0.7) + ln(Hb, T(fa), fc, W2 * 0.9);
+    o += ln(A0, T(st), fc, W2) + ln(T(st), Bh, fc, W2) + ln(Bh, Hb, fc, W2 * 1.4) + ln(A0, Hb, fc, W2 * 1.9);
+    o += ln(Bh, T(bar), '#1b1f26', fw) + ln(T(Z(bar, -0.21)), T(Z(bar, 0.21)), '#1b1f26', fw * 1.1);
+    if (tt) for (const z of [-0.06, 0.06]) o += ln(T(Z(bar, z)), T([bar[0] + 0.30, bar[1] - 0.06, z]), '#1b1f26', fw * 0.7);
+    if (LK.ftext && ac > 0.45) { const m = T([0.27, 0.21, 0]), ang = Math.atan2(Hb[1] - A0[1], Hb[0] - A0[0]) * 180 / Math.PI, a2 = c < 0 ? ang + 180 : ang;
+      o += `<text x="${m[0]}" y="${m[1]}" transform="rotate(${a2} ${m[0]} ${m[1]}) scale(${ac} 1)" transform-origin="${m[0]} ${m[1]}" text-anchor="middle" dominant-baseline="central" font-size="${Math.min(W2 * 1.35, 20)}" font-weight="700" letter-spacing="1.5" fill="${contrast(LK.frame)}">${esc(LK.ftext)}</text>`; }
+    if (LK.flogo && ac > 0.3) { const m = T(mix(ht, hb, 0.5)), s3 = 0.05 * sc; o += flip(mix(ht, hb, 0.5), `<image href="${LK.flogo}" x="${m[0] - s3 / 2}" y="${m[1] - s3 / 2}" width="${s3}" height="${s3}" preserveAspectRatio="xMidYMid meet"/>`); }
+  }
+  o += ln(T(st), T(sad), ink, 4) + ln(T([sad[0] - 0.10, sad[1], 0]), T([sad[0] + 0.12, sad[1], 0]), ink, Math.max(6, sc * 0.03));
+  o += ell([0, 0, 0], 0.10, `fill="none" stroke="${mut}" stroke-width="3" stroke-dasharray="3 3"`);
+  const pt = (a, b, f, off) => { const d = [b[0] - a[0], b[1] - a[1]], n = Math.hypot(...d), q = [-d[1] / n, d[0] / n]; return [a[0] + d[0] * f + q[0] * off, a[1] + d[1] * f + q[1] * off, (a[2] || 0) * (1 - f) + (b[2] || 0) * f]; };
+  const bk = [-u[1], u[0]], pel = (a, b) => [G.hip[0] + u[0] * a + bk[0] * b, G.hip[1] + u[1] * a + bk[1] * b, zl * 0.8];
+  const tR = p.thigh / 200, cR = 0.058 * p.thigh / 17.5 * Math.sqrt(sH);
+  const lk = LK, skin = SKINS[lk.skin] || SKINS.media, dk = q => shade(q, 0.72);
+  const legBody = (Q, dark) => { const sk = dark ? dk(skin) : skin, sho = dark ? dk(lk.shorts) : lk.shorts, shoe = dark ? dk(lk.shoes) : lk.shoes;
+    const fd = [Q.ped[0] - Q.ank[0], Q.ped[1] - Q.ank[1]], fl = Math.hypot(...fd), fu = [fd[0] / fl, fd[1] / fl];
+    const heel = [Q.ank[0] - fu[0] * 0.05, Q.ank[1] - fu[1] * 0.05 - 0.02, Q.ank[2]], toe = [Q.ped[0] + fu[0] * 0.07, Q.ped[1] + fu[1] * 0.07, Q.ped[2]], mc = mix(Q.knee, Q.ank, 0.33);
+    return cap(Q.knee, mc, 0.05 * sH, cR, sk) + cap(mc, Q.ank, cR, 0.03 * sH, sk) + cap(Q.hip, Q.knee, tR * 1.04, 0.05 * sH, sk) + cap(Q.hip, mix(Q.hip, Q.knee, 0.55), tR * 1.08, tR * 0.86, sho) + shoeSvg(Q, shoe, dark ? '#000' : '#9aa3af'); };
+  const armBody = (Ar, dark) => { const sk = dark ? dk(skin) : skin, je = dark ? dk(lk.jersey) : lk.jersey, gl = dark ? dk(lk.gloves) : lk.gloves;
+    return cap(Ar.S, Ar.E, 0.05 * sH, 0.042 * sH, sk) + cap(Ar.S, mix(Ar.S, Ar.E, 0.45), 0.055 * sH, 0.05 * sH, je) + cap(Ar.E, Ar.Hn, 0.04 * sH, 0.032 * sH, sk) + `<circle cx="${T(Ar.Hn)[0]}" cy="${T(Ar.Hn)[1]}" r="${0.04 * sc}" fill="${gl}"/>`; };
+  if (bodyV) {
+    o = o.replace('<!--FRAME-->', legBody(PF, true) + crank(PF, ink, 5, .7) + armBody(AF, true) + '<!--FRAME-->');
+    const chest = mix(hip0, sh, 0.62), jf = lk.pattern === 'righe' ? 'url(#jstripe)' : lk.pattern === 'unita' ? lk.jersey : 'url(#jband)';
+    const g0 = T(hip0), g1 = T(sh), bnd = lk.pattern === 'fascia' ? [0.48, 0.66] : [0, 0.3];
+    o += `<defs><linearGradient id="jband" gradientUnits="userSpaceOnUse" x1="${g0[0]}" y1="${g0[1]}" x2="${g1[0]}" y2="${g1[1]}"><stop offset="${bnd[0]}" stop-color="${lk.pattern === 'fianchi' ? lk.jersey2 : lk.jersey}"/><stop offset="${bnd[0]}" stop-color="${lk.jersey2}"/><stop offset="${bnd[1]}" stop-color="${lk.jersey2}"/><stop offset="${bnd[1]}" stop-color="${lk.jersey}"/></linearGradient></defs>`;
+    o += `<defs><pattern id="jstripe" patternUnits="userSpaceOnUse" width="${0.06 * sc}" height="${0.06 * sc}" patternTransform="rotate(${Math.atan2(g0[1] - g1[1], g1[0] - g0[0]) * 180 / Math.PI})"><rect width="100%" height="100%" fill="${lk.jersey}"/><rect width="100%" height="${0.025 * sc}" fill="${lk.jersey2}"/></pattern></defs>`;
+    o += cap(hip0, chest, eff(0.125 * bf * sH, 0.17 * bf * sH), eff(0.14 * bf * sH, 0.19 * bf * sH), jf) + cap(chest, sh, eff(0.14 * bf * sH, 0.19 * bf * sH), eff(0.10 * sH, 0.17 * bf * sH), jf);
+    if (lk.logo && ac > 0.3) { const q = mix(hip0, sh, 0.55), C = T(q), s2 = 0.13 * sc * bf; o += flip(q, `<image href="${lk.logo}" x="${C[0] - s2 / 2}" y="${C[1] - s2 / 2}" width="${s2}" height="${s2}" preserveAspectRatio="xMidYMid meet" transform="rotate(${-p.trunk + 45} ${C[0]} ${C[1]})"/>`); }
+    o += cap(sh, [head[0] - 0.04, head[1] - 0.06, 0], 0.05, 0.045, skin);
+    const hcx = T(head), rH = 0.10 * sc * sH;
+    let hd = `<circle cx="${hcx[0]}" cy="${hcx[1]}" r="${rH}" fill="${skin}"/>`;
+    const hc = [hcx[0] - 0.01 * sc, hcx[1] - 0.02 * sc], hr = 0.118 * sc * sH;
+    if (lk.head === 'aero') hd += `<path d="M${hc[0] - hr * 1.9},${hc[1] + hr * 0.55} Q${hc[0] - hr * 1.2},${hc[1] - hr * 0.6} ${hc[0] - hr * 0.1},${hc[1] - hr * 0.95} Q${hc[0] + hr * 1.0},${hc[1] - hr * 0.9} ${hc[0] + hr * 1.08},${hc[1] + hr * 0.3} Z" fill="${lk.headc}"/><path d="M${hc[0] - hr * 1.6},${hc[1] + hr * 0.3} Q${hc[0] - hr * 0.6},${hc[1] - hr * 0.55} ${hc[0] + hr * 0.7},${hc[1] - hr * 0.6}" stroke="${lk.headc2}" stroke-width="${Math.max(2, hr * 0.14)}" fill="none"/>`;
+    if (lk.head === 'casco') hd += `<path d="M${hc[0] - hr * 1.15},${hc[1] + hr * 0.15} A${hr * 1.15},${hr} 0 0 1 ${hc[0] + hr * 1.05},${hc[1] + hr * 0.25} Z" fill="${lk.headc}"/><path d="M${hc[0] - hr * 0.9},${hc[1] - hr * 0.1} L${hc[0] + hr * 0.8},${hc[1] + hr * 0.05}" stroke="${lk.headc2}" stroke-width="${Math.max(2, hr * 0.12)}"/>`;
+    if (lk.head === 'cappellino') hd += `<path d="M${hcx[0] - rH * 1.02},${hcx[1] - rH * 0.05} A${rH * 1.02},${rH * 0.95} 0 0 1 ${hcx[0] + rH * 0.9},${hcx[1] - rH * 0.35} Z" fill="${lk.headc}"/><path d="M${hcx[0] + rH * 0.55},${hcx[1] - rH * 0.48} L${hcx[0] + rH * 1.45},${hcx[1] - rH * 0.2} L${hcx[0] + rH * 0.85},${hcx[1] - rH * 0.2} Z" fill="${lk.headc}"/>`;
+    if (lk.head === 'bandana') hd += `<path d="M${hcx[0] - rH},${hcx[1] - rH * 0.1} A${rH},${rH} 0 0 1 ${hcx[0] + rH * 0.95},${hcx[1] - rH * 0.3} L${hcx[0] + rH * 0.9},${hcx[1] - rH * 0.12} L${hcx[0] - rH},${hcx[1] + rH * 0.12} Z" fill="${lk.headc}"/><path d="M${hcx[0] - rH},${hcx[1]} l${-rH * 0.5},${rH * 0.35} l${rH * 0.15},${-rH * 0.45}Z" fill="${lk.headc}"/>`;
+    const ey = [hcx[0] + 0.06 * sc, hcx[1] + 0.005 * sc];
+    if (lk.glasses === 'nessuno') hd += `<circle cx="${ey[0]}" cy="${ey[1]}" r="${Math.max(1.5, rH * 0.08)}" fill="#1b1f26"/>`;
+    if (lk.glasses === 'sportivi') hd += `<path d="M${hcx[0] + rH * 0.1},${ey[1] - rH * 0.1} L${ey[0] + rH * 0.42},${ey[1] - rH * 0.14} Q${ey[0] + rH * 0.45},${ey[1] + rH * 0.22} ${ey[0] + rH * 0.05},${ey[1] + rH * 0.2} Q${ey[0] - rH * 0.25},${ey[1] + rH * 0.12} ${ey[0] - rH * 0.3},${ey[1] - rH * 0.02} Z" fill="${lk.lens}" stroke="#1b1f26" stroke-width="1.5"/><path d="M${hcx[0] - rH * 0.9},${ey[1] - rH * 0.05} L${hcx[0] + rH * 0.2},${ey[1] - rH * 0.1}" stroke="#1b1f26" stroke-width="${Math.max(1.5, rH * 0.07)}"/>`;
+    if (lk.glasses === 'mascherina') hd += `<path d="M${hcx[0] + rH * 0.05},${ey[1] - rH * 0.32} L${ey[0] + rH * 0.5},${ey[1] - rH * 0.3} Q${ey[0] + rH * 0.55},${ey[1] + rH * 0.3} ${ey[0] + rH * 0.1},${ey[1] + rH * 0.32} L${hcx[0] + rH * 0.1},${ey[1] + rH * 0.2} Z" fill="${lk.lens}" stroke="${lk.headc}" stroke-width="2"/><path d="M${hcx[0] - rH * 0.95},${ey[1] - rH * 0.15} L${hcx[0] + rH * 0.1},${ey[1] - rH * 0.15}" stroke="${lk.headc}" stroke-width="${Math.max(2, rH * 0.1)}"/>`;
+    o += flip(head, hd);
+    o += legBody(PN, false) + armBody(AN, false);
+  } else {
+    o += [[PF.hip, PF.knee], [PF.knee, PF.ank], [PF.ank, PF.ped]].map(([a, b]) => ln(T(a), T(b), mut, sc * 0.05, .13)).join('') + crank(PF, mut, 5, .5);
+    o += ln(T(hip0), T(sh), ink, sc * 0.09, .85) + ln(T(AN.S), T(AN.E), ink, sc * 0.04, .85) + ln(T(AN.E), T(AN.Hn), ink, sc * 0.035, .85) + `<circle cx="${T(head)[0]}" cy="${T(head)[1]}" r="${0.10 * sc}" fill="${ink}" opacity=".85"/>`;
+    o += [[PN.hip, PN.knee, 0.075], [PN.knee, PN.ank, 0.055], [PN.ank, PN.ped, 0.035]].map(([a, b, w]) => ln(T(a), T(b), mut, sc * w, .32)).join('');
+    o += [[PN.hip, PN.knee], [PN.knee, PN.ank], [PN.ank, PN.ped]].map(([a, b]) => ln(T(a), T(b), mut, 3)).join('');
+    o += shoeSvg(PF, 'none', mut, .35) + shoeSvg(PN, 'none', mut, .8);
+  }
+  if (musc) {
+    const P = PR, dim = rightNear ? 1 : 0.35;
+    const heel = pt(P.ank, P.ped, -0.35, -0.01);
+    const att = {glut: [pel(0.05, 0.08), pt(P.hip, P.knee, 0.25, -0.035)], hams: [pel(-0.02, 0.05), pt(P.knee, P.ank, 0.12, -0.03)], vast: [pt(P.hip, P.knee, 0.3, 0.035), pt(P.knee, P.ank, 0.08, 0.03)], rf: [pel(0.06, -0.03), pt(P.knee, P.ank, 0.06, 0.04)], ilio: [pel(0.14, -0.01), pt(P.hip, P.knee, 0.1, 0.03)], gast: [pt(P.hip, P.knee, 0.93, -0.03), heel], sol: [pt(P.knee, P.ank, 0.3, -0.03), heel], ta: [pt(P.knee, P.ank, 0.2, 0.03), pt(P.ank, P.ped, 0.5, 0.02)]};
+    R.ms.forEach((m, k) => { const a = att[m.id], F = L.mf[k].a / Math.max(R.al, 0.05); o += ln(T(a[0]), T(a[1]), m.col, Math.max(2, Math.sqrt(m.A) * sc * 0.0016), dim * ((bodyV ? 0.45 : 0.3) + (bodyV ? 0.55 : 0.7) * Math.min(F, 1))); });
+    if (rightNear) for (const j of [P.hip, P.knee, P.ank]) o += `<circle cx="${T(j)[0]}" cy="${T(j)[1]}" r="5" fill="var(--bg)" stroke="${ink}" stroke-width="2.5"/>`;
+  }
+  if (RA) { const QA = ZP(RA.P[i], zl), jt = [QA.hip, QA.knee, QA.ank];
+    o += [[QA.hip, QA.knee], [QA.knee, QA.ank], [QA.ank, QA.ped]].map(([a, b]) => ln(T(a), T(b), ink, 2.5, .75, 'stroke-dasharray="7 5"')).join('')
+      + jt.map(j => `<circle cx="${T(j)[0]}" cy="${T(j)[1]}" r="4" fill="none" stroke="${ink}" stroke-width="1.5" opacity=".75"/>`).join('')
+      + `<text x="${T(QA.knee)[0] + 10}" y="${T(QA.knee)[1] - 10}" font-size="14" font-weight="600" fill="${ink}" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">A</text>`; }
+  // pedivella vicina e vettore di forza (gamba destra)
+  o += crank(PN, ink, 6, 1);
+  const fmax = Math.max(...R.leg.map(l => Math.hypot(...l.f)), 1), k = 0.13 / fmax, f = L.f, P = PR, e = [P.ped[0] + f[0] * k, P.ped[1] + f[1] * k, P.ped[2]];
+  const tv = [Math.cos(th), -Math.sin(th)], ft = f[0] * tv[0] + f[1] * tv[1], et = [P.ped[0] + tv[0] * ft * k, P.ped[1] + tv[1] * ft * k, P.ped[2]];
+  if (Math.hypot(...f) > 20) {
+    o += `<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>`;
+    o += ln(T(P.ped), T(et), 'var(--acc)', 3, .55, 'stroke-dasharray="5 4"') + ln(T(P.ped), T(e), 'var(--acc)', 5, 1, 'marker-end="url(#ah)"');
+  }
+  o += `<text x="12" y="${H - 12}" font-size="13" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${W > 520 ? 'Alla soglia. Freccia piena: forza sul pedale destro · tratteggio: componente utile' : 'Forza sul pedale'} · ${Math.round(Math.hypot(...f))} N</text>`;
+  s.innerHTML = o;
+}
+
+function axes(W, H, m, xs, ys, xl, yl, xt, yt) {
+  let o = `<line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" stroke="var(--line)"/>`;
+  for (const v of yt) o += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)" stroke-dasharray="2 4"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end" font-size="12" fill="var(--mut)">${String(v).replace('.', ',')}</text>`;
+  for (const v of xt) o += `<text x="${xs(v)}" y="${H - m.b + 18}" text-anchor="middle" font-size="12" fill="var(--mut)">${v}</text>`;
+  o += `<text x="${m.l}" y="14" font-size="13" fill="var(--mut)">${yl}</text><text x="${W - m.r}" y="${H - 4}" text-anchor="end" font-size="13" fill="var(--mut)">${xl}</text>`;
+  return o;
+}
+const nice = mx => { const s = mx > 400 ? 200 : mx > 150 ? 50 : mx > 60 ? 20 : 10; const t = []; for (let v = 0; v <= mx * 1.05; v += s) t.push(v); return t; };
+
+function drawTq() {
+  const s = $('#ctq svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
+  const m = {l: 46, r: 12, t: 46, b: 34}, N = R.tq.length, w = p.cad * 2 * Math.PI / 60;
+  const one = R.leg.map(l => l.pw / w), mx = Math.max(...R.tq, ...(RA ? RA.tq : [])) * 1.08;
+  const xs = a => m.l + a / 360 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
+  const path = arr => arr.concat([arr[0]]).map((v, i) => `${i ? 'L' : 'M'}${xs(i * 360 / N).toFixed(1)},${ys(Math.max(v, 0)).toFixed(1)}`).join('');
+  let o = axes(W, H, m, xs, ys, W < 520 ? 'angolo (°)' : 'angolo pedivella (°, 0 = punto morto superiore)', 'Coppia alla soglia (N·m)', W < 520 ? [0, 180, 360] : [0, 90, 180, 270, 360], nice(mx));
+  if (RA) o += `<path d="${path(RA.tq)}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".6"/>`;
+  o += `<path d="${path(one)}" fill="none" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 3"/><path d="${path(R.tq)}" fill="none" stroke="var(--acc)" stroke-width="3"/>`;
+  o += `<text x="${m.l}" y="32" font-size="12"><tspan fill="var(--acc2)" font-weight="600">━ due gambe</tspan><tspan fill="var(--mut)" dx="12">╌ gamba destra</tspan>${RA ? '<tspan fill="var(--ink)" dx="12">╌ A</tspan>' : ''}</text>`;
+  o += `<line class="cur" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s.innerHTML = o; s.dataset.x0 = m.l; s.dataset.x1 = W - m.r;
+}
+const linePath = (arr, xs, ys) => arr.map((x, i) => `${i ? 'L' : 'M'}${xs(x[0]).toFixed(1)},${ys(x[1]).toFixed(1)}`).join('');
+const hits = (arr, xs, ys, lab) => arr.map(x => `<circle cx="${xs(x[0]).toFixed(1)}" cy="${ys(x[1]).toFixed(1)}" r="11" fill="transparent"><title>${lab(x)}</title></circle>`).join('');
+function drawFtp() {
+  const s = $('#cftp svg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
+  const m = {l: 46, r: 14, t: 26, b: 34}, cur = [p.cad, R.Pthr / p.mass];
+  const pts = (CURT || []).concat(CURTA || [], [cur]);
+  const lo0 = Math.min(...pts.map(x => x[1])), hi0 = Math.max(...pts.map(x => x[1])), sp = hi0 - lo0;
+  const st = sp > 0.8 ? 0.2 : sp > 0.3 ? 0.1 : 0.05;
+  const lo = Math.floor((lo0 - st * 0.3) / st) * st, hi = Math.ceil((hi0 + st * 0.6) / st) * st;
+  const xs = c => m.l + (c - 50) / 80 * (W - m.l - m.r), ys = v => H - m.b - (v - lo) / (hi - lo) * (H - m.t - m.b);
+  const yt = []; for (let v = lo; v <= hi + 1e-9; v += st) yt.push(+v.toFixed(2));
+  let o = axes(W, H, m, xs, ys, 'cadenza (rpm)', 'Soglia (W/kg)', W < 520 ? [50, 90, 130] : [50, 70, 90, 110, 130], yt);
+  if (CURTA) o += `<path d="${linePath(CURTA, xs, ys)}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".6"/><text x="${W - m.r}" y="${m.t + 4}" text-anchor="end" font-size="12" fill="var(--ink)">A (tratteggio)</text>`;
+  if (CURT) {
+    const b = CURT.reduce((a, x) => x[1] > a[1] ? x : a);
+    o += `<path d="${linePath(CURT, xs, ys)}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>`;
+    if (Math.abs(b[0] - p.cad) > 4) o += `<circle cx="${xs(b[0])}" cy="${ys(b[1])}" r="5" fill="var(--bg)" stroke="var(--acc)" stroke-width="2"/><text x="${xs(b[0])}" y="${ys(b[1]) - 10}" text-anchor="middle" font-size="12" fill="var(--mut)">migliore ${b[0]}</text>`;
+    o += hits(CURT, xs, ys, x => `${x[0]} rpm: ${nf(x[1], 2)} W/kg`);
+  } else o += `<text x="${(m.l + W - m.r) / 2}" y="${(m.t + H - m.b) / 2}" text-anchor="middle" font-size="13" fill="var(--mut)">Calcolo della curva…</text>`;
+  o += `<circle cx="${xs(cur[0])}" cy="${ys(cur[1])}" r="7" fill="var(--acc)"><title>${p.cad} rpm: ${nf(cur[1], 2)} W/kg</title></circle><text x="${xs(cur[0])}" y="${ys(cur[1]) + 22}" text-anchor="middle" font-size="12" fill="var(--ink)">${nf(cur[1], 2)}</text>`;
+  s.innerHTML = o;
+}
+function drawCad() {
+  const s = $('#ccad svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
+  const m = {l: 52, r: 14, t: 26, b: 34}, mx = Math.max(...CUR.map(x => x[1])) * 1.1;
+  const xs = c => m.l + (c - 40) / 120 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
+  let o = axes(W, H, m, xs, ys, 'cadenza (rpm)', 'Sprint, potenza massima (W)', W < 520 ? [40, 100, 160] : [40, 60, 80, 100, 120, 140, 160], nice(mx));
+  o += `<path d="${linePath(CUR, xs, ys)}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+  const b = SP;
+  o += `<circle cx="${xs(b[0])}" cy="${ys(b[1])}" r="6" fill="var(--ink)"/><text x="${xs(b[0])}" y="${ys(b[1]) - 12}" text-anchor="middle" font-size="12" fill="var(--mut)">${Math.round(b[1])} W a ${b[0]} rpm</text>`;
+  o += hits(CUR, xs, ys, x => `${x[0]} rpm: ${Math.round(x[1])} W`);
+  s.innerHTML = o;
+}
+const SHORT = {glut: 'Gluteo', hams: 'Ischiocrurali', vast: 'Vasti', rf: 'Retto femorale', ilio: 'Ileopsoas', gast: 'Gastrocnemio', sol: 'Soleo', ta: 'Tibiale ant.'};
+function drawAct() {
+  const s = $('#cact svg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
+  const n = R.ms.length, nar = W < 560, m = {l: nar ? 112 : 178, r: 12, t: 6, b: 30}, N = R.leg.length;
+  const rh = (H - m.t - m.b) / n, cw = (W - m.l - m.r) / N, ref = Math.max(R.al, 0.05);
+  const xs = a => m.l + a / 360 * (W - m.l - m.r);
+  let o = '';
+  R.ms.forEach((mu, k) => {
+    const y = m.t + k * rh, as = R.leg.map(l => l.mf[k].a), amax = Math.max(...as);
+    let a0 = -1, a1 = -1;
+    for (let i = 0; i < N; i++) { const on = as[i] > 0.5 * amax, pr = as[(i - 1 + N) % N] > 0.5 * amax; if (on && !pr) a0 = i; if (!on && pr) a1 = i; }
+    const tip = a0 >= 0 && a1 >= 0 ? `${mu.n}: attivo da ${a0 * 5}° a ${a1 * 5}°, picco ${Math.round(amax * 100)}% del massimo` : mu.n;
+    o += `<g><title>${tip}</title><text x="${m.l - 10}" y="${y + rh / 2}" text-anchor="end" dominant-baseline="central" font-size="13" fill="var(--ink)">${nar ? SHORT[mu.id] : mu.n}</text>`;
+    o += `<rect x="${m.l}" y="${(y + 3).toFixed(1)}" width="${W - m.l - m.r}" height="${(rh - 6).toFixed(1)}" fill="var(--line)" opacity=".55" rx="3"/>`;
+    for (let i = 0; i < N; i++) { const v = Math.min(1, as[i] / ref); if (v < 0.02) continue;
+      o += `<rect x="${(m.l + i * cw).toFixed(1)}" y="${(y + 3).toFixed(1)}" width="${(cw + 0.6).toFixed(1)}" height="${(rh - 6).toFixed(1)}" fill="${mu.col}" opacity="${v.toFixed(2)}"/>`; }
+    o += '</g>';
+  });
+  for (const a of (nar ? [0, 180, 360] : [0, 90, 180, 270, 360])) o += `<line x1="${xs(a)}" x2="${xs(a)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--bg)" stroke-width="1.5" opacity=".9"/><text x="${xs(a)}" y="${H - m.b + 18}" text-anchor="${a === 0 ? 'start' : a === 360 ? 'end' : 'middle'}" font-size="12" fill="var(--mut)">${a}°</text>`;
+  if (!nar) o += `<text x="${m.l}" y="${H - 2}" font-size="12" fill="var(--mut)">0° = punto morto superiore, 180° = inferiore</text>`;
+  o += `<line class="cur" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s.innerHTML = o; s.dataset.x0 = m.l; s.dataset.x1 = W - m.r;
+}
+
+function frame(t) {
+  const dt = last ? (t - last) / 1000 : 0; last = (playing || SPIN) ? t : 0;
+  if (SPIN) { ROT = (ROT + dt * 30) % 360; syncRot(false); if (VIEW === 'muscoli') setView('atleta'); }
+  if (playing) { th = (th + dt * p.cad / 60 * 2 * Math.PI) % (2 * Math.PI); DIST += dt * p.cad / 60 * 5.5; } // circa 5,5 m per pedalata (50×17)
+  drawBike();
+  for (const q of ['#ctq svg', '#cact svg']) { const s = $(q), c = s.querySelector('.cur');
+    if (c) { const x = +s.dataset.x0 + th / (2 * Math.PI) * (s.dataset.x1 - s.dataset.x0); c.setAttribute('x1', x); c.setAttribute('x2', x); } }
+  requestAnimationFrame(frame);
+}
+
+let pend = false;
+$('#ctrls').addEventListener('input', e => { const k = e.target.id.slice(2); p[k] = e.target.type === 'checkbox' ? (e.target.checked ? 1 : 0) : +e.target.value; syncInputs(); if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; compute(); }); } });
+$('#bikes').addEventListener('click', e => { const b = BIKES[e.target.dataset.b]; if (!b) return; Object.assign(p, b.p); if (b.l) { LOOK = cleanLook({...LOOK, ...b.l}); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (er) {} syncLook(); } syncInputs(); compute(); });
+$('#presets').addEventListener('click', e => { const n = e.target.dataset.p; if (!n) return; p = {...DEF, ...PRE[n]}; syncInputs(); compute(); });
+$('#reset').addEventListener('click', () => { p = {...DEF}; syncInputs(); compute(); });
+$('#play').addEventListener('click', e => { playing = !playing; last = 0; e.target.textContent = playing ? 'Pausa' : 'Avvia'; e.target.setAttribute('aria-pressed', playing); });
+$('#play').textContent = playing ? 'Pausa' : 'Avvia'; $('#play').setAttribute('aria-pressed', playing);
+const redrawAB = () => { renderFit(); drawTq(); drawFtp(); drawBike(); };
+$('#fitA').addEventListener('click', () => { PA = {...p}; RA = R; SPA = SP; CURTA = CURT; $('#fitn').textContent = 'Assetto A fissato. Ora cambia sella, pedivelle, busto, scarpe, tacchette o cadenza: B è sempre l\'assetto attuale.'; redrawAB(); });
+$('#fitBack').addEventListener('click', () => { if (!PA) return; p = {...PA}; syncInputs(); compute(); });
+$('#fitOff').addEventListener('click', () => { RA = PA = SPA = CURTA = null; redrawAB(); });
+const ro = new ResizeObserver(() => { if (R) { drawTq(); drawFtp(); drawCad(); drawAct(); drawBike(); } });
+['#bsvg', '#ctq svg', '#cftp svg', '#ccad svg', '#cact svg'].forEach(q => ro.observe($(q)));
+syncInputs(); compute(); requestAnimationFrame(frame);
+const setView = v => { VIEW = v; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); try { localStorage.setItem('bio-vista', v); } catch (e) {} drawBike(); };
+$('#views').addEventListener('click', e => { if (e.target.dataset.v) setView(e.target.dataset.v); });
+setView(VIEW);
+
+const syncRot = (store = true) => { $('#rot').value = Math.round(ROT); $('#rot-o').textContent = Math.round(ROT) + '°'; if (store) { try { localStorage.setItem('bio-rot', String(Math.round(ROT))); } catch (e) {} } };
+const goRot = v => { ROT = ((v % 360) + 360) % 360; syncRot(); if (VIEW === 'muscoli' && ROT !== 0) setView('atleta'); drawBike(); };
+$('#rot').addEventListener('input', e => goRot(+e.target.value));
+$('#rot0').addEventListener('click', () => goRot(0)); $('#rot90').addEventListener('click', () => goRot(90)); $('#rot270').addEventListener('click', () => goRot(270));
+$('#spin').addEventListener('click', e => { SPIN = !SPIN; last = 0; e.target.setAttribute('aria-pressed', SPIN); e.target.textContent = SPIN ? 'Ferma' : 'Gira'; if (!SPIN) syncRot(); });
+{ let dx = null, r0 = 0; const fig = $('#bike');
+  fig.addEventListener('pointerdown', e => { if (VIEW === 'muscoli' || e.target.closest('button')) return; dx = e.clientX; r0 = ROT; fig.setPointerCapture(e.pointerId); fig.style.cursor = 'grabbing'; });
+  fig.addEventListener('pointermove', e => { if (dx === null) return; goRot(r0 - (e.clientX - dx) * 0.6); });
+  const up = () => { dx = null; fig.style.cursor = ''; }; fig.addEventListener('pointerup', up); fig.addEventListener('pointercancel', up); }
+syncRot(false);
+
+const syncLook = () => { for (const k in LOOK0) { const el = $('#l-' + k); if (el && el.type !== 'file' && document.activeElement !== el) el.value = LOOK[k]; } $('#l-nologo').disabled = !LOOK.logo; $('#l-noflogo').disabled = !LOOK.flogo; document.querySelectorAll('#scenes [data-s]').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === LOOK.scene)); };
+const lookChanged = () => { try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} syncLook(); if (onCompute) onCompute(); if (VIEW === 'muscoli') setView('atleta'); else drawBike(); };
+$('#lookp').addEventListener('input', e => { const k = e.target.id.slice(2); if (k in LOOK0 && e.target.type !== 'file') { LOOK = cleanLook({...LOOK, [k]: e.target.value}); lookChanged(); } });
+$('#l-nologo').addEventListener('click', () => { LOOK = {...LOOK, logo: ''}; lookChanged(); });
+const upLogo = (inp, key) => $(inp).addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { const img = new Image(); img.onload = () => { const m = 160, k = Math.min(1, m / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k)); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      try { LOOK = cleanLook({...LOOK, [key]: c.toDataURL('image/png')}); $('#lnote').textContent = 'Immagine caricata. L\'aspetto si salva insieme all\'atleta.'; lookChanged(); } catch (err) { $('#lnote').textContent = 'Immagine non utilizzabile.'; } };
+    img.onerror = () => { $('#lnote').textContent = 'Formato immagine non letto: prova PNG o JPG.'; }; img.src = rd.result; };
+  rd.readAsDataURL(f); e.target.value = '';
+});
+upLogo('#l-logo', 'logo'); upLogo('#l-flogo', 'flogo');
+$('#l-noflogo').addEventListener('click', () => { LOOK = {...LOOK, flogo: ''}; lookChanged(); });
+$('#scenes').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; LOOK = cleanLook({...LOOK, scene: b.dataset.s}); lookChanged(); });
+syncLook();
+// ---- Pannello Personalizza: si apre sopra la pagina, la figura resta visibile ----
+{ const dr = $('#drawer'), op = $('#dopen');
+  const setTab = t => { document.querySelectorAll('#drawer [role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); document.querySelectorAll('#lookp [data-p]').forEach(d => d.hidden = d.dataset.p !== t); try { localStorage.setItem('bio-tab', t); } catch (e) {} };
+  const openDr = on => { dr.hidden = !on; op.setAttribute('aria-expanded', on); op.textContent = on ? 'Chiudi' : 'Personalizza';
+    if (on) { $('#dclose').focus({preventScroll: true}); if (matchMedia('(max-width:900px)').matches) $('#bike').scrollIntoView({block: 'start', behavior: 'smooth'}); } };
+  op.addEventListener('click', () => openDr(dr.hidden));
+  $('#dclose').addEventListener('click', () => { openDr(false); op.focus({preventScroll: true}); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !dr.hidden) { openDr(false); op.focus({preventScroll: true}); } });
+  $('#drawer .tabs').addEventListener('click', e => { const t = e.target.closest('[data-t]'); if (t) setTab(t.dataset.t); });
+  let t0 = 'vista'; try { t0 = localStorage.getItem('bio-tab') || 'vista'; } catch (e) {} setTab(['vista', 'atleta', 'bici', 'sfondo'].includes(t0) ? t0 : 'vista'); }
+
+// ---- Atleti salvati: archivio condiviso (chi può scrivere), atleti sul dispositivo (tutti) e codice atleta ----
+const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma])); CB.forEach(([k]) => RANGES[k] = [0, 1]);
+const clean = q => { const o = {...DEF}; for (const k in RANGES) { const v = Number(q && q[k]); if (Number.isFinite(v)) o[k] = Math.min(RANGES[k][1], Math.max(RANGES[k][0], v)); } return o; };
+const slug = n => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'atleta';
+let ATH = [], LOC = [], DB = null, USR = null, me = null, owner = false, canW = false, cur = location.hash.slice(1);
+const stat = m => $('#astat').textContent = m;
+// codice atleta: solo cifre, lettere e trattini, così vive anche in fondo al link (#cfg1-…)
+const CK = [['h', 1], ['ins', 10], ['mass', 10], ['ratio', 100], ['crank', 10], ['saddle', 1000], ['trunk', 1], ['sta', 10], ['stack', 1], ['cleat', 1, 10], ['ankl', 1],
+  ['thigh', 10], ['mito', 10], ['slow', 1], ['age', 1], ['vo2', 1], ['cad', 1], ['cc', 1], ['lev', 1], ['ten', 1], ['act', 1]];
+const CL = ['jersey', 'jersey2', 'frame', 'frame2', 'shoes'];
+const encode = (q, lk) => 'cfg1-' + CK.map(([k, s, o = 0]) => Math.round(q[k] * s + o)).join('-') + '-' + Math.max(0, ENUM.scene.indexOf(lk.scene)) + '-' + CL.map(k => lk[k].slice(1)).join('-');
+const decode = c => { const t = String(c).trim().replace(/^.*#/, '').split('-'); if (t[0] !== 'cfg1' || t.length < CK.length + 2) return null;
+  const q = {}; CK.forEach(([k, s, o = 0], i) => q[k] = (Number(t[i + 1]) - o) / s);
+  const lk = {...LOOK}, sc = ENUM.scene[+t[CK.length + 1]]; if (sc) lk.scene = sc;
+  CL.forEach((k, i) => { const v = t[CK.length + 2 + i]; if (/^[0-9a-f]{6}$/i.test(v || '')) lk[k] = '#' + v.toLowerCase(); });
+  return {p: clean(q), look: cleanLook(lk)}; };
+onCompute = () => { $('#ccode').value = encode(p, LOOK); };
+onCompute();
+function applyCfg(q, lk) { p = clean(q); if (lk) { LOOK = cleanLook(lk); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} syncLook(); } syncInputs(); compute(); }
+function openCode(c) { const d = decode(c); if (!d) { stat('Codice non valido: deve iniziare con cfg1-.'); return false; }
+  applyCfg(d.p, d.look); cur = encode(d.p, d.look); try { if (location.hash.slice(1) !== cur) location.hash = cur; } catch (e) {} stat('Configurazione aperta dal codice.'); renderAth(); return true; }
+// numeri della lista: calcolati in differita e memorizzati (ogni atleta richiede una simulazione completa)
+const STATS = new Map(), queue = [];
+const statsOf = a => STATS.get(JSON.stringify(a.p));
+function pump() { const job = queue.shift(); if (!job) return; const k = JSON.stringify(job.p);
+  if (!STATS.has(k)) { const r = MODEL.run(job.p), s = MODEL.sprint(job.p); STATS.set(k, {thr: r.Pthr, sp: s[1]}); }
+  const st = STATS.get(k); document.querySelectorAll(`[data-st="${CSS.escape(job.key)}"]`).forEach(el => { el.querySelector('.wk').textContent = `${nf(st.thr / job.p.mass, 2)} W/kg`; el.querySelector('.mt').textContent = `${job.p.h} cm · ${job.p.mass} kg · soglia ${Math.round(st.thr)} W a ${job.p.cad} rpm · sprint ${Math.round(st.sp)} W${job.by}`; });
+  setTimeout(pump, 0); }
+function item(a, key, acts, by) { const st = statsOf(a);
+  if (!st) queue.push({key, p: a.p, by});
+  return `<li class="${a.id === cur ? 'on' : ''}" data-st="${esc(key)}"><b>${esc(a.name)}</b><span class="wk">${st ? nf(st.thr / a.p.mass, 2) + ' W/kg' : '…'}</span><span class="meta mt">${st ? `${a.p.h} cm · ${a.p.mass} kg · soglia ${Math.round(st.thr)} W a ${a.p.cad} rpm · sprint ${Math.round(st.sp)} W${by}` : `${a.p.h} cm · ${a.p.mass} kg · calcolo…`}</span><span class="acts">${acts}</span></li>`; }
+async function renderAth() {
+  const names = {};
+  if (USR) { try { const ids = [...new Set(ATH.map(a => a.by).filter(Boolean))]; const ps = ids.length ? await USR.profiles(ids) : {}; for (const id of ids) names[id] = (ps[id] && ps[id].name) || 'Qualcuno'; } catch (e) {} }
+  queue.length = 0;
+  $('#alist').innerHTML = ATH.length ? ATH.map(a => { const by = a.by ? ' · di ' + esc(names[a.by] || 'Qualcuno') : '';
+    const del = canW && (owner || (a.by && a.by === me)) ? `<button data-del="${esc(a.id)}">Elimina</button>` : '';
+    return item(a, 's:' + a.id, `<button data-load="${esc(a.id)}">Apri</button><button data-code="s:${esc(a.id)}">Codice</button>${del}`, by); }).join('')
+    : `<li><span class="meta">${DB ? 'Archivio condiviso vuoto.' : 'Archivio condiviso non disponibile in questa vista.'}</span></li>`;
+  $('#llist').innerHTML = LOC.length ? LOC.map(a => item(a, 'l:' + a.id, `<button data-lload="${esc(a.id)}">Apri</button><button data-code="l:${esc(a.id)}">Codice</button><button data-ldel="${esc(a.id)}">Elimina</button>`, '')).join('')
+    : '<li><span class="meta">Nessun atleta su questo dispositivo.</span></li>';
+  setTimeout(pump, 30);
+}
+function openAth(id) { const a = ATH.find(x => x.id === id); if (!a) return false;
+  applyCfg(a.p, a.look); cur = id; renderAth(); try { if (location.hash.slice(1) !== id) location.hash = id; } catch (e) {} return true; }
+const LKEY = 'bio-atleti';
+const loadLocal = () => { try { LOC = (JSON.parse(localStorage.getItem(LKEY)) || []).map(a => ({id: String(a.id), name: String(a.name || a.id).slice(0, 40), p: clean(a.p), look: a.look ? cleanLook(a.look) : null})); } catch (e) { LOC = []; } };
+const saveLocal = () => { try { localStorage.setItem(LKEY, JSON.stringify(LOC)); return true; } catch (e) { return false; } };
+const setMode = () => { $('#arch').hidden = !DB; $('#savebtn').textContent = canW ? 'Salva nell\'archivio' : 'Salva sul dispositivo';
+  $('#anote').textContent = canW ? 'Salvi nell\'archivio condiviso: chi ha il link vede i tuoi atleti.' : DB ? 'Puoi consultare l\'archivio condiviso ma non scriverci: i tuoi atleti si salvano in questo browser e si condividono con il codice o con il file.' : 'Gli atleti si salvano in questo browser. Per portarli altrove o mandarli a qualcuno, scarica il file o copia il codice.'; };
+function saveLoc(name, id, doc) { LOC = LOC.filter(a => a.id !== id).concat([{id, name, p: doc.p, look: doc.look}]).sort((a, b) => a.name.localeCompare(b.name));
+  stat(saveLocal() ? `Salvato «${name}» su questo dispositivo. Per farlo vedere ad altri, copia il codice.` : 'Questo browser non permette di salvare: usa il codice.'); }
+$('#savef').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#aname').value.trim(); if (!name) { stat('Scrivi un nome per l\'atleta.'); return; }
+  const id = slug(name), doc = {name, p: {...p}, look: {...LOOK}, at: Date.now()};
+  if (DB && canW) {
+    if (me) doc.by = me;
+    try { await DB.collection('athletes').doc(id).set(doc); cur = id; try { location.hash = id; } catch (e2) {} stat(`Salvato «${name}» nell'archivio condiviso.`); $('#aname').value = ''; return; }
+    catch (err) {
+      if (err && err.code === 'quota_exceeded') { stat('Archivio pieno: elimina qualche atleta.'); return; }
+      if (err && err.code === 'invalid_argument') { canW = false; setMode(); } else { stat('Salvataggio non riuscito, riprova.'); return; }
+    }
+  }
+  saveLoc(name, id, doc); cur = id; $('#aname').value = ''; renderAth();
+});
+document.querySelector('.ath-list').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return; const ds = b.dataset;
+  if (ds.load) openAth(ds.load);
+  if (ds.lload) { const a = LOC.find(x => x.id === ds.lload); if (a) { applyCfg(a.p, a.look); cur = a.id; renderAth(); } }
+  if (ds.code) { const [w, id] = [ds.code.slice(0, 1), ds.code.slice(2)], a = (w === 's' ? ATH : LOC).find(x => x.id === id);
+    if (a) { $('#ccode').value = encode(a.p, a.look || LOOK); $('#ccode').focus(); $('#ccode').select(); stat(`Codice di «${a.name}» pronto qui sotto: copialo e mandalo.`); } }
+  if (ds.del && DB) { try { await DB.collection('athletes').doc(ds.del).delete(); } catch (err) { stat('Eliminazione non riuscita.'); } }
+  if (ds.ldel) { LOC = LOC.filter(a => a.id !== ds.ldel); saveLocal(); renderAth(); }
+});
+$('#ccopy').addEventListener('click', async () => { const v = $('#ccode').value; $('#ccode').select();
+  try { await navigator.clipboard.writeText(v); stat('Codice copiato.'); } catch (e) { stat('Copia non riuscita: il codice è selezionato, copialo con Ctrl+C.'); } });
+// ---- scarica e importa (JSON reimportabile, CSV per i fogli di calcolo) ----
+const FMT = 'banco-biomeccanico-ciclista';
+function recOf(name, q, lk) { const r = MODEL.run(q), s = MODEL.sprint(q), L = lk || LOOK;
+  return {nome: name, codice: encode(q, L), parametri: {...q}, aspetto: {...L}, risultati: {
+    ftp_w: +r.Pthr.toFixed(1), ftp_wkg: +(r.Pthr / q.mass).toFixed(3), efficienza_lorda_pct: +(r.GE * 100).toFixed(2),
+    frazione_vo2max: +r.fthr.toFixed(3), vo2_usato_l_min: +r.VO2.toFixed(3), limite: r.lim, attivazione_soglia: +r.al.toFixed(3),
+    sprint_w: Math.round(s[1]), sprint_cadenza_rpm: s[0], ginocchio_pmi_gradi: +r.fit.kneeBDC.toFixed(1), ginocchio_pms_gradi: +r.fit.kneeTDC.toFixed(1),
+    angolo_busto_coscia_gradi: +r.fit.hipMin.toFixed(1), kops_cm: +r.fit.kops.toFixed(1), indice_efficacia_pct: Math.round(r.IE * 100)}}; }
+const pack = recs => JSON.stringify({formato: FMT, versione: 1, modello: 'v3', creato: new Date().toISOString(), atleti: recs}, null, 2);
+function download(name, text, type) {
+  try { const u = URL.createObjectURL(new Blob([text], {type})), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); stat(`Scaricato ${name}.`); }
+  catch (e) { stat('Questo browser non permette di scaricare il file: copia il codice.'); } }
+const fname = (n, ext) => `${slug(n)}-${new Date().toISOString().slice(0, 10)}.${ext}`;
+$('#xcur').addEventListener('click', () => { const n = $('#aname').value.trim() || 'atleta'; download(fname(n, 'json'), pack([recOf(n, p, LOOK)]), 'application/json'); });
+$('#xall').addEventListener('click', () => { if (!LOC.length) { stat('Nessun atleta sul dispositivo: salvane uno o scarica la configurazione attuale.'); return; }
+  download(fname('atleti', 'json'), pack(LOC.map(a => recOf(a.name, a.p, a.look))), 'application/json'); });
+$('#xcsv').addEventListener('click', () => {
+  const recs = (LOC.length ? LOC : [{name: $('#aname').value.trim() || 'atleta', p, look: LOOK}]).map(a => recOf(a.name, a.p, a.look));
+  const pk = Object.keys(recs[0].parametri), rk = Object.keys(recs[0].risultati);
+  const cell = v => typeof v === 'number' ? String(v).replace('.', ',') : '"' + String(v).replace(/"/g, '""') + '"';
+  const csv = ['nome', ...pk, ...rk, 'codice'].join(';') + '\r\n' + recs.map(r => [cell(r.nome), ...pk.map(k => cell(r.parametri[k])), ...rk.map(k => cell(r.risultati[k])), cell(r.codice)].join(';')).join('\r\n');
+  download(fname('atleti', 'csv'), '\ufeff' + csv, 'text/csv;charset=utf-8'); });
+$('#ximp').addEventListener('change', e => { const fl = e.target.files && e.target.files[0]; e.target.value = ''; if (!fl) return;
+  if (fl.size > 2e6) { stat('File troppo grande.'); return; }
+  const rd = new FileReader();
+  rd.onload = () => { let d; try { d = JSON.parse(rd.result); } catch (err) { stat('Il file non è un JSON valido.'); return; }
+    const list = Array.isArray(d && d.atleti) ? d.atleti : d && d.parametri ? [d] : null;
+    if (!list || !list.length) { stat('Nel file non ci sono atleti di questa pagina.'); return; }
+    let n = 0;
+    for (const a of list.slice(0, 200)) { if (!a || typeof a !== 'object' || !a.parametri) continue;
+      const name = String(a.nome || 'atleta').slice(0, 40), id = slug(name);
+      LOC = LOC.filter(x => x.id !== id).concat([{id, name, p: clean(a.parametri), look: a.aspetto ? cleanLook(a.aspetto) : null}]); n++; }
+    if (!n) { stat('Nel file non ci sono atleti validi.'); return; }
+    LOC.sort((a, b) => a.name.localeCompare(b.name)); saveLocal();
+    const first = LOC.find(x => x.id === slug(String(list[0].nome || 'atleta').slice(0, 40)));
+    if (first) { applyCfg(first.p, first.look); cur = first.id; }
+    renderAth(); stat(n === 1 ? `Importato 1 atleta da ${fl.name}.` : `Importati ${n} atleti da ${fl.name}.`); };
+  rd.onerror = () => stat('File non leggibile.');
+  rd.readAsText(fl); });
+$('#cimp').addEventListener('submit', e => { e.preventDefault(); if (openCode($('#cin').value)) $('#cin').value = ''; });
+const route = h => { if (!h || h === cur) return; if (h.startsWith('cfg1-')) openCode(h); else if (!openAth(h)) { const a = LOC.find(x => x.id === h); if (a) { applyCfg(a.p, a.look); cur = h; renderAth(); } } };
+window.addEventListener('hashchange', () => route(location.hash.slice(1)));
+loadLocal(); setMode(); renderAth();
+if (cur.startsWith('cfg1-')) { const c = cur; cur = ''; route(c); }
+(async () => {
+  let db = null;
+  try { db = window.claude && claude.use ? await claude.use('db') : null; } catch (e) {}
+  if (!db) { stat(LOC.length ? `${LOC.length} atleti su questo dispositivo.` : 'Nessun atleta salvato: imposta i cursori, scrivi un nome e premi Salva.'); renderAth(); const c = cur; cur = ''; route(c); return; }
+  DB = db;
+  try { USR = await claude.use('user'); if (USR) { me = await USR.id(); owner = (await USR.isOwner()) || false; const w = await USR.can('data.write'); canW = w !== false; } else canW = true; } catch (e) { canW = true; }
+  setMode();
+  const timer = setTimeout(() => stat('L\'archivio non risponde ancora: gli atleti potrebbero non essere aggiornati.'), 10000);
+  let first = true;
+  DB.collection('athletes').orderBy('name').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) { clearTimeout(timer); stat(snap.empty ? 'Archivio condiviso pronto.' : `${snap.size} atleti nell'archivio condiviso.`); }
+    ATH = snap.docs.filter(d => d.exists).map(d => { const x = d.data() || {}; return {id: d.id, name: String(x.name || d.id).slice(0, 40), p: clean(x.p), look: x.look ? cleanLook(x.look) : null, by: typeof x.by === 'string' ? x.by : null}; });
+    renderAth();
+    if (first && cur && !cur.startsWith('cfg1-')) { first = false; const c = cur; cur = ''; route(c); }
+  }, err => { clearTimeout(timer); stat('Archivio condiviso non raggiungibile: ricarica la pagina più tardi.'); });
+})();
+
+}
+</script>
+</body>
+</html>
