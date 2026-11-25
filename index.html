@@ -287,9 +287,9 @@ const MODEL = (() => {
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
     EB: 0.26, F0: 0.78, FII: 1, TAU: 0.3, TW: 0.2,
-    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 48, SPH: 19, W: null, EVW: 1.0, VS: 5, VF: 15, SOLC: 1.3, STM: 1 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 27, SPH: 18, W: null, EVW: 1.0, VS: 5, VF: 15, SOLC: 1.3, STM: 1 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
-  let HO = 0.05;   // centro dell'anca sopra l'appoggio sulla sella (× altezza): con 0,05 le selle misurate dei ciclisti di Clancy tornano a 0,883 × cavallo (LeMond)
+  let HO = 0.033;  // centro dell'anca sopra l'appoggio sulla sella (× altezza)
   function geom(p) {
     const H = p.h / 100, ins = p.ins / 100, Lc = p.crank / 1000;
     const L = ins + 0.011 * H;                  // anca-caviglia

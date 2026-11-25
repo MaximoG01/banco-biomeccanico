@@ -18,10 +18,11 @@ const med = k => { const v = Object.values(GEO).map(g => g[k]).filter(Number.isF
 const riderSetup = r => { const g = GEO[r.id], p = {...B, cad: r.cad, crank: r.crank, mass: r.mass || 72}, k = {...K0};
   if (g) { for (const key of KEYS) p[key] = Number.isFinite(g[key]) ? g[key] : med(key);
     // sella e tubo misurati con l'offset dell'anca 0,033 × altezza: si ricalcolano con quello del modello (stessa posizione dell'anca)
-    { const H = p.h / 100, ins = p.ins / 100, S = p.saddle * ins, st = p.sta * D, hx = -S * Math.cos(st), hy = S * Math.sin(st) + 0.033 * H, ho = 0.05 * H;
+    { const H = p.h / 100, ins = p.ins / 100, S = p.saddle * ins, st = p.sta * D, hx = -S * Math.cos(st), hy = S * Math.sin(st) + 0.033 * H - (+process.env.BBUP || 0), ho = (+process.env.HOV || 0.033) * H; // BBUP: movimento centrale vero più in alto del centro del cerchio dei marker (m)
       p.saddle = Math.hypot(hx, hy - ho) / ins; p.sta = Math.atan2(hy - ho, -hx) / D; }
     // piede misurato: lunghezza e angolo della retta caviglia→pedale (phi = suola + beta nel modello)
-    if (Number.isFinite(g.footL)) { p.footL = g.footL; const beta = M.geom(p).beta / D; p.ankl = g.phiAmp; k.SOLE = g.phi0 - beta - M.K.SOLC * (r.cad - 90) / 10; k.SPH = g.phiPh; } }
+    if (process.env.SUOLA && Number.isFinite(g.sole)) { p.ankl = g.ankl; k.SOLE = g.sole - M.K.SOLC * (r.cad - 90) / 10; k.SPH = g.sph; } // suola vera dai marker del piede (calcagno, 1° metatarso)
+    else if (Number.isFinite(g.footL)) { p.footL = g.footL; const beta = M.geom(p).beta / D; p.ankl = g.phiAmp; k.SOLE = g.phi0 - beta - M.K.SOLC * (r.cad - 90) / 10; k.SPH = g.phiPh; } }
   return {p, k, g}; };
 const train = T.riders.filter(r => +r.id.slice(1) <= 11), test = T.riders.filter(r => +r.id.slice(1) > 11);
 const actTrain = T.acts.slice(0, 4), actTest = T.acts.slice(4);

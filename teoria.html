@@ -68,7 +68,7 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <div class="kpis">
   <div><b>r = 0,98</b><span>forma della coppia sul pedale nei 5 ciclisti del test, mai usati per tarare</span></div>
   <div><b>3°</b><span>errore sull'angolo del ginocchio (RMS) contro 16 ciclisti misurati</span></div>
-  <div><b>±2 rpm</b><span>cadenza dello sprint massimo contro 4 studi di laboratorio</span></div>
+  <div><b>268 N·m</b><span>coppia massima nello sprint dei pistard elite (misurata 266)</span></div>
   <div><b>5 su 5</b><span>profili pubblicati con la soglia del modello nel range atteso</span></div>
 </div>
 <nav class="toc" aria-label="Indice"><a href="#biomeccanica">1 Biomeccanica</a><a href="#fisiologia">2 Fisiologia</a><a href="#metodo">3 Metodo</a><a href="#errori">4 Errori prima e dopo</a><a href="#ml">5 Machine learning</a><a href="#dowhy">6 DoWhy</a><a href="#sprint">7 Sprint e curva di potenza</a><a href="#bici">8 Bici reale e bike fit</a><a href="#limiti">9 Limiti</a><a href="#fonti">Bibliografia</a></nav>
@@ -84,7 +84,8 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
   <div><b>Pedale</b><span>forza e coppia, con peso e inerzia delle gambe</span></div>
 </div>
 <h3>Geometria e cinematica, misurate sui ciclisti</h3>
-<p>Coscia, gamba e piede formano una catena dall'anca al pedale. Il centro dell'anca sta 0,05 × altezza sopra la sella: con questo valore le selle dei 16 ciclisti misurati tornano a 0,883 × cavallo, la regola di LeMond. Il piede segue il movimento misurato sugli stessi ciclisti: la retta caviglia→pedale è in media a 78° sotto l'orizzontale, con 21° di escursione. Il tallone quindi resta alto, e sale ancora di 1,3° ogni 10 rpm, come nelle simulazioni OpenSim a 60–120 rpm<sup><a href="#r1">[1]</a></sup>.</p>
+<p>Coscia, gamba e piede formano una catena dall'anca al pedale. Il piede segue la suola misurata sui 16 ciclisti con i marker di calcagno e primo metatarso: in media 27° punta in giù, ±21° lungo il giro, con il tallone più basso poco dopo le ore 3. Ad alta cadenza il tallone sale di 1,3° ogni 10 rpm, come nelle simulazioni OpenSim a 60–120 rpm<sup><a href="#r1">[1]</a></sup>. Con questo piede e la sella di LeMond (0,883 × cavallo) il ginocchio in basso è flesso di 38°, come la mediana misurata (38,7°).</p>
+<p class="note">I marker dei pedali strumentati stanno circa 3 cm sotto l'asse: per questo il cerchio dei marker mette il movimento centrale un po' più in basso del vero. Nel confronto ciclista per ciclista si usa la geometria grezza dei marker, che è coerente con se stessa.</p>
 <h3>Muscoli (modello di Hill)</h3>
 <p>Otto gruppi: grande gluteo, ischiocrurali, vasti, retto femorale, ileopsoas, gastrocnemio, soleo e tibiale anteriore. La forza dipende da attivazione, lunghezza e velocità della fibra<sup><a href="#r3">[3]</a></sup>, con braccio di leva variabile e tendine elastico in serie (4% alla forza massima). L'attivazione segue il comando con 10 ms in salita e 40 ms in discesa<sup><a href="#r2">[2]</a></sup>. Ogni gruppo ha la sua quota di fibre lente, come nel modello OpenSim di Clancy<sup><a href="#r28">[28]</a></sup>: soleo 80%, tibiale 70%, gastrocnemio 54%, vasti 50%, retto femorale 39%. La velocità massima è 5 lunghezze/s per le fibre lente e 15 per le veloci, cioè 10 per una fibra mista come in OpenSim<sup><a href="#r18">[18]</a></sup>.</p>
 <div class="eq">F = a · F0 · fL(l/L0) · fV(v/vmax)        F0 = 30 N/cm² · sezione · (circonferenza coscia / π)²</div>
@@ -107,15 +108,15 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <tr><td>Efficienza lorda</td><td class="t">simulata alla potenza di soglia: lunghezza e velocità delle fibre, lavoro negativo, tipo di fibre</td><td>19–23%</td><td><a href="#r5">[5]</a> <a href="#r12">[12]</a> <a href="#r15">[15]</a> <a href="#r21">[21]</a></td></tr>
 <tr><td>Età</td><td class="t">fibre più lente; la perdita di muscolo è già nella circonferenza della coscia, quindi sulla forza resta solo un piccolo residuo</td><td>−0,15%/anno</td><td><a href="#r31">[31]</a></td></tr>
 </tbody></table></div>
-<p class="note">Cinque costanti globali sono tarate su 13 obiettivi di letteratura: FTP di 5 profili, efficienza e frazione tipiche, cadenza di soglia, più i vincoli "VO₂max ×2 → FTP quasi ×2" e "coscia quasi ininfluente sulla soglia". Errore medio 5,8%.</p>
+<p class="note">Cinque costanti globali sono tarate su 13 obiettivi di letteratura: FTP di 5 profili, efficienza e frazione tipiche, cadenza di soglia, più i vincoli "VO₂max ×2 → FTP quasi ×2" e "coscia quasi ininfluente sulla soglia". Errore medio circa 6%, con tutti e 5 i profili nel range.</p>
 <div class="scroll"><table>
 <thead><tr><th>Profilo pubblicato</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>
 <tbody>
-<tr><td>Amatore ricreativo</td><td class="ok">2,71 W/kg</td><td>2,3–2,9</td><td>valori amatoriali</td></tr>
-<tr><td>Amatore allenato</td><td class="ok">3,76 W/kg</td><td>3,2–3,9</td><td>tipico agonista</td></tr>
-<tr><td>ProTeam</td><td class="ok">5,39 W/kg</td><td>5,1–5,7</td><td><a href="#r20">[20]</a></td></tr>
-<tr><td>WorldTour scalatore</td><td class="ok">5,99 W/kg</td><td>5,8–6,4</td><td><a href="#r11">[11]</a> <a href="#r20">[20]</a></td></tr>
-<tr><td>Velocista pro</td><td class="ok">4,81 W/kg</td><td>4,8–5,5</td><td>stima</td></tr>
+<tr><td>Amatore ricreativo</td><td class="ok">2,72 W/kg</td><td>2,3–2,9</td><td>valori amatoriali</td></tr>
+<tr><td>Amatore allenato</td><td class="ok">3,78 W/kg</td><td>3,2–3,9</td><td>tipico agonista</td></tr>
+<tr><td>ProTeam</td><td class="ok">5,43 W/kg</td><td>5,1–5,7</td><td><a href="#r20">[20]</a></td></tr>
+<tr><td>WorldTour scalatore</td><td class="ok">6,04 W/kg</td><td>5,8–6,4</td><td><a href="#r11">[11]</a> <a href="#r20">[20]</a></td></tr>
+<tr><td>Velocista pro</td><td class="ok">4,88 W/kg</td><td>4,8–5,5</td><td>stima</td></tr>
 </tbody></table></div>
 </div></section>
 
@@ -176,17 +177,17 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 </tbody></table></div>
 <h3>Attivazioni contro OpenSim Moco a 90 rpm: prima e ora</h3>
 <div class="dumb" role="img" aria-label="Correlazione delle attivazioni prima e ora per otto muscoli">
-  <div><span>Soleo</span><div class="track"><i class="a" style="left:62%"></i><i class="b" style="left:90%"></i></div><span>0,24 → 0,80</span></div>
-  <div><span>Vasti</span><div class="track"><i class="a" style="left:93.5%"></i><i class="b" style="left:92%"></i></div><span>0,87 → 0,84</span></div>
-  <div><span>Gastrocnemio</span><div class="track"><i class="a" style="left:36.5%"></i><i class="b" style="left:85.5%"></i></div><span>−0,27 → 0,71</span></div>
-  <div><span>Grande gluteo</span><div class="track"><i class="a" style="left:75.5%"></i><i class="b" style="left:84.5%"></i></div><span>0,51 → 0,69</span></div>
-  <div><span>Ileopsoas</span><div class="track"><i class="a" style="left:83.5%"></i><i class="b" style="left:78%"></i></div><span>0,67 → 0,56</span></div>
-  <div><span>Ischiocrurali</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:76%"></i></div><span>0,49 → 0,52</span></div>
-  <div><span>Retto femorale</span><div class="track"><i class="a" style="left:64%"></i><i class="b" style="left:71.5%"></i></div><span>0,28 → 0,43</span></div>
-  <div><span>Tibiale anteriore</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:49.5%"></i></div><span>0,49 → −0,01</span></div>
+  <div><span>Soleo</span><div class="track"><i class="a" style="left:62%"></i><i class="b" style="left:92.5%"></i></div><span>0,24 → 0,85</span></div>
+  <div><span>Vasti</span><div class="track"><i class="a" style="left:93.5%"></i><i class="b" style="left:93.5%"></i></div><span>0,87 → 0,87</span></div>
+  <div><span>Gastrocnemio</span><div class="track"><i class="a" style="left:36.5%"></i><i class="b" style="left:84.5%"></i></div><span>−0,27 → 0,69</span></div>
+  <div><span>Grande gluteo</span><div class="track"><i class="a" style="left:75.5%"></i><i class="b" style="left:84%"></i></div><span>0,51 → 0,68</span></div>
+  <div><span>Ileopsoas</span><div class="track"><i class="a" style="left:83.5%"></i><i class="b" style="left:76%"></i></div><span>0,67 → 0,52</span></div>
+  <div><span>Ischiocrurali</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:72.5%"></i></div><span>0,49 → 0,45</span></div>
+  <div><span>Retto femorale</span><div class="track"><i class="a" style="left:64%"></i><i class="b" style="left:71%"></i></div><span>0,28 → 0,42</span></div>
+  <div><span>Tibiale anteriore</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:66%"></i></div><span>0,49 → 0,32</span></div>
 </div>
 <div class="legend"><span>prima (regola semplice)</span><span class="b">ora (sforzo minimo)</span><span class="n">scala da −1 a 1; in verde r ≥ 0,6</span></div>
-<p class="note">Escursione articolare contro OpenSim: ginocchio 76° contro 76°, caviglia 18° contro 21 ± 5° (prima 32°), anca 46° contro 51°. Ancora da migliorare: nel modello i vasti fanno il 57% del lavoro contro il 32% di OpenSim.</p>
+<p class="note">Escursione articolare contro OpenSim: ginocchio 76° contro 76°, caviglia 20° contro 21 ± 5° (prima 32°), e ora anche l'angolo medio della caviglia è vicino (5° di differenza). Ancora da migliorare: nel modello i vasti fanno il 55% del lavoro contro il 32% di OpenSim.</p>
 </div></section>
 
 <section class="band soft" id="ml"><div class="wrap">
@@ -205,13 +206,13 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <h3>a) Sul modello: quanto pesa ogni variabile</h3>
 <p>Sono stati generati 1500 atleti virtuali con parametri estratti a caso e indipendenti (cavallo e massa dipendono dall'altezza), poi simulati. Per ogni parametro DoWhy<sup><a href="#r17">[17]</a></sup> stima l'intervento <i>do(parametro + 1 DS)</i>. Il grafo ha i rami parametro → efficienza → soglia e parametro → soglia, più l'altezza come confondente per cavallo e massa. La stima è una regressione lineare e la quota di varianza un indice di Sobol del primo ordine; col placebo l'effetto sparisce. <b>Misura il comportamento del modello, non la realtà.</b></p>
 <div class="bars" role="img" aria-label="Quota delle differenze di soglia spiegata da ogni parametro">
-  <div class="bar"><span>VO₂max (+16,9% per DS)</span><i style="width:100.0%"></i><b>70%</b></div>
-  <div class="bar"><span>Fibre lente (+6,1%)</span><i class="g" style="width:15.7%"></i><b>11%</b></div>
-  <div class="bar"><span>Mitocondri (+5,1%)</span><i class="g" style="width:11.4%"></i><b>8%</b></div>
-  <div class="bar"><span>Circonferenza coscia (+2,9%)</span><i class="g" style="width:5.7%"></i><b>4%</b></div>
-  <div class="bar"><span>Co-contrazione (−2,9%)</span><i class="g" style="width:5.7%"></i><b>4%</b></div>
-  <div class="bar"><span>Cavallo (+1,6%)</span><i class="g" style="width:4.3%"></i><b>3%</b></div>
-  <div class="bar"><span>Ankling, cadenza, massa (±1,6–1,9%)</span><i class="g" style="width:2.9%"></i><b>2%</b></div>
+  <div class="bar"><span>VO₂max (+17,3% per DS)</span><i style="width:100.0%"></i><b>73%</b></div>
+  <div class="bar"><span>Fibre lente (+5,7%)</span><i class="g" style="width:13.7%"></i><b>10%</b></div>
+  <div class="bar"><span>Mitocondri (+5,2%)</span><i class="g" style="width:11.0%"></i><b>8%</b></div>
+  <div class="bar"><span>Co-contrazione (−2,7%)</span><i class="g" style="width:4.1%"></i><b>3%</b></div>
+  <div class="bar"><span>Circonferenza coscia (+2,6%)</span><i class="g" style="width:4.1%"></i><b>3%</b></div>
+  <div class="bar"><span>Cavallo (+1,5%)</span><i class="g" style="width:4.1%"></i><b>3%</b></div>
+  <div class="bar"><span>Cadenza, massa (−1,7%)</span><i class="g" style="width:2.7%"></i><b>2%</b></div>
   <div class="bar"><span>Età, sella, pedivella, busto, tacchetta, stack</span><i class="g" style="width:2.5%"></i><b>≤ 2%</b></div>
 </div>
 <h3>b) Sui dati reali: le previsioni del modello sono attendibili?</h3>
@@ -227,16 +228,16 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <div class="scroll"><table>
 <thead><tr><th>Muscolo</th><th>Dati: +10 rpm (IC 95%)</th><th>Modello</th><th>Esito</th></tr></thead>
 <tbody>
-<tr><td>Ileopsoas</td><td>+0,15 (−0,07 … +0,36)</td><td>+0,31</td><td class="ok">nell'intervallo</td></tr>
-<tr><td>Gastrocnemio</td><td>+0,04 (−0,08 … +0,19)</td><td>+0,15</td><td class="ok">nell'intervallo</td></tr>
-<tr><td>Soleo</td><td>−0,24 (−0,36 … −0,12)</td><td>−0,29</td><td class="ok">nell'intervallo</td></tr>
-<tr><td>Grande gluteo</td><td>+1,20 (+0,66 … +1,73)</td><td>+0,40</td><td class="ok">verso giusto, troppo piccolo</td></tr>
-<tr><td>Vasti</td><td>−0,47 (−1,04 … +0,13)</td><td>−1,16</td><td class="ok">verso giusto, troppo grande</td></tr>
-<tr><td>Ischiocrurali</td><td>−0,10 (−0,32 … +0,13)</td><td>+0,47</td><td class="ko">verso opposto</td></tr>
-<tr><td>Retto femorale</td><td>−0,46 (−0,74 … −0,11)</td><td>+0,08</td><td class="ko">verso opposto</td></tr>
-<tr><td>Tibiale anteriore</td><td>−0,12 (−0,17 … −0,05)</td><td>+0,04</td><td class="ko">verso opposto</td></tr>
+<tr><td>Ileopsoas</td><td>+0,15 (−0,06 … +0,36)</td><td>+0,30</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Gastrocnemio</td><td>+0,04 (−0,09 … +0,17)</td><td>+0,12</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Soleo</td><td>−0,24 (−0,36 … −0,12)</td><td>−0,39</td><td class="ok">verso giusto, un po' troppo grande</td></tr>
+<tr><td>Grande gluteo</td><td>+1,20 (+0,58 … +1,85)</td><td>+0,51</td><td class="ok">verso giusto, troppo piccolo</td></tr>
+<tr><td>Vasti</td><td>−0,47 (−1,02 … +0,07)</td><td>−1,05</td><td class="ok">verso giusto, troppo grande</td></tr>
+<tr><td>Ischiocrurali</td><td>−0,10 (−0,32 … +0,17)</td><td>+0,45</td><td class="ko">verso opposto</td></tr>
+<tr><td>Retto femorale</td><td>−0,46 (−0,73 … −0,14)</td><td>+0,05</td><td class="ko">quasi nullo</td></tr>
+<tr><td>Tibiale anteriore</td><td>−0,12 (−0,16 … −0,04)</td><td>+0,01</td><td class="ko">quasi nullo</td></tr>
 </tbody></table></div>
-<p class="note">Punti percentuali. Refutazioni: col placebo l'effetto va a circa 0; con una causa comune casuale o l'80% dei dati la stima non cambia. Verso giusto in 5 muscoli su 8, nell'intervallo in 3. Una versione precedente dava 7 su 8, ma in parte per un errore numerico del calcolo del tendine, poi corretto. Il tallone che sale con la cadenza (dato Moco) ha portato il soleo nel verso giusto.</p>
+<p class="note">Punti percentuali. Refutazioni: col placebo l'effetto va a circa 0; con una causa comune casuale o l'80% dei dati la stima non cambia. Verso giusto in 5 muscoli su 8, nell'intervallo in 2. Una versione precedente dava 7 su 8, ma in parte per un errore numerico del calcolo del tendine, poi corretto. Il tallone che sale con la cadenza (dato Moco) ha portato il soleo nel verso giusto.</p>
 </div></section>
 
 <section class="band soft" id="sprint"><div class="wrap">
@@ -246,12 +247,12 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <div class="scroll"><table>
 <thead><tr><th>Gruppo</th><th>Misurato</th><th>Modello</th><th>Scarto (DS)</th></tr></thead>
 <tbody>
-<tr><td>Uomini attivi<sup><a href="#r24">[24]</a></sup></td><td>1317 W a 122 rpm</td><td>1103 W a 121 rpm</td><td class="ko">−3,2</td></tr>
-<tr><td>Ciclisti allenati<sup><a href="#r23">[23]</a></sup></td><td>1180 W a 120 rpm</td><td>1061 W a 118 rpm</td><td class="ok">−1,4</td></tr>
-<tr><td>Pistard di livello mondiale<sup><a href="#r25">[25]</a></sup></td><td>1600 W a 130 rpm</td><td>1565 W a 129 rpm</td><td class="ok">−0,3</td></tr>
-<tr><td>Pistard elite<sup><a href="#r26">[26]</a></sup></td><td>1791 W a 128 rpm, coppia max 266 N·m</td><td>1666 W a 130 rpm, 265 N·m</td><td class="ok">−0,7</td></tr>
+<tr><td>Uomini attivi<sup><a href="#r24">[24]</a></sup></td><td>1317 W a 122 rpm</td><td>1084 W a 118 rpm</td><td class="ko">−3,5</td></tr>
+<tr><td>Ciclisti allenati<sup><a href="#r23">[23]</a></sup></td><td>1180 W a 120 rpm</td><td>1043 W a 114 rpm</td><td class="ok">−1,6</td></tr>
+<tr><td>Pistard di livello mondiale<sup><a href="#r25">[25]</a></sup></td><td>1600 W a 130 rpm</td><td>1537 W a 125 rpm</td><td class="ok">−0,5</td></tr>
+<tr><td>Pistard elite<sup><a href="#r26">[26]</a></sup></td><td>1791 W a 128 rpm, coppia max 266 N·m</td><td>1635 W a 126 rpm, 268 N·m</td><td class="ok">−0,9</td></tr>
 </tbody></table></div>
-<p class="note">Le masse dei primi tre gruppi non sono negli articoli e sono ipotizzate. La pedivella cambia la cadenza ottimale come nei dati (133 → 101 rpm da 120 a 220 mm, misurato 136 → 110). La lunghezza di pedivella con la potenza massima invece è più lunga del reale.</p>
+<p class="note">Le masse dei primi tre gruppi non sono negli articoli e sono ipotizzate. La pedivella cambia la cadenza ottimale come nei dati (132 → 104 rpm da 120 a 220 mm, misurato 136 → 110). La lunghezza di pedivella con la potenza massima invece è più lunga del reale.</p>
 <h3>Curva di potenza da 1 s a 60 min</h3>
 <p>La curva usa il modello omni-dominio<sup><a href="#r29">[29]</a></sup> con tre numeri: potenza massima dal modello muscolare, potenza critica (CP) dalla soglia e W′, la capacità anaerobica.</p>
 <div class="eq">P(t) = W′/t · (1 − e^(−t·(Pmax − CP)/W′)) + CP        oltre 30 min: − A · ln(t / 1800)</div>
