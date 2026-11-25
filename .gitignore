@@ -4,3 +4,4 @@ test/*.csv
 test/*.txt
 test/banco-*.html
 !test/requirements.txt
+SimulationData.zip
