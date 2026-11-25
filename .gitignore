@@ -5,3 +5,6 @@ test/*.txt
 test/banco-*.html
 !test/requirements.txt
 SimulationData.zip
+s41598-023-47945-5.pdf
+*.zip
+*.pdf

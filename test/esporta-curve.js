@@ -14,4 +14,5 @@ const D = 180 / Math.PI, N = r.leg.length;
 console.log(JSON.stringify({cad, power: Math.round(r.Pavg), crank: Array.from({length: N}, (_, i) => i * 360 / N),
   hip: r.P.map(x => x.q[0] * D), knee: r.P.map(x => x.q[1] * D), ankle: r.P.map(x => x.q[2] * D),
   act: Object.fromEntries(r.ms.map((m, j) => [m.id, r.leg.map(l => l.mf[j].a)])),
-  power_share: Object.fromEntries(r.ms.map((m, j) => [m.id, Math.max(0, r.mpow[j])]))}));
+  power_share: Object.fromEntries(r.ms.map((m, j) => [m.id, Math.max(0, r.mpow[j])])),
+  tq_leg: r.leg.map(l => l.pwg / (cad * 2 * Math.PI / 60)), ie: r.IE}));

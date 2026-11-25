@@ -2,7 +2,7 @@
 
 Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e arriva alla **soglia (FTP) in W/kg**. Lo sprint è la potenza massimale alla cadenza migliore.
 
-**Apri la pagina:** https://maximog01.github.io/banco-biomeccanico/
+**Apri la pagina:** https://maximog01.github.io/banco-biomeccanico/ · **Teoria e modello:** https://maximog01.github.io/banco-biomeccanico/teoria.html
 
 È uno strumento didattico e di esplorazione, non un bike fit né una diagnosi.
 
@@ -36,6 +36,12 @@ Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e a
 Cinque costanti globali sono tarate su 13 obiettivi: FTP di profili pubblicati, efficienza e frazione tipiche, cadenza di soglia e due vincoli fisiologici (raddoppiando il VO₂max la soglia quasi raddoppia; il diametro della coscia la sposta appena).
 
 ## Validazione
+
+Dettagli completi nella pagina **Teoria e modello** (`teoria.html`).
+
+- **Forze sui pedali di 16 ciclisti misurati** (Clancy et al. 2023): forma della coppia r = 0,96, picco 90° contro 96°, Power Phase 5°→180° contro ≈355°→190° (`test/pedali_opensim.py`).
+- **Simulazioni OpenSim Moco** (6 ciclisti): vasti, soleo, gluteo e gastrocnemio con tempi simili (r 0,65–0,86); tibiale anteriore e ischiocrurali ancora diversi (`test/confronto_opensim.py`).
+- **Controllo a sforzo minimo** come l'obiettivo J1 di Moco, con il peso delle gambe nell'equilibrio.
 
 | Profilo | FTP modello | Atteso | Fonte |
 |---|---|---|---|

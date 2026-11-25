@@ -1,8 +1,8 @@
 """Confronto tra il modello e le simulazioni OpenSim Moco di Clancy et al. 2023 (dataset Dryad 'SimulationData').
 
 I file .sto contengono un giro di pedivella della gamba destra (attivazioni di 40 muscoli, angoli articolari in radianti),
-ma non l'angolo della pedivella: le fasi si allineano mettendo il massimo di flessione del ginocchio allo stesso angolo
-in cui cade nel nostro modello. I muscoli OpenSim sono raggruppati negli 8 gruppi del modello.
+senza la colonna dell'angolo di pedivella, ma ogni giro parte dal punto morto superiore del pedale destro (Clancy et al. 2023),
+come nel modello. I muscoli OpenSim sono raggruppati negli 8 gruppi del modello.
 Uso: python test/confronto_opensim.py <cartella SimulationData> <curve.json del modello> [condizione, es. 30_90r]
 """
 import sys, json, glob, os
@@ -48,7 +48,7 @@ for fpath in files:
     col = {c: j for j, c in enumerate(cols)}
     ang = {k: resample(np.degrees(d[:, col[f"/jointset/{p}/value"]])) for k, p in
            [("hip", "hip_r/hip_flexion_r"), ("knee", "walker_knee_r/knee_angle_r"), ("ankle", "ankle_r/ankle_angle_r")]}
-    shift = int(np.argmax(ang["knee"])) - k0_mod  # allinea il massimo di flessione del ginocchio
+    shift = 0  # Clancy et al.: il giro inizia con il pedale destro al punto morto superiore, come nel modello
     ang = {k: np.roll(v, -shift) for k, v in ang.items()}
     res["rom"].append({k: (v.min(), v.max()) for k, v in ang.items()})
     for g, ms in GROUPS.items():

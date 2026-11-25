@@ -92,6 +92,10 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 .adv summary{font:600 20px "Barlow Condensed",sans-serif;cursor:pointer}
 .advg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 28px;margin-top:10px}
 .imp{font:500 13px Barlow,sans-serif;color:var(--mut)}
+.nav{display:flex;gap:18px;margin-bottom:14px;font:600 15px Barlow,sans-serif}
+.nav a{color:var(--mut);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav a[aria-current=page],.nav a:hover{color:var(--ink);border-bottom-color:var(--acc)}
+.cta{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:22px;background:var(--acc);color:#fff;font-weight:600;text-decoration:none}
 .alist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .alist li{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
 .alist li.on{border-color:var(--acc)}
@@ -114,6 +118,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 </style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
 <body>
 <section class="band"><div class="wrap">
+<nav class="nav" aria-label="Pagine"><a href="./" aria-current="page">Simulatore</a><a href="teoria.html">Teoria e modello</a></nav>
 <h1>Banco biomeccanico: da dove nasce la tua soglia</h1>
 <p class="lede">Dal corpo, dalla bici e dalla fisiologia alla tua soglia (FTP) in W/kg, con un modello muscolare della pedalata.</p>
 <div class="top">
@@ -211,18 +216,9 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 </div></section>
 
 <section class="band method" style="background:var(--soft)"><div class="wrap">
-<h2>Come funziona, in breve</h2>
-<details><summary>Il modello</summary><ul>
-<li><b>Cinematica:</b> gamba e piede rigido (stack, tacchetta, ankling), 72 posizioni della pedivella.</li>
-<li><b>Muscoli:</b> 8 gruppi di Hill con leve variabili, tendini elastici e attivazione con ritardo.</li>
-<li><b>Soglia:</b> VO₂max × frazione sostenibile (mitocondri, fibre lente, reclutamento delle fibre veloci) × efficienza lorda simulata alla soglia.</li>
-<li><b>Sprint:</b> potenza massimale tra 100 e 130 rpm.</li>
-<li><b>Taratura:</b> 5 costanti su profili pubblicati (amatori, ProTeam 5,4 W/kg, WorldTour 5,8 W/kg). Il VO₂max spiega il 62% delle differenze di soglia; assetto e tacchette meno del 2%.</li></ul></details>
-<details><summary>Limiti</summary><ul>
-<li>Modello 2D sagittale, senza peso e inerzia delle gambe: niente coppia negativa in risalita.</li>
-<li>Tempi dei muscoli da una regola semplice: gastrocnemio, ischiocrurali e tibiale si accendono in fasi diverse dall'EMG reale.</li>
-<li>Stime medie con incertezza: non è un bike fit né una diagnosi.</li></ul></details>
-<details><summary>Fonti</summary><p>Hill; Zajac 1989; Coyle 1988–1992; Holloszy e Coyle 1984; Henneman; Andersen e Saltin 1985; Lucía 2001–2002; studio Vuelta 2020; OpenSim <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> (Clancy et al. 2023).</p></details>
+<h2>Come funziona il modello</h2>
+<p class="lede">Teoria, equazioni, validazione su 16 ciclisti misurati e simulazioni OpenSim, analisi di sensibilità e limiti: tutto nella pagina dedicata.</p>
+<p style="margin-top:14px"><a class="cta" href="teoria.html">Teoria e modello →</a></p>
 </div></section>
 
 <script>
@@ -251,7 +247,8 @@ const MODEL = (() => {
   // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
-    EB: 0.27, F0: 0.78, FII: 0.25, TAU: 0.3, TW: 0.1 }; // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    EB: 0.31, F0: 0.75, FII: 0.5, TAU: 0.3, TW: 0.1,
+    OPT: 1, LOPT: 0.045 }; // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -360,6 +357,51 @@ const MODEL = (() => {
     const lerp = (arr, x) => { const i0 = Math.floor(x), f = x - i0, a = ((i0 % N) + N) % N; return arr[a] * (1 - f) + arr[(a + 1) % N] * f; };
     // un giro simulato: eccitazione 'al' (1 = sprint massimale) quando il muscolo deve accorciarsi, 'cc' (co-contrazione) altrimenti
     const onI = act ? (opts.max ? K.SON : K.LON) / dt : 0, offI = act ? (opts.max ? K.SOFF : K.LOFF) / dt : 0;
+    // ---- peso delle gambe: coppie articolari generalizzate della gravità, Qg = −∂Ep/∂q (catena aperta dall'anca) ----
+    const mTh = 0.100 * p.mass, mSh = 0.0465 * p.mass, mFt = 0.0145 * p.mass, gacc = 9.81;
+    const Ep = q => { const A1 = Math.PI + G.al + q[0], A2 = A1 - q[1], A3 = A2 + Math.PI / 2 + q[2] - G.beta;
+      const ky = G.hip[1] + G.Lf * Math.sin(A1), ay = ky + G.Lt * Math.sin(A2);
+      return gacc * (mTh * (G.hip[1] + 0.433 * G.Lf * Math.sin(A1)) + mSh * (ky + 0.433 * G.Lt * Math.sin(A2)) + mFt * (ay + 0.45 * G.Lfoot * Math.sin(A3))); };
+    const QG = qs.map(q => [0, 1, 2].map(k => { const a = q.slice(), b = q.slice(); a[k] += 1e-5; b[k] -= 1e-5; return -(Ep(a) - Ep(b)) / 2e-5; }));
+    // ---- controllo a sforzo minimo (come l'obiettivo J1 di OpenSim Moco, Clancy et al. 2023) ----
+    // In ogni posizione della pedivella le coppie dei muscoli devono equilibrare un'unica forza sul pedale (Q = J·f):
+    // si cercano le attivazioni che lo fanno con il minimo di Σ w·a² (w = dimensione del gruppo, che vale come più muscoli);
+    // poi la spinta si distribuisce nel giro dove costa meno sforzo (coppia ∝ 1/costo). Vale per la pedalata alla soglia;
+    // nello sprint resta la regola "attivo mentre si accorcia", che massimizza la potenza.
+    let SHAPE = null;
+    if (!opts.max && K.OPT) {
+      const wts = ms.map(m => m.A / 60), unit = [], cost = [];
+      const dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+      for (let i = 0; i < N; i++) {
+        const th = 2 * Math.PI * i / N, t = [Math.cos(th), -Math.sin(th)], rr = [Math.sin(th), Math.cos(th)], J = jac(G, P[i]);
+        // coppie articolari per unità di attivazione (tendine rigido, curve forza-lunghezza e forza-velocità dalla cinematica)
+        const Aq = ms.map((m, j) => { const lf = m.L0 + m.g * MT[j].dl[i], vf = m.g * MT[j].v[i], F = m.F0 * fl(lf / m.L0) * fv(vf / (vmax * m.L0)); return MT[j].R[i].map(r => -F * r); });
+        const Jt = J.map(r => r[0] * t[0] + r[1] * t[1]), Jr = J.map(r => r[0] * rr[0] + r[1] * rr[1]);
+        // la componente radiale della forza è libera (la assorbe la pedivella): si proietta via
+        const nr = Math.hypot(...Jr) || 1, u0 = Jr.map(x => x / nr);
+        let e1 = Math.abs(u0[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0]; const d1 = dot(e1, u0); e1 = e1.map((x, k) => x - d1 * u0[k]); const n1 = Math.hypot(...e1); e1 = e1.map(x => x / n1);
+        const e2 = [u0[1] * e1[2] - u0[2] * e1[1], u0[2] * e1[0] - u0[0] * e1[2], u0[0] * e1[1] - u0[1] * e1[0]];
+        const Bm = [e1, e2].map(e => Aq.map(q => dot(q, e))), b = [e1, e2].map(e => dot(Jt, e));
+        // min Σ w·a² con B·a = b e a ≥ 0 (insieme attivo: i muscoli che uscirebbero negativi vengono spenti)
+        const free = ms.map(() => true); let a = null;
+        for (let it = 0; it < 9; it++) {
+          let S11 = 0, S12 = 0, S22 = 0;
+          ms.forEach((m, j) => { if (!free[j]) return; const iw = 1 / wts[j]; S11 += Bm[0][j] ** 2 * iw; S12 += Bm[0][j] * Bm[1][j] * iw; S22 += Bm[1][j] ** 2 * iw; });
+          const det = S11 * S22 - S12 * S12; if (Math.abs(det) < 1e-14) { a = null; break; }
+          const l1 = (S22 * b[0] - S12 * b[1]) / det, l2 = (S11 * b[1] - S12 * b[0]) / det;
+          a = ms.map((m, j) => free[j] ? (Bm[0][j] * l1 + Bm[1][j] * l2) / wts[j] : 0);
+          let worst = -1, wv = -1e-12; a.forEach((x, j) => { if (x < wv) { wv = x; worst = j; } });
+          if (worst < 0) break; free[worst] = false;
+        }
+        if (!a || a.some(x => x < -1e-9)) { unit.push(ms.map(() => 0)); cost.push(Infinity); continue; }
+        unit.push(a); cost.push(a.reduce((s, x, j) => s + wts[j] * x * x, 0));
+      }
+      SHAPE = ms.map(() => new Array(N).fill(0)); let mx = 0;
+      for (let i = 0; i < N; i++) { const k = isFinite(cost[i]) && cost[i] > 0 ? 1 / cost[i] : 0; ms.forEach((m, j) => { SHAPE[j][i] = unit[i][j] * k; mx = Math.max(mx, SHAPE[j][i]); }); }
+      if (mx > 0) SHAPE.forEach(r => r.forEach((x, i) => { r[i] = x / mx; }));
+      else SHAPE = null;
+    }
+    const leadO = act ? K.LOPT / dt : 0;
     function sim(al) {
       const out = ms.map(() => []);
       let sF = 0, sFl = 0, sFv = 0, sFr = 0, Ppos = 0, Pneg = 0;   // integrati su tutti i sottopassi dell'ultimo giro, pesati sul lavoro positivo
@@ -370,7 +412,7 @@ const MODEL = (() => {
         const sg = v => 1 / (1 + Math.exp(-v / vs));               // comando continuo: cresce con la velocità di accorciamento
         let a = 0, x = 0;
         for (let cy = 0; cy < CYC; cy++) for (let i = 0; i < N; i++) for (let s = 1; s <= NS; s++) {
-          const q = i + s / NS, vmt = lerp(T.v, q), dl = lerp(T.dl, q), on = sg(lerp(T.v, q + onI)) * sg(lerp(T.v, q + offI)), u = al * on + (m.co ? cc * al : 0) * (1 - on);
+          const q = i + s / NS, vmt = lerp(T.v, q), dl = lerp(T.dl, q), on = SHAPE ? lerp(SHAPE[j], q + leadO) : sg(lerp(T.v, q + onI)) * sg(lerp(T.v, q + offI)), u = al * on + (m.co ? cc * al : 0) * (1 - Math.min(1, on));
           a = act ? a + (u - a) * dts / (u > a ? K.TACT : K.TDEA) : u;
           let F, lf, vf;
           if (!ten) { lf = m.L0 + m.g * dl; vf = m.g * vmt; F = a * m.F0 * fl(lf / m.L0) * fv(vf / vm); }
@@ -396,15 +438,17 @@ const MODEL = (() => {
           mf.push({ F: o.F, lf: o.lf, a: o.a }); mp.push(pm); pw += pm;
           MT[j].R[i].forEach((r, k) => Q[k] += -o.F * r);
         });
-        if (opts.max) { leg.push({ pw }); continue; }
+        if (opts.max) { leg.push({ pw, pwg: pw }); continue; }
         const J = jac(G, P[i]);
         let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
-        J.forEach((r, k) => { a11 += r[0] * r[0]; a12 += r[0] * r[1]; a22 += r[1] * r[1]; b1 += r[0] * Q[k]; b2 += r[1] * Q[k]; });
+        const Qt = Q.map((x, k) => x + QG[i][k]);                    // muscoli + peso della gamba
+        J.forEach((r, k) => { a11 += r[0] * r[0]; a12 += r[0] * r[1]; a22 += r[1] * r[1]; b1 += r[0] * Qt[k]; b2 += r[1] * Qt[k]; });
         const det = a11 * a22 - a12 * a12;
-        leg.push({ pw, mf, mp, Q, f: [(a22 * b1 - a12 * b2) / det, (a11 * b2 - a12 * b1) / det] });
+        const pwg = pw + QG[i][0] * qd[i][0] + QG[i][1] * qd[i][1] + QG[i][2] * qd[i][2]; // potenza al pedale di questa gamba (con il peso)
+        leg.push({ pw, pwg, mf, mp, Q, f: [(a22 * b1 - a12 * b2) / det, (a11 * b2 - a12 * b1) / det] });
       }
       // due gambe sfasate di 180°
-      const tq = leg.map((l, i) => (l.pw + leg[(i + N / 2) % N].pw) / w);
+      const tq = leg.map((l, i) => (l.pwg + leg[(i + N / 2) % N].pwg) / w);
       const Pavg = tq.reduce((s, t) => s + t, 0) / N * w;
       if (opts.max) return { Pavg };
       const mpow = ms.map((m, k) => 2 * leg.reduce((s, l) => s + l.mp[k], 0) / N);
@@ -809,10 +853,11 @@ const nice = mx => { const s = mx > 400 ? 200 : mx > 150 ? 50 : mx > 60 ? 20 : 1
 function drawTq() {
   const s = $('#ctq svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
   const m = {l: 46, r: 12, t: 46, b: 34}, N = R.tq.length, w = p.cad * 2 * Math.PI / 60;
-  const one = R.leg.map(l => l.pw / w), mx = Math.max(...R.tq, ...(RA ? RA.tq : [])) * 1.08;
-  const xs = a => m.l + a / 360 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
-  const path = arr => arr.concat([arr[0]]).map((v, i) => `${i ? 'L' : 'M'}${xs(i * 360 / N).toFixed(1)},${ys(Math.max(v, 0)).toFixed(1)}`).join('');
+  const one = R.leg.map(l => l.pwg / w), mx = Math.max(...R.tq, ...one, ...(RA ? RA.tq : [])) * 1.08, mn = Math.min(0, ...one) * 1.1;
+  const xs = a => m.l + a / 360 * (W - m.l - m.r), ys = v => H - m.b - (v - mn) / (mx - mn) * (H - m.t - m.b);
+  const path = arr => arr.concat([arr[0]]).map((v, i) => `${i ? 'L' : 'M'}${xs(i * 360 / N).toFixed(1)},${ys(v).toFixed(1)}`).join('');
   let o = axes(W, H, m, xs, ys, W < 520 ? 'angolo (°)' : 'angolo pedivella (°, 0 = punto morto superiore)', 'Coppia alla soglia (N·m)', W < 520 ? [0, 180, 360] : [0, 90, 180, 270, 360], nice(mx));
+  if (mn < 0) o += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(0)}" y2="${ys(0)}" stroke="var(--mut)" stroke-width="1"/><text x="${m.l - 6}" y="${ys(0) + 4}" text-anchor="end" font-size="12" fill="var(--mut)">0</text>`;
   if (RA) o += `<path d="${path(RA.tq)}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".6"/>`;
   o += `<path d="${path(one)}" fill="none" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 3"/><path d="${path(R.tq)}" fill="none" stroke="var(--acc)" stroke-width="3"/>`;
   o += `<text x="${m.l}" y="32" font-size="12"><tspan fill="var(--acc2)" font-weight="600">━ due gambe</tspan><tspan fill="var(--mut)" dx="12">╌ gamba destra</tspan>${RA ? '<tspan fill="var(--ink)" dx="12">╌ A</tspan>' : ''}</text>`;

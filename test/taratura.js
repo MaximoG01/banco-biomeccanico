@@ -13,7 +13,7 @@ const AM = T[1][0], PR = T[3][0];
 const ftp = o => { const p = {...B, ...o}; return M.run(p).Pthr / p.mass; };
 const optCad = o => { let b = [0, 0]; for (let c = 60; c <= 115; c += 5) { const v = ftp({...o, cad: c}); if (v > b[1]) b = [c, v]; } return b[0]; };
 let best = null; const t0 = Date.now();
-for (const TW of [0.1, 0.2, 0.3]) for (const TAU of [0.3, 0.4]) for (const FII of [0.25, 0.5, 0.75]) for (const EB of [0.25, 0.27, 0.29]) for (const F0 of [0.72, 0.75, 0.78]) {
+for (const TW of [0.1, 0.2]) for (const TAU of [0.3, 0.4]) for (const FII of [0.25, 0.5]) for (const EB of [0.27, 0.29, 0.31, 0.33]) for (const F0 of [0.75, 0.78, 0.81]) {
   Object.assign(M.K, {EB, F0, FII, TAU, TW});
   const res = T.map(([o, y]) => ftp(o) / y);
   const ra = M.run({...B, ...AM}), rp = M.run({...B, ...PR});

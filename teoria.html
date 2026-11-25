@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teoria e modello</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#12151a);--ink:light-dark(#15191f,#eef0f3);--mut:light-dark(#5c6470,#9aa3af);--line:light-dark(#e4e6ea,#2a2f37);--soft:light-dark(#f5f6f8,#1a1e24);--acc:#e5007d;--acc2:light-dark(#b8005f,#ff5aa8);--ok:light-dark(#1f7a4d,#5fd39a);--ko:light-dark(#9a5b00,#f0b050)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;line-height:1.08;margin:0}
+h1{font-size:clamp(32px,5vw,48px)}h2{font-size:30px;margin-bottom:8px}h3{font-size:21px;margin:22px 0 6px}
+.band{padding:clamp(22px,3.5vw,48px) max(5vw,16px)}
+.wrap{max-width:1040px;margin:0 auto}
+.soft{background:var(--soft)}
+.nav{display:flex;gap:18px;margin-bottom:14px;font:600 15px Barlow,sans-serif}
+.nav a{color:var(--mut);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav a[aria-current=page],.nav a:hover{color:var(--ink);border-bottom-color:var(--acc)}
+.lede{color:var(--mut);max-width:70ch;margin:8px 0 0}
+p,li{max-width:72ch}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0 4px;counter-reset:s}
+.flow div{border:1.5px solid var(--line);border-top:4px solid var(--acc);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.flow b{display:block;font:600 18px "Barlow Condensed",sans-serif}
+.flow span{font-size:14px;color:var(--mut)}
+.eq{font:15px/1.5 ui-monospace,Consolas,monospace;background:var(--soft);border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:pre}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:8px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-size:14px;color:var(--mut);font-weight:600}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+.ok{color:var(--ok);font-weight:600}.ko{color:var(--ko);font-weight:600}
+.note{font-size:14px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.kpis div{border-left:4px solid var(--acc);padding:4px 12px}
+.kpis b{display:block;font:700 30px "Barlow Condensed",sans-serif}
+.kpis span{font-size:14px;color:var(--mut)}
+a{color:var(--acc2)}
+@media(max-width:600px){table{font-size:13px}th,td{padding:6px 5px}}
+</style>
+</head>
+<body>
+<section class="band"><div class="wrap">
+<nav class="nav" aria-label="Pagine"><a href="./">Simulatore</a><a href="teoria.html" aria-current="page">Teoria e modello</a></nav>
+<h1>Teoria e modello</h1>
+<p class="lede">Come il simulatore passa dal corpo e dalla bici alla soglia, quanto è affidabile e dove sbaglia. Ogni numero viene dagli script in <code>test/</code> del repository.</p>
+<div class="kpis">
+  <div><b>r = 0,96</b><span>forma della coppia sul pedale contro 16 ciclisti misurati</span></div>
+  <div><b>4 su 8</b><span>muscoli con tempi simili a OpenSim (r ≥ 0,6)</span></div>
+  <div><b>±6%</b><span>FTP sui profili pubblicati (velocista −11%)</span></div>
+  <div><b>53%</b><span>delle differenze di soglia spiegate dal VO₂max</span></div>
+</div>
+</div></section>
+
+<section class="band soft"><div class="wrap">
+<h2>Il percorso del calcolo</h2>
+<div class="flow">
+  <div><b>1 · Corpo e bici</b><span>gamba, piede rigido, sella, pedivelle, stack, tacchetta</span></div>
+  <div><b>2 · Cinematica</b><span>72 posizioni della pedivella, angoli di anca, ginocchio, caviglia</span></div>
+  <div><b>3 · Muscoli</b><span>8 gruppi di Hill: leve variabili, tendini, attivazione con ritardo</span></div>
+  <div><b>4 · Controllo</b><span>attivazioni a sforzo minimo con equilibrio della gamba</span></div>
+  <div><b>5 · Efficienza</b><span>lavoro delle fibre, velocità, lavoro negativo, tipo di fibre</span></div>
+  <div><b>6 · Soglia</b><span>VO₂max × frazione sostenibile × efficienza</span></div>
+</div>
+<h3>Muscoli</h3>
+<p>Ogni gruppo muscolare segue il modello di Hill: la forza dipende da attivazione, lunghezza della fibra e velocità di accorciamento. Il tendine è una molla in serie che si allunga del 4% alla forza massima. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa (Zajac 1989).</p>
+<div class="eq">F = a · F0 · f_L(l/L0) · f_V(v/vmax)        F0 = 30 N/cm² · sezione · (diametro coscia)²</div>
+<h3>Controllo a sforzo minimo</h3>
+<p>Come nell'obiettivo J1 di OpenSim Moco (Clancy et al. 2023), in ogni posizione della pedivella si cercano le attivazioni che rispettano l'equilibrio della gamba con il minimo sforzo. L'equilibrio impone che le coppie muscolari e il peso dei segmenti diano un'unica forza sul pedale; nello sforzo ogni gruppo pesa per la sua dimensione. La spinta si concentra dove costa meno.</p>
+<div class="eq">min Σ w_m · a_m²    con   Σ a_m · τ_m + Q_peso = Jᵀ · f_pedale ,   a_m ≥ 0</div>
+<p>Nello sprint resta una regola massimale: ogni muscolo è attivo finché si accorcia.</p>
+<h3>Soglia (FTP)</h3>
+<div class="eq">FTP = VO₂max · massa · 20,9 J/mL · efficienza lorda · frazione sostenibile</div>
+<ul>
+<li><b>Ossigeno:</b> il limite è il cuore (VO₂max). I muscoli possono usarne circa il doppio (Andersen e Saltin 1985), quindi il tetto muscolare conta solo in casi estremi.</li>
+<li><b>Frazione sostenibile</b> (75–94%): cresce con la densità mitocondriale e le fibre lente (Coyle; Holloszy e Coyle). Cala quando la forza per pedalata recluta fibre veloci (Henneman), che producono lattato: per questo la soglia scende a cadenze basse.</li>
+<li><b>Efficienza lorda:</b> viene dalla simulazione alla potenza di soglia. È massima con fibre vicine alla lunghezza ottimale, accorciamento a circa ¼ della velocità massima e poco lavoro negativo; è più alta con più fibre lente (Coyle 1992).</li>
+<li><b>Taratura:</b> 5 costanti globali, tarate su 13 obiettivi di letteratura: FTP di 5 profili, efficienza e frazione tipiche, cadenza di soglia, VO₂max ×2 → FTP quasi ×2, coscia quasi ininfluente.</li>
+</ul>
+</div></section>
+
+<section class="band"><div class="wrap">
+<h2>Validazione</h2>
+<h3>Forze sui pedali: 16 ciclisti misurati (Clancy et al. 2023)</h3>
+<p class="note">Media dei 16 ciclisti (85 rpm, 111 W) contro il modello alla stessa cadenza e potenza. Il centro del movimento centrale è stimato dal cerchio del pedale; 0° = pedale destro in alto.</p>
+<div class="scroll"><table>
+<thead><tr><th>Grandezza</th><th>Misurato</th><th>Modello</th><th></th></tr></thead>
+<tbody>
+<tr><td>Forma della coppia nel giro (correlazione)</td><td>–</td><td>r = 0,96</td><td class="ok">buona</td></tr>
+<tr><td>Picco di coppia</td><td>96°</td><td>90°</td><td class="ok">buono</td></tr>
+<tr><td>Power Phase (coppia positiva)</td><td>≈ 355° → 190°</td><td>5° → 180°</td><td class="ok">buono</td></tr>
+<tr><td>Picco della Power Phase (sopra il 50%)</td><td>≈ 55° → 150°</td><td>35° → 155°</td><td class="ok">buono</td></tr>
+<tr><td>Coppia minima in risalita</td><td>−16 N·m</td><td>−10 N·m</td><td class="ko">un po' poco negativa</td></tr>
+<tr><td>Indice di efficacia sul giro</td><td>24%</td><td>34%</td><td class="ko">un po' alto</td></tr>
+</tbody></table></div>
+<h3>Muscoli e angoli: simulazioni OpenSim Moco (6 ciclisti, 90 rpm)</h3>
+<p class="note">OpenSim usa un modello 3D con 40 muscoli per gamba e minimizza lo sforzo seguendo le forze misurate sui pedali. I loro muscoli sono raggruppati negli 8 gruppi del nostro modello; la correlazione misura la somiglianza della forma dell'attivazione lungo il giro.</p>
+<div class="scroll"><table>
+<thead><tr><th>Gruppo muscolare</th><th>Attivo in OpenSim</th><th>Attivo nel modello</th><th>Correlazione</th></tr></thead>
+<tbody><tr><td>Grande gluteo</td><td>10° → 175°</td><td>25° → 155°</td><td class="ok">0,68</td></tr><tr><td>Ischiocrurali</td><td>0° → 205°</td><td>70° → 220°</td><td class="ko">0,44</td></tr><tr><td>Vasti (quadricipite)</td><td>5° → 115°</td><td>345° → 140°</td><td class="ok">0,86</td></tr><tr><td>Retto femorale</td><td>265° → 340°</td><td>315° → 130°</td><td class="ko">0,44</td></tr><tr><td>Ileopsoas</td><td>180° → 315°</td><td>165° → 355°</td><td class="ko">0,56</td></tr><tr><td>Gastrocnemio</td><td>95° → 270°</td><td>115° → 170°</td><td class="ok">0,65</td></tr><tr><td>Soleo</td><td>35° → 165°</td><td>50° → 150°</td><td class="ok">0,85</td></tr><tr><td>Tibiale anteriore</td><td>65° → 280°</td><td>195° → 325°</td><td class="ko">0,25</td></tr></tbody></table></div>
+<div class="scroll"><table>
+<thead><tr><th>Articolazione</th><th>Escursione OpenSim</th><th>Escursione modello</th></tr></thead>
+<tbody><tr><td>Anca</td><td>51° ± 3</td><td>47°</td></tr><tr><td>Ginocchio</td><td>76° ± 6 (38° → 113°)</td><td>84° (33° → 117°)</td></tr><tr><td>Caviglia</td><td>21° ± 5</td><td>32°</td></tr></tbody></table></div>
+<h3>Profili pubblicati</h3>
+<div class="scroll"><table>
+<thead><tr><th>Profilo</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>
+<tbody>
+<tr><td>Amatore ricreativo</td><td>2,51 W/kg</td><td>2,3–2,9</td><td>Cycling Weekly</td></tr>
+<tr><td>Amatore allenato</td><td>3,58 W/kg</td><td>3,2–3,9</td><td>tipico agonista amatore</td></tr>
+<tr><td>ProTeam</td><td>5,32 W/kg</td><td>5,1–5,7</td><td>studio Vuelta 2020 (media 5,4)</td></tr>
+<tr><td>WorldTour scalatore</td><td>5,78 W/kg</td><td>5,8–6,4</td><td>Vuelta 2020; Lucía et al.</td></tr>
+<tr><td>Velocista pro</td><td>4,61 W/kg</td><td>4,8–5,5</td><td>stima (sprint 17,4 W/kg ✓)</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section class="band soft"><div class="wrap">
+<h2>Quanto pesa ogni variabile</h2>
+<p>Analisi di sensibilità su 1500 atleti virtuali: parametri estratti a caso da distribuzioni realistiche, poi simulati.</p>
+<div class="scroll"><table>
+<thead><tr><th>Parametro</th><th>Effetto per 1 deviazione standard</th><th>Quota di varianza spiegata</th></tr></thead>
+<tbody><tr><td>VO₂max</td><td>+17,8%</td><td>53%</td></tr><tr><td>Fibre lente</td><td>+8,0%</td><td>12%</td></tr><tr><td>Cadenza (75–105 rpm)</td><td>−6,5%</td><td>8%</td></tr><tr><td>Densità mitocondriale</td><td>+6,3%</td><td>8%</td></tr><tr><td>Cavallo</td><td>+6,0%</td><td>7%</td></tr><tr><td>Co-contrazione</td><td>−4,9%</td><td>5%</td></tr><tr><td>Altezza</td><td>+4,5%</td><td>6%</td></tr><tr><td>Età</td><td>−4,0%</td><td>3%</td></tr><tr><td>Diametro coscia</td><td>+2,5%</td><td>3%</td></tr><tr><td>Altezza sella</td><td>−2,3%</td><td>2%</td></tr><tr><td>Massa</td><td>−1,8%</td><td>3%</td></tr><tr><td>Pedivella</td><td>−1,6%</td><td>2%</td></tr><tr><td>Ankling, busto, tacchetta, stack, tubo sella, femore/tibia</td><td>meno dell'1%</td><td>1% ciascuno</td></tr></tbody></table></div>
+<h3>Come sono stimati gli effetti</h3>
+<ul>
+<li><b>È un esperimento sul modello, non sulla realtà.</b> I parametri sono estratti in modo indipendente (solo cavallo e massa dipendono dall'altezza), quindi non ci sono correlazioni tra gli ingressi da correggere: l'effetto di ogni parametro è un intervento <i>do(parametro + 1 DS)</i> sul simulatore.</li>
+<li><b>Il grafo causale di DoWhy</b> per ogni parametro ha tre rami: parametro → efficienza lorda → soglia; parametro → soglia (via ossigeno e frazione); per cavallo e massa, altezza → parametro e altezza → soglia (confondente, aggiustato con il criterio backdoor). Non ricostruisce tutta la fisiologia: quella è il simulatore stesso.</li>
+<li><b>Stima:</b> regressione lineare (effetto medio, una pendenza per parametro). La quota di varianza è un indice di Sobol del primo ordine stimato per classi, che cattura anche effetti non lineari. La mediazione (quota che passa dall'efficienza) usa una regressione a due stadi.</li>
+<li><b>Test:</b> placebo con trattamento permutato, in cui l'effetto deve sparire (sparisce). Non è stato usato un modello di machine learning per stimare i pesi.</li>
+<li><b>Limiti di questa analisi:</b> l'effetto lineare semplifica relazioni non lineari, le interazioni tra parametri non sono stimate, e i risultati valgono per il modello. Per la realtà servirebbero dati di atleti veri, dove allenamento, VO₂max, mitocondri e fibre sono correlati e confusi tra loro.</li>
+<li><b>Prossimi passi:</b> indici di Sobol totali con un modello sostitutivo (gradient boosting) per le interazioni, e taratura bayesiana delle costanti con validazione fuori campione sui dati dei 16 ciclisti.</li>
+</ul>
+</div></section>
+
+<section class="band"><div class="wrap">
+<h2>Limiti</h2>
+<ul>
+<li>Modello 2D sagittale: niente movimenti laterali del ginocchio, float della tacchetta o rotazioni del bacino.</li>
+<li>Peso delle gambe incluso, inerzia no: la coppia in risalita è meno negativa del reale.</li>
+<li>8 gruppi muscolari invece di 40; tibiale anteriore e ischiocrurali hanno ancora tempi diversi da OpenSim.</li>
+<li>Lo sprint usa una regola massimale, non un'ottimizzazione; è basso negli amatori.</li>
+<li>Strumento didattico e di esplorazione: non è un bike fit né una diagnosi.</li>
+</ul>
+<h2 style="margin-top:28px">Fonti</h2>
+<p class="note">Clancy, Gatti, Ong, Maly, Delp (2023) <i>Muscle-driven simulations and experimental data of cycling</i>, Scientific Reports — dati e codice su <a href="https://simtk.org/projects/cycling_sim">simtk.org/projects/cycling_sim</a> e <a href="https://datadryad.org/dataset/doi:10.5061/dryad.p8cz8w9wx">Dryad</a>. Zajac 1989; Hill 1938; Coyle et al. 1988, 1991, 1992; Holloszy e Coyle 1984; Henneman 1957; Andersen e Saltin 1985; Winter (masse dei segmenti); Lucía et al. 2001–2002; Ericson 1988; Hug e Dorel 2009; studio Vuelta 2020 su WorldTour e ProTeam; Ferrer-Roca 2017 (pedivelle); studi sulla posizione della tacchetta (2009, 2012).</p>
+</div></section>
+</body>
+</html>
