@@ -119,15 +119,37 @@ a{color:var(--acc2)}
 <tr><td>Quota di lavoro del soleo</td><td>3,5% (costo metabolico)</td><td class="ko">20%</td><td>12%</td></tr>
 <tr><td>Quota del grande gluteo</td><td>28% (costo metabolico)</td><td class="ko">14%</td><td>22%</td></tr>
 </tbody></table></div>
-<h3>Training con test fuori campione</h3>
-<p>Ogni ciclista è stato simulato con la sua cadenza, potenza, pedivella e massa. Su P01–P11 sono stati stimati 12 parametri: pesi di sforzo dei muscoli, anticipo del comando, pattern della caviglia. Il test è su P12–P16 e su 2 simulazioni Moco mai viste.</p>
+<h3>Ogni ciclista con le sue misure</h3>
+<p>Dai marker di ciascuno dei 16 ciclisti sono stati ricavati:</p>
+<ul>
+<li>centro dell'anca (regressione di Harrington), ginocchio e caviglia, quindi lunghezza di coscia e gamba;</li>
+<li>posizione dell'anca rispetto al movimento centrale, cioè altezza e arretramento della sella;</li>
+<li>busto, pedivella e segmento caviglia → pedale lungo il giro, cioè l'ankling reale.</li>
+</ul>
+<p>Con queste misure, più massa, cadenza e potenza di ciascuno, il ginocchio del modello si discosta di soli 3° (RMS) da quello misurato.</p>
 <div class="scroll"><table>
 <thead><tr><th>Errore sulla coppia della gamba (RMS relativo)</th><th>Training P01–P11</th><th>Test P12–P16</th></tr></thead>
 <tbody>
-<tr><td>Modello fisico (parametri da letteratura)</td><td>31% · r 0,95</td><td>38% · r 0,92</td></tr>
-<tr><td>Dopo il training</td><td>28% · r 0,96</td><td class="ko">42% · r 0,91</td></tr>
+<tr><td>Geometria standard</td><td>31% · r 0,95</td><td>38% · r 0,92</td></tr>
+<tr><td>Misure individuali (modello fisico)</td><td class="ok">33% · r 0,93 · ginocchio 3,4°</td><td class="ok">30% · r 0,95 · ginocchio 3,2°</td></tr>
+<tr><td>Misure individuali + training di 9 parametri muscolari</td><td>33% · r 0,93</td><td class="ko">32% · r 0,95</td></tr>
 </tbody></table></div>
-<p class="note">Il training migliora il training ma peggiora il test: è overfitting, quindi i parametri allenati non sono stati adottati. L'errore residuo viene soprattutto da dati individuali che il modello non ha ancora (altezza, cavallo, altezza sella di ogni ciclista): il prossimo passo è ricavarli dai loro marker e modelli scalati.</p>
+<p class="note">Nel test l'indice di efficacia è 26% contro il 24% misurato e la coppia minima −12 contro −16 N·m. Il training dei pesi muscolari non migliora il test, quindi non è adottato: il miglioramento viene dalla fisica (peso e inerzia delle gambe) e dalle misure individuali. Con 16 ciclisti un modello di machine learning "a scatola nera" andrebbe in overfitting.</p>
+<h3>Interventi: la cadenza, sui dati reali (DoWhy)</h3>
+<p>Nelle simulazioni Moco 6 ciclisti hanno pedalato a cadenze imposte dal protocollo (60–120 rpm) e a 3 livelli di carico: la cadenza è un vero intervento. DoWhy stima l'effetto di +10 rpm sulla quota del costo metabolico di ogni gruppo muscolare. Ciclista e carico sono trattati come cause comuni, con aggiustamento backdoor. Il confronto è con quanto prevede il modello per lo stesso intervento.</p>
+<div class="scroll"><table>
+<thead><tr><th>Gruppo</th><th>Dati: effetto di +10 rpm</th><th>IC 95%</th><th>Modello</th><th>Esito</th></tr></thead>
+<tbody>
+<tr><td>Grande gluteo</td><td>+1,20</td><td>+0,60 … +1,73</td><td>+0,81</td><td class="ok">dentro l'intervallo</td></tr>
+<tr><td>Retto femorale</td><td>−0,46</td><td>−0,74 … −0,16</td><td>−0,39</td><td class="ok">dentro l'intervallo</td></tr>
+<tr><td>Ileopsoas</td><td>+0,15</td><td>−0,09 … +0,35</td><td>+0,04</td><td class="ok">dentro l'intervallo</td></tr>
+<tr><td>Gastrocnemio</td><td>+0,04</td><td>−0,08 … +0,18</td><td>0,00</td><td class="ok">dentro l'intervallo</td></tr>
+<tr><td>Tibiale anteriore</td><td>−0,12</td><td>−0,17 … −0,04</td><td>−0,08</td><td class="ok">dentro l'intervallo</td></tr>
+<tr><td>Ischiocrurali</td><td>−0,10</td><td>−0,31 … +0,12</td><td>−0,64</td><td class="ko">verso giusto, troppo grande</td></tr>
+<tr><td>Soleo</td><td>−0,24</td><td>−0,37 … −0,13</td><td>−0,99</td><td class="ko">verso giusto, troppo grande</td></tr>
+<tr><td>Vasti</td><td>−0,47</td><td>−1,03 … +0,14</td><td>+1,24</td><td class="ko">verso opposto</td></tr>
+</tbody></table></div>
+<p class="note">Punti percentuali della quota del costo metabolico (OpenSim) contro la quota di lavoro delle fibre (modello). Refutazioni DoWhy: con il trattamento permutato (placebo) l'effetto va a circa 0; aggiungendo una causa comune casuale o usando l'80% dei dati la stima non cambia. Esito: verso giusto in 7 gruppi su 8, dentro l'intervallo in 5 su 8.</p>
 <h3>Profili pubblicati</h3>
 <div class="scroll"><table>
 <thead><tr><th>Profilo</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>
@@ -153,7 +175,8 @@ a{color:var(--acc2)}
 <li><b>Stima:</b> regressione lineare (effetto medio, una pendenza per parametro). La quota di varianza è un indice di Sobol del primo ordine stimato per classi, che cattura anche effetti non lineari. La mediazione (quota che passa dall'efficienza) usa una regressione a due stadi.</li>
 <li><b>Test:</b> placebo con trattamento permutato, in cui l'effetto deve sparire (sparisce). Non è stato usato un modello di machine learning per stimare i pesi.</li>
 <li><b>Limiti di questa analisi:</b> l'effetto lineare semplifica relazioni non lineari, le interazioni tra parametri non sono stimate, e i risultati valgono per il modello. Per la realtà servirebbero dati di atleti veri, dove allenamento, VO₂max, mitocondri e fibre sono correlati e confusi tra loro.</li>
-<li><b>Prossimi passi:</b> indici di Sobol totali con un modello sostitutivo (gradient boosting) per le interazioni, e taratura bayesiana delle costanti con validazione fuori campione sui dati dei 16 ciclisti.</li>
+<li><b>Sui dati reali</b> DoWhy serve a validare gli interventi (vedi "Interventi: la cadenza"): lì la cadenza è assegnata dal protocollo, quindi l'effetto stimato è causale per quei ciclisti.</li>
+<li><b>Prossimi passi:</b> indici di Sobol totali con un modello sostitutivo per le interazioni; altri interventi reali (carico) e taratura bayesiana con validazione fuori campione.</li>
 </ul>
 </div></section>
 

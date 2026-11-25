@@ -263,7 +263,7 @@ const MODEL = (() => {
     const hA = 0.040 * H, Lb = 0.090 * H;       // caviglia sopra la pianta; testa del 1° metatarso davanti alla caviglia
     const st = (p.stack ?? 22) / 1000, cl = (p.cleat ?? 0) / 1000; // stack pedale+suola; tacchetta arretrata verso il tallone
     const fx = Lb - cl, fy = -(hA + st);        // asse del pedale nel sistema del piede
-    const Lfoot = Math.hypot(fx, fy), beta = Math.atan2(-fy, fx);
+    const Lfoot = p.footL || Math.hypot(fx, fy), beta = Math.atan2(-fy, fx); // footL: lunghezza caviglia→pedale misurata (m), se disponibile
     const al = p.trunk * D, ank = p.ankl ?? 12;
     return { H, L, Lf, Lt, Lc, S, sad: [-S * Math.cos(sta), S * Math.sin(sta)], hip, hA, Lb, st, cl, Lfoot, beta, al, ank };
   }
