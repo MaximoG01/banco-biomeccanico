@@ -201,8 +201,10 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 </aside>
 <div class="ctrls" id="ctrls"></div>
 <section class="ath" aria-labelledby="fit-h">
-  <h2 id="fit-h">Bike fit: confronta due assetti</h2>
+  <h2 id="fit-h">Bike fit: assetto migliore e confronto</h2>
   <p class="note" id="fitn">Fissa A, poi cambia l'assetto: la tabella confronta A con l'attuale (B).</p>
+  <div class="btns" style="margin-bottom:10px"><button type="button" id="optbtn" class="cta2">Trova l’assetto più efficiente</button><span class="note" id="optst" aria-live="polite" style="align-self:center"></span></div>
+  <div id="optres" hidden></div>
   <div class="btns"><button type="button" id="fitA">Fissa questo assetto come A</button><button type="button" id="fitBack" disabled>Torna ad A</button><button type="button" id="fitOff" disabled>Togli il confronto</button></div>
   <div class="scroll" style="margin-top:12px"><table class="stack" id="tfit"><thead><tr><th>Misura</th><th>A</th><th>B (attuale)</th><th>Differenza</th><th>Riferimento</th></tr></thead><tbody></tbody></table></div>
 </section>
@@ -306,6 +308,25 @@ const MODEL = (() => {
     return { H, L, Lf, Lt, Lc, S, sad: [-S * Math.cos(sta), S * Math.sin(sta)], hip, hA, Lb, st, cl, Lfoot, beta, al, ank, solC };
   }
 
+  // bici reale: dalla geometria del telaio (stack, reach, angolo di sterzo) e dal cockpit (spessori, attacco, manubrio) alla posizione
+  // delle mani sulle leve; il busto è l'inclinazione per cui le spalle arrivano alle mani (busto 0,288 × altezza, braccia con gomito
+  // piegato di 20°: segmenti di Winter). Coordinate: movimento centrale nell'origine, x avanti, y in alto (m).
+  function bikeTrunk(p) {
+    const G = geom(p), H = G.H, ht = (p.hta ?? 73.25) * D, top = [(p.freach ?? 393) / 1000, (p.fstack ?? 560) / 1000];
+    const u = [-Math.cos(ht), Math.sin(ht)], cs = ((p.spc ?? 20) + 20) / 1000;              // asse sterzo verso l'alto; morsetto attacco sopra spessori e calotta
+    const C = [top[0] + u[0] * cs, top[1] + u[1] * cs], ph = (90 - (p.hta ?? 73.25) + (p.stema ?? -6)) * D;
+    const bar = [C[0] + (p.stem ?? 100) / 1000 * Math.cos(ph), C[1] + (p.stem ?? 100) / 1000 * Math.sin(ph)];
+    const hand = [bar[0] + (p.barr ?? 80) / 1000, bar[1] + 0.025];                         // mani sulle leve: reach del manubrio avanti, 2,5 cm sopra
+    const Lt = 0.288 * H, a = 0.186 * H, b = 0.206 * H, Ld = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(20 * D));
+    const f = al => Math.hypot(G.hip[0] + Lt * Math.cos(al) - hand[0], G.hip[1] + Lt * Math.sin(al) - hand[1]) - Ld;
+    let lo = 5 * D, hi = 85 * D, fit = 'ok';
+    if (f(lo) > 0) { hi = lo; fit = 'lontano'; } else if (f(hi) < 0) { lo = hi; fit = 'vicino'; }
+    for (let i = 0; i < 40 && hi - lo > 1e-6; i++) { const m = (lo + hi) / 2; if (f(m) > 0) hi = m; else lo = m; }
+    const al = (lo + hi) / 2, sad = G.sad;
+    return { trunk: Math.min(80, Math.max(10, al / D)), fit, hand, bar, drop: (sad[1] - bar[1]) * 100, reach: (bar[0] - sad[0]) * 100,
+      shoulder: [G.hip[0] + Lt * Math.cos(al), G.hip[1] + Lt * Math.sin(al)] };
+  }
+
   // cinematica inversa: angoli anatomici e posizioni a un angolo di pedivella th (0 = punto morto superiore)
   function pose(G, th) {
     const ped = [G.Lc * Math.sin(th), G.Lc * Math.cos(th)];
@@ -358,6 +379,7 @@ const MODEL = (() => {
   let REF = null;
 
   function run(p, opts = {}) {
+    const bike = p.geo ? bikeTrunk(p) : null; if (bike) p = {...p, trunk: bike.trunk}; // busto calcolato dalla bici reale
     const G = geom(p);
     const sH = G.H / 1.78, sL = G.L / (0.84 + 0.011 * 1.78);
     const age = Math.max(0, p.age - 30);
@@ -554,7 +576,7 @@ const MODEL = (() => {
     const P3 = P[N / 4];
     const fit = { kneeBDC: rom[1][0], kneeTDC: rom[1][1], hipMin: 180 - rom[0][1], ankle: rom[2][1] - rom[2][0],
       kops: (P3.knee[0] + 0.028 * sH - P3.ped[0]) * 100, saddleH: G.S * 100, setback: G.S * Math.cos((p.sta || 73) * D) * 100, crankPct: p.crank / (G.L * 10), stack: G.st * 1000, cleat: G.cl * 1000 };
-    return { ...S, G, P, ms, over, rom, vmax, csaT, volT, volAct, volMito, GE, VO2, VO2mus, VO2cen, lim, Paer, Pthr, fthr, al, fit };
+    return { ...S, bike, trunk: p.trunk, G, P, ms, over, rom, vmax, csaT, volT, volAct, volMito, GE, VO2, VO2mus, VO2cen, lim, Paer, Pthr, fthr, al, fit };
   }
 
   // potenza massimale (sprint) a ogni cadenza
@@ -570,7 +592,7 @@ const MODEL = (() => {
     return best;
   }
 
-  return { MUSCLES, run, curve, sprint, pose, geom, K, setHO: v => { HO = v; } };
+  return { MUSCLES, run, curve, sprint, pose, geom, bikeTrunk, K, setHO: v => { HO = v; } };
 })();
 if (typeof module !== 'undefined') module.exports = MODEL;
 
@@ -581,28 +603,35 @@ const SL = [
  ['Atleta', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['mass','Massa corporea',45,140,0.5,'kg'],['age','Età',18,80,1,'anni']]],
  ['Fisiologia', [['vo2','VO₂max',25,90,1,'mL/kg/min'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%'],['thigh','Circonferenza a metà coscia',38,75,0.5,'cm']]],
  ['Bici e pedalata', [['saddle','Altezza sella (× cavallo)',0.84,0.92,0.001,''],['crank','Pedivella',150,185,2.5,'mm'],['trunk','Inclinazione busto',10,80,1,'°'],['cad','Cadenza',50,130,1,'rpm']]],
+ ['La tua bici', [['fstack','Stack del telaio',480,680,1,'mm'],['freach','Reach del telaio',340,440,1,'mm'],['hta','Angolo di sterzo',70,75,0.25,'°'],['spc','Spessori sotto l’attacco',0,50,5,'mm'],['stem','Lunghezza attacco',60,140,10,'mm'],['stema','Angolo attacco',-17,17,1,'°'],['barr','Reach del manubrio',60,100,5,'mm']]],
  ['Avanzate', [['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['sta','Angolo tubo sella',70,80,0.5,'°'],['stack','Stack pedale + suola',12,40,1,'mm'],['cleat','Tacchetta arretrata',-5,40,1,'mm'],['ankl','Ankling',0,25,1,'°'],['cc','Co-contrazione muscoli',0,20,1,'%']]],
 ];
 // interruttori del modello (0/1): si salvano con l'atleta come i cursori
 const CB = [['lev','Bracci di leva che cambiano con l\'angolo'],['ten','Tendini elastici'],['act','Attivazione con ritardo (10 ms su, 40 ms giù)']];
-const DEF = {h:178,ins:84,mass:72,ratio:1.15,crank:172.5,saddle:0.883,trunk:45,sta:72,stack:22,cleat:0,ankl:21,thigh:17.5,mito:6,slow:50,age:35,vo2:50,cad:90,cc:5,lev:1,ten:1,act:1};
+const DEF = {h:178,ins:84,mass:72,ratio:1.15,crank:172.5,saddle:0.883,trunk:45,sta:72,stack:22,cleat:0,ankl:21,thigh:17.5,mito:6,slow:50,age:35,vo2:50,cad:90,cc:5,lev:1,ten:1,act:1,geo:1,fstack:560,freach:393,hta:73.25,spc:20,stem:100,stema:-6,barr:80};
 const PRE = {'Amatore':{},'Scalatore':{h:172,ins:81,mass:60,slow:70,thigh:16,mito:8.5,vo2:68,cad:90},'Velocista':{h:180,ins:84,mass:85,slow:25,thigh:21,mito:5,vo2:55,cad:95,trunk:35},'Master 60':{age:60,mass:75,slow:60,thigh:16.5,mito:5.5,vo2:40,cad:85}};
 let p = {...DEF};
-try { const s = JSON.parse(localStorage.getItem('bio-cicl3')); if (s) p = {...DEF, ...s}; } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem('bio-cicl3')); if (s) p = {...DEF, ...(s.geo == null ? {geo: 0} : {}), ...s}; } catch (e) {}
 MODEL.run(DEF); // riferimento angolare fisso
 
 // effetto tipico sulla soglia per una variazione normale del parametro (analisi DoWhy)
 const IMP = {ratio: '0,4%', sta: '0,6%', stack: '0,4%', cleat: '0,5%', ankl: '2%', cc: '3%'};
 const slider = ([k,l,mi,ma,st,u]) => `<div class="sl"><label for="s-${k}">${l}${IMP[k] ? ` <span class="imp">±${IMP[k]}</span>` : ''}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`;
-$('#ctrls').innerHTML = SL.map(([g, items]) => g === 'Avanzate'
+$('#ctrls').innerHTML = SL.map(([g, items]) => g === 'La tua bici'
+  ? `<details class="adv" id="bikeg"><summary>La tua bici: telaio e manubrio <span class="imp">geometria pubblicata dal costruttore</span></summary><div class="advg"><div><label class="cb"><input type="checkbox" id="s-geo"> Calcola l’inclinazione del busto da questa bici (mani sulle leve)</label><div class="btns" id="frames" role="group" aria-label="Telai di esempio"></div><p class="note" id="bikeout" aria-live="polite"></p></div>${items.map(slider).join('')}</div></details>`
+  : g === 'Avanzate'
   ? `<details class="adv"><summary>Avanzate <span class="imp">incidono poco: tra parentesi l'effetto tipico sulla soglia</span></summary><div class="advg">${items.map(slider).join('')}<div>${CB.map(([k, l]) => `<label class="cb"><input type="checkbox" id="s-${k}"><span>${l}</span></label>`).join('')}</div></div></details>`
   : `<fieldset><legend>${g}</legend>${items.map(slider).join('')}</fieldset>`).join('');
-const BIKES = {'Endurance': {p: {sta: 72.5, trunk: 55}}, 'Scalatrice': {p: {sta: 73.5, trunk: 45}}, 'Aero': {p: {sta: 73.5, trunk: 36}, l: {wheels: 'alto'}}, 'Crono': {p: {sta: 78, trunk: 15}, l: {wheels: 'lenticolare', head: 'aero'}}};
+const BIKES = {'Endurance': {p: {sta: 72.5, trunk: 55, geo: 0}}, 'Scalatrice': {p: {sta: 73.5, trunk: 45, geo: 0}}, 'Aero': {p: {sta: 73.5, trunk: 36, geo: 0}, l: {wheels: 'alto'}}, 'Crono': {p: {sta: 78, trunk: 15, geo: 0}, l: {wheels: 'lenticolare', head: 'aero'}}};
+// telai di esempio: geometrie pubblicate (Canyon, via bikeinsights.com)
+const FRAMES = {'Canyon Ultimate CF SLX · M': {fstack: 560, freach: 393, hta: 73.25}, 'Canyon Endurace CF · M': {fstack: 584, freach: 392, hta: 72.5}};
+$('#frames').innerHTML = Object.keys(FRAMES).map(n => `<button type="button" data-f="${esc(n)}">${esc(n)}</button>`).join('');
+$('#frames').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; p = {...p, ...FRAMES[b.dataset.f], geo: 1}; syncInputs(); compute(); });
 { const fs = [...document.querySelectorAll('#ctrls fieldset')].find(x => x.querySelector('legend').textContent === 'Bici e pedalata'); const d = document.createElement('div'); d.className = 'btns'; d.id = 'bikes'; d.setAttribute('role', 'group'); d.setAttribute('aria-label', 'Tipo di bici');
   d.innerHTML = Object.keys(BIKES).map(n => `<button type="button" data-b="${n}">${n}</button>`).join(''); fs.appendChild(d); }
 $('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
 
-const fmt = (k, v) => k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3) : k === 'ratio' ? v.toFixed(2) : k === 'crank' ? v.toFixed(1) : (+v).toFixed(Number.isInteger(+v) ? 0 : 1);
+const fmt = (k, v) => k === 'hta' ? v.toFixed(2) : k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3) : k === 'ratio' ? v.toFixed(2) : k === 'crank' ? v.toFixed(1) : (+v).toFixed(Number.isInteger(+v) ? 0 : 1);
 function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } const v = k === 'thigh' ? Math.round(p[k] * Math.PI * 2) / 2 : p[k]; i.value = v; $('#o-' + k).textContent = fmt(k, +v) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
 
 const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
@@ -690,6 +719,8 @@ function compute() {
   $('#tm tbody').innerHTML = R.ms.map((m, k) => `<tr><td><span class="sw" style="background:${m.col}"></span>${m.n}</td><td>${(m.F0 / 30 / 1.45).toFixed(0)}</td><td>${Math.round(m.F0).toLocaleString('it')}</td><td>${Math.round(R.short[k] * 100)}%<span class="bar" style="width:${R.short[k] / mx * 100}%;background:${m.col}"></span></td><td>${Math.round(R.mpow[k])}</td><td>${Math.round(R.mpow[k] / tot * 100)}%</td></tr>`).join('');
   const J = ['Anca', 'Ginocchio', 'Caviglia'];
   $('#tr tbody').innerHTML = R.rom.map((r, k) => `<tr><td>${J[k]}</td><td>${Math.round(r[0])}°</td><td>${Math.round(r[1])}°</td><td>${Math.round(r[1] - r[0])}°</td></tr>`).join('');
+  { const tr = $('#s-trunk'); if (tr) { tr.disabled = !!p.geo; if (R.bike) $('#o-trunk').textContent = nf(R.trunk, 0) + '° (dalla bici)'; } const bo = $('#bikeout');
+    if (bo) bo.textContent = R.bike ? `Busto ${nf(R.trunk, 0)}° · dislivello sella–manubrio ${nf(R.bike.drop, 1)} cm · sella–manubrio ${nf(R.bike.reach, 1)} cm${R.bike.fit === 'lontano' ? ' · manubrio troppo lontano: telaio grande o attacco lungo' : R.bike.fit === 'vicino' ? ' · manubrio troppo vicino: telaio piccolo o attacco corto' : ''}` : 'Busto impostato a mano (cursore “Inclinazione busto”).'; }
   ftpCurve(); renderFit();
   drawTq(); drawFtp(); drawCad(); drawPd(); drawAct(); drawBike();
   if (onCompute) onCompute();
@@ -1039,6 +1070,65 @@ $('#reset').addEventListener('click', () => { p = {...DEF}; syncInputs(); comput
 $('#play').addEventListener('click', e => { playing = !playing; last = 0; e.target.textContent = playing ? 'Pausa' : 'Avvia'; e.target.setAttribute('aria-pressed', playing); });
 $('#play').textContent = playing ? 'Pausa' : 'Avvia'; $('#play').setAttribute('aria-pressed', playing);
 const redrawAB = () => { renderFit(); drawTq(); drawFtp(); drawBike(); };
+// ---- assetto più efficiente: ricerca coordinata su sella, tubo sella (arretramento), pedivella e tacchetta ----
+// Obiettivo: soglia (W) alla cadenza dell'atleta. Vincoli: i limiti di bike fit della tabella (ginocchio, anca, caviglia, ginocchio sul pedale, pedivella/gamba).
+// Il busto resta quello scelto dall'atleta: per la sola efficienza il modello sceglierebbe sempre la posizione più alta (meno aerodinamica).
+const OPTV = [
+  ['crank', () => [160, 165, 167.5, 170, 172.5, 175, 177.5]],
+  ['saddle', c => { const o = []; for (let d = -0.03; d <= 0.0301; d += 0.005) o.push(+(c + d).toFixed(3)); return o.filter(v => v >= 0.84 && v <= 0.92); }],
+  ['sta', c => { const o = []; for (let d = -2.5; d <= 2.51; d += 0.5) o.push(+(c + d).toFixed(1)); return o.filter(v => v >= 70 && v <= 80); }],
+  ['cleat', () => [0, 5, 10, 15, 20]],
+  ['saddle', c => [-0.01, -0.005, 0, 0.005, 0.01].map(d => +(c + d).toFixed(3)).filter(v => v >= 0.84 && v <= 0.92)],
+  ['sta', c => [-1, -0.5, 0, 0.5, 1].map(d => +(c + d).toFixed(1)).filter(v => v >= 70 && v <= 80)],
+];
+const OPTC = FITR.filter(r => r[4] && !r[5]); // criteri di bike fit con un intervallo
+function optScore(r) {
+  let pen = 0; for (const [, f, , , rg] of OPTC) { const v = f(r, null, null); if (rg[0] != null && v < rg[0]) pen += rg[0] - v; if (rg[1] != null && v > rg[1]) pen += v - rg[1]; }
+  if (r.over) pen += 20;
+  return {score: r.Pthr - 50 * pen, pen};
+}
+let optTok = 0;
+function runOpt() {
+  const my = ++optTok, q0 = {...p}, cache = new Map(), btn = $('#optbtn'), tr0 = R.trunk;
+  const ev = q => { const k = OPTV.map(([v]) => q[v]).join('|'); if (!cache.has(k)) { const r = MODEL.run(q); cache.set(k, {r, ...optScore(r)}); } return cache.get(k); };
+  let best = {...q0, geo: 0, trunk: tr0}, bE = ev(best), step = 0, cand = 0; const tot = 7 + 13 + 11 + 5 + 5 + 5;
+  btn.disabled = true; $('#optres').hidden = true;
+  const queue = OPTV.map(([k, g]) => [k, g]);
+  let qi = 0, vals = null, vi = 0, cur = null;
+  const tick = () => {
+    if (my !== optTok) return;
+    if (!vals) { if (qi >= queue.length) return done(); cur = queue[qi][0]; vals = queue[qi][1](best[cur]); vi = 0; }
+    if (vi < vals.length) { const q = {...best, [cur]: vals[vi++]}, e = ev(q); cand++; if (e.score > bE.score + 1e-6) { best = q; bE = e; }
+      $('#optst').textContent = `Prova ${cand} di circa ${tot}…`; setTimeout(tick, 0); return; }
+    vals = null; qi++; setTimeout(tick, 0);
+  };
+  const done = () => {
+    btn.disabled = false; $('#optst').textContent = '';
+    if (q0.geo) { let bc = null; // attacco e spessori che riportano il busto all'inclinazione di partenza
+      for (let st = 60; st <= 140; st += 10) for (let sp = 0; sp <= 40; sp += 5) { const q = {...best, geo: 1, stem: st, spc: sp}, d = Math.abs(MODEL.bikeTrunk(q).trunk - tr0) + 0.002 * Math.abs(st - q0.stem) + 0.001 * Math.abs(sp - q0.spc); if (!bc || d < bc.d) bc = {q, d}; }
+      best = bc.q; const r = MODEL.run(best); bE = {r, ...optScore(r)}; }
+    const r0 = {r: R}, r1 = bE, dW = r1.r.Pthr - r0.r.Pthr, f0 = r0.r.fit, f1 = r1.r.fit;
+    const row = (l, a, b, u, d) => `<tr><td>${l}</td><td>${nf(a, d)} ${u}</td><td><b>${nf(b, d)} ${u}</b></td></tr>`;
+    $('#optres').innerHTML = `<h3>Assetto consigliato</h3>
+      <div class="scroll"><table class="stack"><thead><tr><th>Misura</th><th>Attuale</th><th>Consigliato</th></tr></thead><tbody>
+      ${row('Altezza sella (movimento centrale → sella)', f0.saddleH, f1.saddleH, 'cm', 1)}${row('Altezza sella (× cavallo)', q0.saddle, best.saddle, '', 3)}
+      ${row('Arretramento sella', f0.setback, f1.setback, 'cm', 1)}${row('Angolo tubo sella', q0.sta, best.sta, '°', 1)}
+      ${row('Pedivella', q0.crank, best.crank, 'mm', 1)}${row('Tacchetta arretrata', q0.cleat, best.cleat, 'mm', 0)}
+      <tr><td>Inclinazione busto</td><td>${nf(tr0, 0)}°</td><td>${nf(r1.r.trunk, 0)}° <span class="meta">(mantenuta)</span></td></tr>
+      ${q0.geo ? row('Lunghezza attacco', q0.stem, best.stem, 'mm', 0) + row('Spessori sotto l’attacco', q0.spc, best.spc, 'mm', 0) + row('Dislivello sella–manubrio', R.bike.drop, r1.r.bike.drop, 'cm', 1) : ''}
+      ${row('Ginocchio al punto morto inferiore', f0.kneeBDC, f1.kneeBDC, '°', 0)}${row('Ginocchio sul pedale a ore 3', f0.kops, f1.kops, 'cm', 1)}
+      ${row('Soglia', r0.r.Pthr, r1.r.Pthr, 'W', 0)}</tbody></table></div>
+      <p class="note">${Math.abs(dW) < 1 ? 'L’assetto attuale è già il migliore che il modello trova.' : `Guadagno stimato ${dW > 0 ? '+' : '−'}${nf(Math.abs(dW), 0)} W (${dW > 0 ? '+' : '−'}${nf(Math.abs(dW) / r0.r.Pthr * 100, 1)}%).`}
+      ${r1.pen > 0 ? ' Nessun assetto rispetta tutti i limiti: questo è il più vicino.' : ' Tutti i limiti di bike fit sono rispettati.'}
+      Il bike fit cambia la soglia di pochi punti percentuali (VO₂max e fisiologia contano molto di più): serve soprattutto a pedalare nei limiti sicuri. Stima del modello, non sostituisce un biomeccanico.</p>
+      <div class="btns"><button type="button" id="optapply" class="cta2">Applica e confronta con l’attuale</button></div>`;
+    $('#optres').hidden = false;
+    $('#optapply').addEventListener('click', () => { PA = {...q0}; RA = r0.r; SPA = SP; CURTA = CURT; p = {...q0, ...best}; syncInputs(); compute();
+      $('#fitn').textContent = 'A = assetto di partenza, B = assetto consigliato: cambia i cursori per provare altro.'; });
+  };
+  setTimeout(tick, 0);
+}
+$('#optbtn').addEventListener('click', runOpt);
 $('#fitA').addEventListener('click', () => { PA = {...p}; RA = R; SPA = SP; CURTA = CURT; $('#fitn').textContent = 'A fissato: ora cambia l\'assetto (B è quello attuale).'; redrawAB(); });
 $('#fitBack').addEventListener('click', () => { if (!PA) return; p = {...PA}; syncInputs(); compute(); });
 $('#fitOff').addEventListener('click', () => { RA = PA = SPA = CURTA = null; redrawAB(); });
@@ -1089,8 +1179,8 @@ syncLook();
   let t0 = 'vista'; try { t0 = localStorage.getItem('bio-tab') || 'vista'; } catch (e) {} setTab(['vista', 'atleta', 'bici', 'sfondo'].includes(t0) ? t0 : 'vista'); }
 
 // ---- Atleti salvati: archivio condiviso (chi può scrivere), atleti sul dispositivo (tutti) e codice atleta ----
-const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma])); CB.forEach(([k]) => RANGES[k] = [0, 1]); RANGES.thigh = [12, 24]; // nel modello: diametro (cm)
-const clean = q => { const o = {...DEF}; for (const k in RANGES) { const v = Number(q && q[k]); if (Number.isFinite(v)) o[k] = Math.min(RANGES[k][1], Math.max(RANGES[k][0], v)); } return o; };
+const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma])); CB.forEach(([k]) => RANGES[k] = [0, 1]); RANGES.geo = [0, 1]; RANGES.thigh = [12, 24]; // nel modello: diametro (cm)
+const clean = q => { const o = {...DEF}; for (const k in RANGES) { const v = Number(q && q[k]); if (Number.isFinite(v)) o[k] = Math.min(RANGES[k][1], Math.max(RANGES[k][0], v)); } if (q && q.geo == null) o.geo = 0; return o; }; // atleti salvati prima della bici reale: busto a mano
 const slug = n => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'atleta';
 let ATH = [], LOC = [], DB = null, USR = null, me = null, owner = false, canW = false, cur = location.hash.slice(1);
 const stat = m => $('#astat').textContent = m;
@@ -1098,11 +1188,13 @@ const stat = m => $('#astat').textContent = m;
 const CK = [['h', 1], ['ins', 10], ['mass', 10], ['ratio', 100], ['crank', 10], ['saddle', 1000], ['trunk', 1], ['sta', 10], ['stack', 1], ['cleat', 1, 10], ['ankl', 1],
   ['thigh', 10], ['mito', 10], ['slow', 1], ['age', 1], ['vo2', 1], ['cad', 1], ['cc', 1], ['lev', 1], ['ten', 1], ['act', 1]];
 const CL = ['jersey', 'jersey2', 'frame', 'frame2', 'shoes'];
-const encode = (q, lk) => 'cfg1-' + CK.map(([k, s, o = 0]) => Math.round(q[k] * s + o)).join('-') + '-' + Math.max(0, ENUM.scene.indexOf(lk.scene)) + '-' + CL.map(k => lk[k].slice(1)).join('-');
+const GK = [['geo', 1], ['fstack', 1], ['freach', 1], ['hta', 100], ['spc', 1], ['stem', 1], ['stema', 1, 50], ['barr', 1]];
+const encode = (q, lk) => 'cfg1-' + CK.map(([k, s, o = 0]) => Math.round(q[k] * s + o)).join('-') + '-' + Math.max(0, ENUM.scene.indexOf(lk.scene)) + '-' + CL.map(k => lk[k].slice(1)).join('-') + '-' + GK.map(([k, s, o = 0]) => Math.round(q[k] * s + o)).join('-');
 const decode = c => { const t = String(c).trim().replace(/^.*#/, '').split('-'); if (t[0] !== 'cfg1' || t.length < CK.length + 2) return null;
   const q = {}; CK.forEach(([k, s, o = 0], i) => q[k] = (Number(t[i + 1]) - o) / s);
   const lk = {...LOOK}, sc = ENUM.scene[+t[CK.length + 1]]; if (sc) lk.scene = sc;
   CL.forEach((k, i) => { const v = t[CK.length + 2 + i]; if (/^[0-9a-f]{6}$/i.test(v || '')) lk[k] = '#' + v.toLowerCase(); });
+  const g0 = CK.length + 2 + CL.length; if (t.length >= g0 + GK.length) GK.forEach(([k, s, o = 0], i) => q[k] = (Number(t[g0 + i]) - o) / s); else q.geo = 0;
   return {p: clean(q), look: cleanLook(lk)}; };
 onCompute = () => { $('#ccode').value = encode(p, LOOK); };
 onCompute();

@@ -45,22 +45,29 @@ Dettagli completi nella pagina **Teoria e modello** (`teoria.html`).
 
 | Profilo | FTP modello | Atteso | Fonte |
 |---|---|---|---|
-| Amatore ricreativo | 2,62 W/kg | 2,3–2,9 | Cycling Weekly |
-| Amatore allenato | 3,72 W/kg | 3,2–3,9 | tipico agonista amatore |
-| ProTeam | 5,28 W/kg | 5,1–5,7 | studio Vuelta 2020 (media 5,4) |
-| WorldTour scalatore | 5,80 W/kg | 5,8–6,4 | studio Vuelta 2020 (media 5,8); Lucía et al. |
-| Velocista pro | 4,66 W/kg | 4,8–5,5 | stima; sprint 17,4 W/kg ✓ (velocisti pro) |
+| Amatore ricreativo | 2,71 W/kg | 2,3–2,9 | Cycling Weekly |
+| Amatore allenato | 3,76 W/kg | 3,2–3,9 | tipico agonista amatore |
+| ProTeam | 5,39 W/kg | 5,1–5,7 | studio Vuelta 2020 (media 5,4) |
+| WorldTour scalatore | 5,99 W/kg | 5,8–6,4 | studio Vuelta 2020 (media 5,8); Lucía et al. |
+| Velocista pro | 4,81 W/kg | 4,8–5,5 | stima |
 
 **Analisi di sensibilità** (DoWhy, 2000 atleti virtuali, `test/`):
-- il VO₂max spiega il 62% della variabilità della soglia (+17% per deviazione standard); raddoppiandolo la soglia diventa ×1,87;
-- seguono fibre lente (+7%) e densità mitocondriale (+5%); il diametro della coscia pesa +3% (da 15 a 22 cm: ×0,99);
+- il VO₂max spiega il 70% della variabilità della soglia (+17% per deviazione standard); raddoppiandolo la soglia diventa ×1,86;
+- seguono fibre lente (+6%) e densità mitocondriale (+5%); la circonferenza della coscia pesa +3%;
 - assetto, pedivelle, tacchette e stack spostano la soglia meno del 2%, in linea con gli studi su pedivelle (Ferrer-Roca) e tacchette.
+
+### Aggiornamento (novembre 2026)
+
+- **Coppia sul pedale, 5 ciclisti di test:** errore 20%, forma r 0,98 (prima 30% e 0,95), dopo il calcolo stabile del tendine, le fibre per muscolo e il piede misurato.
+- **Soglia:** 5 profili su 5 nel range (costanti ritarate, errore medio 5,8%).
+- **Sprint:** cadenza ottimale entro ±2 rpm da 4 studi di laboratorio (Martin 1997 e 2001, Dorel 2005, Gardner 2007).
+- **Curva di potenza** da 1 s a 60 min (modello omni-dominio) con i percentili di 372 ciclisti di GoldenCheetah OpenData (`test/gc_*.py`).
+- **Bici reale:** il busto si calcola da stack, reach, sterzo, attacco e manubrio; il pulsante **Trova l'assetto più efficiente** cerca sella, arretramento, pedivella e tacchetta entro i limiti di bike fit (`test/bikefit-ottimo.js`).
 
 ### Limiti noti
 
-- **Taratura:** cinque costanti globali tarate su 13 obiettivi di letteratura; manca ancora la validazione su dati reali individuali.
-- **Sprint:** sottostimato negli amatori.
-- **Masse dei segmenti:** mancano peso e inerzia di coscia, gamba e piede, quindi la Power Phase dei pedali non è ancora confrontabile.
+- **Muscoli:** i vasti lavorano troppo; ischiocrurali, retto femorale e tibiale reagiscono alla cadenza nel verso opposto ai dati (DoWhy: 5 muscoli su 8 nel verso giusto).
+- **W′** (capacità anaerobica) viene dalla popolazione, non dal modello muscolare.
 - **Modello 2D:** niente movimenti laterali del ginocchio né float della tacchetta.
 
 ## Analisi riproducibili
@@ -76,9 +83,9 @@ python -m venv .venv && .venv/Scripts/pip install -r test/requirements.txt
 
 ## Prossimi passi
 
-- Taratura bayesiana delle costanti (distribuzioni dagli studi) con validazione fuori campione.
-- Masse e inerzia dei segmenti, poi confronto con la Power Phase reale (file FIT di pedali Garmin Rally / Favero Assioma).
-- Collegamento a Strava e Garmin per importare dati reali.
+- Più gruppi muscolari (capo breve del bicipite femorale, grande adduttore) per correggere ischiocrurali e vasti.
+- Importare file .fit/.csv di Garmin e Strava nel browser per la curva di potenza personale; poi un collegamento diretto (richiede un piccolo server per l'autorizzazione).
+- Altre geometrie di telai e taglie.
 
 ## Fonti principali
 
