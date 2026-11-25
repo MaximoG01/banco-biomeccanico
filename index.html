@@ -78,6 +78,7 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 .lrow button{min-height:40px;font-size:14px}
 .rot input[type=range]{flex:1 1 160px;accent-color:var(--acc);height:28px}.rot output{min-width:3.2em;font-weight:600;font-variant-numeric:tabular-nums}
 #bike{touch-action:pan-y;cursor:grab}
+#bike canvas.bike3d{position:absolute;inset:0;width:100%;height:100%;z-index:1;touch-action:pan-y}
 @media(min-width:901px){#bike{position:sticky;top:16px}}
 .lrow .tx{flex:1 1 140px;font:16px Barlow,sans-serif;min-height:40px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
 .ath{margin-top:28px;border-top:2px solid var(--ink);padding-top:14px}
@@ -140,7 +141,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
   <div class="dbody lookp" id="lookp">
     <div data-p="vista" role="tabpanel">
       <div class="lrow"><span>Cosa mostrare</span><div class="btns" id="views" role="group" aria-label="Vista del modello"><button type="button" data-v="muscoli">Muscoli</button><button type="button" data-v="atleta">Atleta</button><button type="button" data-v="entrambi">Atleta + muscoli</button></div></div>
-      <div class="lrow rot"><span>Rotazione sul piano orizzontale (o trascina la figura)</span><input type="range" id="rot" min="0" max="359" step="1" aria-label="Rotazione"><output id="rot-o"></output><button type="button" id="spin" aria-pressed="false">Gira</button><button type="button" id="rot0">Di lato</button><button type="button" id="rot90">Da dietro</button><button type="button" id="rot270">Di fronte</button></div>
+      <div class="lrow rot"><span>Rotazione (o trascina la figura: in orizzontale ruota, in verticale col mouse inclina la vista)</span><input type="range" id="rot" min="0" max="359" step="1" aria-label="Rotazione"><output id="rot-o"></output><button type="button" id="spin" aria-pressed="false">Gira</button><button type="button" id="rot0">Di lato</button><button type="button" id="rot90">Da dietro</button><button type="button" id="rot270">Di fronte</button></div>
     </div>
     <div data-p="atleta" role="tabpanel" hidden>
       <div class="lrow"><span>Maglia</span><input type="color" id="l-jersey" aria-label="Colore maglia"><input type="color" id="l-jersey2" aria-label="Secondo colore maglia"><select id="l-pattern" aria-label="Motivo maglia"><option value="unita">Tinta unita</option><option value="fascia">Fascia</option><option value="righe">Righe</option><option value="fianchi">Fondo a contrasto</option></select></div>
@@ -565,6 +566,7 @@ function ftpCurve() {
 let onCompute = null; // aggiorna il codice atleta
 function compute() {
   R = MODEL.run(p); CUR = MODEL.curve(p); SP = CUR.reduce((a, x) => x[1] > a[1] ? x : a);
+  if (window.BIO) window.BIO.ver++;
   try { localStorage.setItem('bio-cicl3', JSON.stringify(p)); } catch (e) {}
   const f = R.Pthr;
   $('#cadl').textContent = p.cad;
@@ -660,9 +662,20 @@ const SCENE = {
 };
 $('#scenes').innerHTML = SCN.map(([k, l]) => `<button type="button" class="scn" data-s="${k}" aria-pressed="false"><svg viewBox="0 0 160 90" aria-hidden="true">${SCENE[k] ? SCENE[k](160, 90, 70, 40, 18) : ''}</svg><span>${l}</span></button>`).join('');
 let DIST = 0; // metri percorsi, per far scorrere lo sfondo
+// stato letto dal motore 3D (bike3d.js); ver cambia quando cambiano parametri o aspetto
+window.BIO = {ver: 0, elev: 8, state: () => ({R, p, LOOK, VIEW, ROT, th, DIST, RA, ver: window.BIO.ver, elev: window.BIO.elev})};
+function draw3D(s, W, H) {
+  window.BIO3D.render(window.BIO.state(), W, H);
+  const gp = window.BIO3D.ground(), ac = Math.abs(Math.cos(ROT * Math.PI / 180)), scO = Math.max(0, Math.min(1, ac * 1.4 - 0.4)) * (VIEW === 'muscoli' ? 0.35 : 1);
+  let o = SCENE[LOOK.scene] && scO > 0 ? `<g opacity="${scO.toFixed(2)}">${SCENE[LOOK.scene](W, H, gp.gy, DIST * 0.35 * gp.s, gp.s)}</g>` : '';
+  const i = Math.round(th / (2 * Math.PI) * 72) % 72, fN = Math.round(Math.hypot(...R.leg[i].f));
+  o += `<text x="12" y="${H - 12}" font-size="13" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${W > 560 ? 'Alla soglia · freccia: forza sul pedale destro · ' + fN + ' N · trascina per ruotare' : 'Forza sul pedale · ' + fN + ' N'}</text>`;
+  s.innerHTML = o;
+}
 
 function drawBike() {
   const s = $('#bsvg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
+  if ((window.BIO3D && window.BIO3D.ok)) { draw3D(s, W, H); return; }
   const G = R.G, sc = Math.min(W / 1.85, (H - 24) / 1.68), oy = H - 0.30 * sc - 12;
   const ps = (VIEW === 'muscoli' ? 0 : ROT) * Math.PI / 180, c = Math.cos(ps), sn = Math.sin(ps), cx = 0.1, ox = W / 2 - 0.0 * sc;
   // proiezione: rotazione attorno all'asse verticale passante per il centro bici
@@ -875,7 +888,7 @@ function drawAct() {
 
 function frame(t) {
   const dt = last ? (t - last) / 1000 : 0; last = (playing || SPIN) ? t : 0;
-  if (SPIN) { ROT = (ROT + dt * 30) % 360; syncRot(false); if (VIEW === 'muscoli') setView('atleta'); }
+  if (SPIN) { ROT = (ROT + dt * 30) % 360; syncRot(false); if (VIEW === 'muscoli' && !(window.BIO3D && window.BIO3D.ok)) setView('atleta'); }
   if (playing) { th = (th + dt * p.cad / 60 * 2 * Math.PI) % (2 * Math.PI); DIST += dt * p.cad / 60 * 5.5; } // circa 5,5 m per pedalata (50×17)
   drawBike();
   for (const q of ['#ctq svg', '#cact svg']) { const s = $(q), c = s.querySelector('.cur');
@@ -902,18 +915,19 @@ $('#views').addEventListener('click', e => { if (e.target.dataset.v) setView(e.t
 setView(VIEW);
 
 const syncRot = (store = true) => { $('#rot').value = Math.round(ROT); $('#rot-o').textContent = Math.round(ROT) + '°'; if (store) { try { localStorage.setItem('bio-rot', String(Math.round(ROT))); } catch (e) {} } };
-const goRot = v => { ROT = ((v % 360) + 360) % 360; syncRot(); if (VIEW === 'muscoli' && ROT !== 0) setView('atleta'); drawBike(); };
+const goRot = v => { ROT = ((v % 360) + 360) % 360; syncRot(); if (VIEW === 'muscoli' && ROT !== 0 && !(window.BIO3D && window.BIO3D.ok)) setView('atleta'); drawBike(); };
 $('#rot').addEventListener('input', e => goRot(+e.target.value));
 $('#rot0').addEventListener('click', () => goRot(0)); $('#rot90').addEventListener('click', () => goRot(90)); $('#rot270').addEventListener('click', () => goRot(270));
 $('#spin').addEventListener('click', e => { SPIN = !SPIN; last = 0; e.target.setAttribute('aria-pressed', SPIN); e.target.textContent = SPIN ? 'Ferma' : 'Gira'; if (!SPIN) syncRot(); });
-{ let dx = null, r0 = 0; const fig = $('#bike');
-  fig.addEventListener('pointerdown', e => { if (VIEW === 'muscoli' || e.target.closest('button')) return; dx = e.clientX; r0 = ROT; fig.setPointerCapture(e.pointerId); fig.style.cursor = 'grabbing'; });
-  fig.addEventListener('pointermove', e => { if (dx === null) return; goRot(r0 - (e.clientX - dx) * 0.6); });
+{ let dx = null, dy = 0, r0 = 0, e0 = 8; const fig = $('#bike');
+  fig.addEventListener('pointerdown', e => { if ((VIEW === 'muscoli' && !(window.BIO3D && window.BIO3D.ok)) || e.target.closest('button')) return; dx = e.clientX; dy = e.clientY; r0 = ROT; e0 = window.BIO.elev; fig.setPointerCapture(e.pointerId); fig.style.cursor = 'grabbing'; });
+  fig.addEventListener('pointermove', e => { if (dx === null) return; goRot(r0 - (e.clientX - dx) * 0.6);
+    if ((window.BIO3D && window.BIO3D.ok) && e.pointerType === 'mouse') window.BIO.elev = Math.max(-5, Math.min(45, e0 + (e.clientY - dy) * 0.25)); });
   const up = () => { dx = null; fig.style.cursor = ''; }; fig.addEventListener('pointerup', up); fig.addEventListener('pointercancel', up); }
 syncRot(false);
 
 const syncLook = () => { for (const k in LOOK0) { const el = $('#l-' + k); if (el && el.type !== 'file' && document.activeElement !== el) el.value = LOOK[k]; } $('#l-nologo').disabled = !LOOK.logo; $('#l-noflogo').disabled = !LOOK.flogo; document.querySelectorAll('#scenes [data-s]').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === LOOK.scene)); };
-const lookChanged = () => { try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} syncLook(); if (onCompute) onCompute(); if (VIEW === 'muscoli') setView('atleta'); else drawBike(); };
+const lookChanged = () => { try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} if (window.BIO) window.BIO.ver++; syncLook(); if (onCompute) onCompute(); if (VIEW === 'muscoli') setView('atleta'); else drawBike(); };
 $('#lookp').addEventListener('input', e => { const k = e.target.id.slice(2); if (k in LOOK0 && e.target.type !== 'file') { LOOK = cleanLook({...LOOK, [k]: e.target.value}); lookChanged(); } });
 $('#l-nologo').addEventListener('click', () => { LOOK = {...LOOK, logo: ''}; lookChanged(); });
 const upLogo = (inp, key) => $(inp).addEventListener('change', e => {
@@ -1079,5 +1093,7 @@ if (cur.startsWith('cfg1-')) { const c = cur; cur = ''; route(c); }
 
 }
 </script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module" src="bike3d.js"></script>
 </body>
 </html>

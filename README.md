@@ -9,7 +9,7 @@ Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e a
 ## Cosa si può fare
 
 - Regolare antropometria, bici (sella, pedivelle, busto, tubo sella), scarpe e pedali (stack, tacchetta, ankling), muscolo e mitocondri, età, VO₂max e cadenza, e vedere subito soglia, efficienza, sprint e angoli articolari.
-- Guardare il ciclista animato con i muscoli attivi e la forza sul pedale, con sfondi (montagna, mare, città, campagna) e colori personalizzabili dal pannello **Personalizza**.
+- Guardare il ciclista animato **in 3D**, con il motore WebGL Three.js caricato dalla rete: si ruota trascinando, in orizzontale e in verticale col mouse. Sono visibili i muscoli attivi e la forza sul pedale, con sfondi (montagna, mare, città, campagna) e colori personalizzabili dal pannello **Personalizza**. Se il browser non supporta WebGL, la pagina torna al disegno 2D.
 - Confrontare due assetti (**Bike fit A/B**): la tabella mostra le differenze e i range consigliati, e la figura mostra la gamba di A tratteggiata.
 - Seguire nei grafici la coppia lungo il giro, la soglia e lo sprint al variare della cadenza, e la mappa di attivazione dei muscoli.
 - **Salvare gli atleti** nel browser e condividerli:
