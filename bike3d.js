@@ -429,8 +429,10 @@ if (renderer && window.BIO && host) {
       const me = new THREE.Mesh(unit, mm); root.add(me); return {me, r: Math.max(0.008, Math.sqrt(m.A) * 0.0028)}; }));
     const ghostG = new THREE.BufferGeometry(); ghostG.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(12), 3));
     const ghost = new THREE.Line(ghostG, new THREE.LineDashedMaterial({color: '#e5007d', dashSize: 0.03, gapSize: 0.02, depthTest: false})); ghost.renderOrder = 5; root.add(ghost);
-    const arrow = new THREE.ArrowHelper(V(0, -1, 0), V(), 0.2, 0xe5007d, 0.05, 0.035); arrow.renderOrder = 6;
-    arrow.line.material.depthTest = false; arrow.cone.material.depthTest = false; root.add(arrow);
+    const arM = new THREE.MeshBasicMaterial({color: 0xe5007d, depthTest: false}), arrow = new THREE.Group();
+    arrow.userData.shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1, 12).translate(0, 0.5, 0), arM);
+    arrow.userData.head = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.05, 16).translate(0, 0.025, 0), arM);
+    arrow.add(arrow.userData.shaft, arrow.userData.head); arrow.traverse(o => { o.renderOrder = 6; }); root.add(arrow);
     root.traverse(o => { if (o.isMesh) o.userData.body = bodyMats.includes(o.material); });
     rig = {root, legs, bones, muscles, wheels, ghost, ghostG, arrow, bodyMats, boneM, hipZ, kneeZ, ankZ, pedZ, hip0, U, BK, view: null};
   }
@@ -481,7 +483,8 @@ if (renderer && window.BIO && host) {
     });
     rig.wheels.forEach(g => { g.rotation.z = -run / 0.335; });
     const P = R.P[i], fv = R.leg[i].f, fm = Math.hypot(fv[0], fv[1]), fmax = Math.max(...R.leg.map(l => Math.hypot(...l.f)), 1);
-    rig.arrow.visible = fm > 20; if (fm > 20) { rig.arrow.position.set(P.ped[0], P.ped[1], rig.pedZ + 0.06); rig.arrow.setDirection(V(fv[0] / fm, fv[1] / fm, 0)); rig.arrow.setLength(0.06 + 0.2 * fm / fmax, 0.05, 0.035); }
+    rig.arrow.visible = fm > 20 && (st.LOOK || {}).force !== 'no';
+    if (rig.arrow.visible) { const Ln = 0.08 + 0.2 * fm / fmax; rig.arrow.position.set(P.ped[0], P.ped[1], rig.pedZ + 0.06); rig.arrow.quaternion.setFromUnitVectors(V(0, 1, 0), V(fv[0] / fm, fv[1] / fm, 0)); rig.arrow.userData.shaft.scale.set(1, Ln - 0.05, 1); rig.arrow.userData.head.position.y = Ln - 0.05; }
     rig.ghost.visible = !!st.RA;
     if (st.RA) { const Q = st.RA.P[i], a = rig.ghostG.attributes.position, z = rig.hipZ + 0.06;
       [Q.hip, Q.knee, Q.ank, Q.ped].forEach((q, n) => a.setXYZ(n, q[0], q[1], z)); a.needsUpdate = true; rig.ghost.computeLineDistances(); }

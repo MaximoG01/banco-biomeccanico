@@ -2,7 +2,7 @@
 // FTP di 5 profili tipo; cadenza di soglia ottimale (amatore ~85, pro ~92); efficienza lorda (amatore ~20,5%, pro ~22%);
 // frazione di VO2max alla soglia (amatore ~0,82, pro ~0,89); raddoppio del VO2max → FTP ×~1,9; coscia 15→22 cm → FTP ×~1,03.
 const M = require('./load-model.js')();
-const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 12, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
+const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 21, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
 M.run(B);
 const T = [[{mass: 76, vo2: 44, mito: 4.5, slow: 48, age: 40, thigh: 17, cad: 85}, 2.6],
   [{mass: 72, vo2: 55, mito: 6.5, slow: 55, age: 35, cad: 88}, 3.55],

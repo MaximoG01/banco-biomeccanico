@@ -8,7 +8,7 @@ const U = (a, b) => a + (b - a) * rnd();
 const G = (m, s) => { let u = 0; for (let i = 0; i < 12; i++) u += rnd(); return m + s * (u - 6); };
 const clip = (x, a, b) => Math.min(b, Math.max(a, x));
 const BASE = {ratio: 1.15, lev: 1, ten: 1, act: 1};
-M.run({h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 12, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5});
+M.run({h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 21, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5});
 const rows = [], t0 = Date.now();
 for (let n = 0; n < N; n++) {
   const h = clip(G(178, 7), 160, 198);

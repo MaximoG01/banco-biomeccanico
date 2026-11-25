@@ -9,7 +9,7 @@ const T = JSON.parse(fs.readFileSync(path.join(__dirname, 'target-opensim.json')
 const gfile = path.join(__dirname, 'geometria-ciclisti.json'), useGeo = !process.argv.includes('--senza-misure') && fs.existsSync(gfile);
 const GEO = useGeo ? Object.fromEntries(JSON.parse(fs.readFileSync(gfile, 'utf8').replace(/\bNaN\b/g, 'null')).map(g => [g.id, g])) : {};
 const EVALS = +process.argv[2] || 300, N = 72, D = Math.PI / 180;
-const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 12, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
+const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 21, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
 M.run(B);
 const K0 = {SOLE: M.K.SOLE, SPH: M.K.SPH};
 const IDS = ['glut', 'hams', 'vast', 'rf', 'ilio', 'gast', 'sol', 'ta'];
@@ -17,6 +17,9 @@ const KEYS = ['h', 'ins', 'ratio', 'saddle', 'sta', 'trunk'];
 const med = k => { const v = Object.values(GEO).map(g => g[k]).filter(Number.isFinite).sort((a, b) => a - b); return v.length ? v[v.length >> 1] : B[k]; };
 const riderSetup = r => { const g = GEO[r.id], p = {...B, cad: r.cad, crank: r.crank, mass: r.mass || 72}, k = {...K0};
   if (g) { for (const key of KEYS) p[key] = Number.isFinite(g[key]) ? g[key] : med(key);
+    // sella e tubo misurati con l'offset dell'anca 0,033 × altezza: si ricalcolano con quello del modello (stessa posizione dell'anca)
+    { const H = p.h / 100, ins = p.ins / 100, S = p.saddle * ins, st = p.sta * D, hx = -S * Math.cos(st), hy = S * Math.sin(st) + 0.033 * H, ho = 0.05 * H;
+      p.saddle = Math.hypot(hx, hy - ho) / ins; p.sta = Math.atan2(hy - ho, -hx) / D; }
     // piede misurato: lunghezza e angolo della retta caviglia→pedale (phi = suola + beta nel modello)
     if (Number.isFinite(g.footL)) { p.footL = g.footL; const beta = M.geom(p).beta / D; p.ankl = g.phiAmp; k.SOLE = g.phi0 - beta - M.K.SOLC * (r.cad - 90) / 10; k.SPH = g.phiPh; } }
   return {p, k, g}; };

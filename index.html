@@ -44,6 +44,10 @@ legend{font:600 20px "Barlow Condensed",sans-serif;padding:0 8px 0 0}
 .sl input{grid-column:1/-1;width:100%;accent-color:var(--acc);height:28px}
 .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px}
 .charts .fig{min-height:260px}
+.pdwrap{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:24px;align-items:start;margin-top:8px}
+#cpd{min-height:320px}.pdt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.pdt th,.pdt td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}.pdt th:first-child,.pdt td:first-child{text-align:left}.pdt th{font-size:13px;color:var(--mut);font-weight:600}
+.rec{margin-top:14px}.rec summary{cursor:pointer;font-weight:600}.recg{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-top:8px}.recg label{display:grid;gap:2px;font-size:13px;color:var(--mut)}.recg input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);min-width:0}
+@media(max-width:760px){.pdwrap{grid-template-columns:1fr}}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th{font-weight:600;font-size:14px;color:var(--mut)}
@@ -186,6 +190,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
       <div class="lrow"><span>Telaio</span><input type="color" id="l-frame" aria-label="Colore telaio"><input type="color" id="l-frame2" aria-label="Secondo colore telaio"><select id="l-fstyle" aria-label="Stile verniciatura"><option value="unita">Tinta unita</option><option value="sfumata">Sfumata</option><option value="bicolore">Carro a contrasto</option></select></div>
       <div class="lrow"><span>Scritta sul tubo obliquo · logo sul tubo sterzo</span><input id="l-ftext" maxlength="18" placeholder="Scritta telaio" class="tx"><label class="up">Logo telaio<input type="file" id="l-flogo" accept="image/*"></label><button type="button" id="l-noflogo">Togli</button></div>
       <div class="lrow"><span>Ruote: profilo, colore cerchio, scritta</span><select id="l-wheels" aria-label="Profilo ruote"><option value="basso">Basso profilo (30 mm)</option><option value="medio">Medio profilo (50 mm)</option><option value="alto">Alto profilo (80 mm)</option><option value="lenticolare">Lenticolare dietro</option></select><input type="color" id="l-rim" aria-label="Colore cerchio"><input id="l-wtext" maxlength="18" placeholder="Scritta cerchio" class="tx"></div>
+      <div class="lrow"><span>Freccia della forza sul pedale</span><select id="l-force" aria-label="Freccia della forza sul pedale"><option value="si">Mostra</option><option value="no">Nascondi</option></select></div>
     </div>
     <div data-p="sfondo" role="tabpanel" hidden>
       <div class="scenes" id="scenes" role="group" aria-label="Sfondo"></div>
@@ -226,6 +231,13 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 <h2>La pedalata alla soglia, giro per giro</h2>
 <p class="lede" style="margin-bottom:16px">Coppia sulla pedivella alla soglia, e come cambiano soglia e sprint con la cadenza.</p>
 <div class="charts"><div class="fig" id="ctq"><svg></svg></div><div class="fig" id="cftp"><svg></svg></div><div class="fig" id="ccad"><svg></svg></div></div>
+<h2 style="margin-top:32px">Curva di potenza: da 1 secondo a un’ora</h2>
+<p class="note">Dal modello: potenza massima (muscoli) e soglia a 60 minuti (fisiologia); in mezzo la capacità anaerobica W′, stimata dalla popolazione. In grigio 372 ciclisti di GoldenCheetah OpenData (uomini, record personali: fascia 10–90° e 25–75° percentile).</p>
+<div class="pdwrap"><div class="fig" id="cpd"><svg role="img" aria-label="Curva di potenza del modello confrontata con i ciclisti di GoldenCheetah"></svg></div>
+<div><table class="pdt" id="pdtab"><thead><tr><th>Durata</th><th>Modello</th><th>Percentile</th></tr></thead><tbody></tbody></table>
+<details class="rec"><summary>I tuoi record (facoltativi)</summary>
+<div class="recg"><label>5 s<input id="rec5" type="number" min="0" max="3000" inputmode="numeric" placeholder="W"></label><label>1 min<input id="rec60" type="number" min="0" max="2000" inputmode="numeric" placeholder="W"></label><label>5 min<input id="rec300" type="number" min="0" max="1000" inputmode="numeric" placeholder="W"></label><label>20 min<input id="rec1200" type="number" min="0" max="800" inputmode="numeric" placeholder="W"></label><label>60 min<input id="rec3600" type="number" min="0" max="700" inputmode="numeric" placeholder="W"></label></div>
+<p class="note">Compaiono come punti sul grafico, con il percentile. Restano solo in questo browser.</p></details></div></div>
 <h2 style="margin-top:32px">Quando si accendono i muscoli</h2>
 <p class="note">Attivazione lungo il giro alla soglia (0° = punto morto superiore).</p>
 <div class="fig" id="cact" style="min-height:330px;margin-top:8px"><svg></svg></div>
@@ -255,14 +267,14 @@ const MODEL = (() => {
   // g = rapporto fibra/muscolo-tendine nel modello a tendine rigido; pen = pennazione (°); Ls = lunghezza di riposo del tendine (m)
   // L0 = lunghezza ottimale fibra (m), A = PCSA di riferimento (cm2); co = muscolo che co-contrae (biarticolari e tibiale)
   const MUSCLES = [
-    { id: 'glut', n: 'Grande gluteo', c: [0.060, 0, 0], s: [[40, 0.35], null, null], g: 1.0, pen: 5, Ls: 0.125, L0: 0.14, Le: 0.142, A: 60, col: '#c2185b' },
-    { id: 'hams', co: 1, n: 'Ischiocrurali', c: [0.070, -0.030, 0], s: [[50, 0.25], [60, 0.35], null], g: 0.9, pen: 12, Ls: 0.33, L0: 0.09, Le: 0.095, A: 50, col: '#7b1fa2' },
-    { id: 'vast', n: 'Vasti (quadricipite)', c: [0, 0.045, 0], s: [null, [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.14, L0: 0.09, Le: 0.087, A: 180, col: '#d32f2f' },
-    { id: 'rf', co: 1, n: 'Retto femorale', c: [-0.040, 0.045, 0], s: [[0, 0.18], [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.33, L0: 0.075, Le: 0.084, A: 20, col: '#f57c00' },
-    { id: 'ilio', n: 'Ileopsoas', c: [-0.025, 0, 0], s: [[70, 0.25], null, null], g: 0.9, pen: 7, Ls: 0.10, L0: 0.10, Le: 0.1, A: 30, col: '#fbc02d' },
-    { id: 'gast', co: 1, n: 'Gastrocnemio', c: [0, -0.020, 0.050], s: [null, [60, 0.30], [15, 0.15]], g: 0.6, pen: 15, Ls: 0.39, L0: 0.055, Le: 0.06, A: 45, col: '#388e3c' },
-    { id: 'sol', n: 'Soleo', c: [0, 0, 0.050], s: [null, null, [15, 0.15]], g: 0.4, pen: 25, Ls: 0.26, L0: 0.035, Le: 0.05, A: 100, col: '#00796b' },
-    { id: 'ta', co: 1, n: 'Tibiale anteriore', c: [0, 0, -0.035], s: [null, null, [-20, 0.20]], g: 0.8, pen: 5, Ls: 0.23, L0: 0.07, Le: 0.098, A: 15, col: '#1976d2' },
+    { id: 'glut', st: 0.55, n: 'Grande gluteo', c: [0.060, 0, 0], s: [[40, 0.35], null, null], g: 1.0, pen: 5, Ls: 0.125, L0: 0.14, Le: 0.142, A: 60, col: '#c2185b' },
+    { id: 'hams', st: 0.49, co: 1, n: 'Ischiocrurali', c: [0.070, -0.030, 0], s: [[50, 0.25], [60, 0.35], null], g: 0.9, pen: 12, Ls: 0.33, L0: 0.09, Le: 0.095, A: 50, col: '#7b1fa2' },
+    { id: 'vast', st: 0.5, n: 'Vasti (quadricipite)', c: [0, 0.045, 0], s: [null, [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.14, L0: 0.09, Le: 0.087, A: 180, col: '#d32f2f' },
+    { id: 'rf', st: 0.39, co: 1, n: 'Retto femorale', c: [-0.040, 0.045, 0], s: [[0, 0.18], [30, 0.15], null], g: 0.8, pen: 5, Ls: 0.33, L0: 0.075, Le: 0.084, A: 20, col: '#f57c00' },
+    { id: 'ilio', st: 0.5, n: 'Ileopsoas', c: [-0.025, 0, 0], s: [[70, 0.25], null, null], g: 0.9, pen: 7, Ls: 0.10, L0: 0.10, Le: 0.1, A: 30, col: '#fbc02d' },
+    { id: 'gast', st: 0.54, co: 1, n: 'Gastrocnemio', c: [0, -0.020, 0.050], s: [null, [60, 0.30], [15, 0.15]], g: 0.6, pen: 15, Ls: 0.39, L0: 0.055, Le: 0.06, A: 45, col: '#388e3c' },
+    { id: 'sol', st: 0.8, n: 'Soleo', c: [0, 0, 0.050], s: [null, null, [15, 0.15]], g: 0.4, pen: 25, Ls: 0.26, L0: 0.035, Le: 0.05, A: 100, col: '#00796b' },
+    { id: 'ta', st: 0.7, co: 1, n: 'Tibiale anteriore', c: [0, 0, -0.035], s: [null, null, [-20, 0.20]], g: 0.8, pen: 5, Ls: 0.23, L0: 0.07, Le: 0.098, A: 15, col: '#1976d2' },
   ];
   const SIGMA = 30;   // tensione specifica N/cm2
   const CAL = 1.45;   // fattore di calibrazione (vedi test)
@@ -272,10 +284,10 @@ const MODEL = (() => {
   // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
-    EB: 0.27, F0: 0.75, FII: 0.5, TAU: 0.25, TW: 0.2,
-    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0, VS: 5, VF: 15, SOLC: 1.3 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    EB: 0.26, F0: 0.78, FII: 1, TAU: 0.3, TW: 0.2,
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 48, SPH: 19, W: null, EVW: 1.0, VS: 5, VF: 15, SOLC: 1.3, STM: 1 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
-  let HO = 0.033;
+  let HO = 0.05;   // centro dell'anca sopra l'appoggio sulla sella (× altezza): con 0,05 le selle misurate dei ciclisti di Clancy tornano a 0,883 × cavallo (LeMond)
   function geom(p) {
     const H = p.h / 100, ins = p.ins / 100, Lc = p.crank / 1000;
     const L = ins + 0.011 * H;                  // anca-caviglia
@@ -364,7 +376,8 @@ const MODEL = (() => {
     for (let i = 0; i < N; i++) { const th = 2 * Math.PI * i / N; const ps = pose(G, th); P.push(ps); qs.push(ps.q); }
     const ref = REF || (REF = qs.reduce((s, q) => s.map((v, k) => v + q[k] / N), [0, 0, 0]));
     const qd = qs.map((q, i) => { const a = qs[(i + 1) % N], b = qs[(i - 1 + N) % N]; return a.map((v, k) => (v - b[k]) / (2 * 2 * Math.PI / N) * w); });
-    const ms = MUSCLES.map(m => ({ ...m, c: m.c.map(c => c * sH), L0: m.L0 * sL, Le: m.Le * sL, Ls: m.Ls * sL, ca: Math.cos(m.pen * D), F0: m.A * SIGMA * CAL * area * fA }));
+    const ms = MUSCLES.map(m => ({ ...m, c: m.c.map(c => c * sH), L0: m.L0 * sL, Le: m.Le * sL, Ls: m.Ls * sL, ca: Math.cos(m.pen * D), F0: m.A * SIGMA * CAL * area * fA,
+      vx: K.STM ? (Math.min(0.95, Math.max(0.05, m.st + slow - 0.5)) * K.VS + (1 - Math.min(0.95, Math.max(0.05, m.st + slow - 0.5))) * K.VF) * vA : vmax }));
     // leve variabili: braccio(q) = c · forma(q) / forma(riferimento); lunghezza = integrale del braccio
     const W2 = (60 * D) ** 2;
     const shp = (s, q) => !lev || !s ? 1 : 1 - s[1] * (q - s[0] * D) ** 2 / W2;
@@ -414,7 +427,7 @@ const MODEL = (() => {
       for (let i = 0; i < N; i++) {
         const th = 2 * Math.PI * i / N, t = [Math.cos(th), -Math.sin(th)], rr = [Math.sin(th), Math.cos(th)], J = jac(G, P[i]);
         // coppie articolari per unità di attivazione (tendine rigido, curve forza-lunghezza e forza-velocità dalla cinematica)
-        const Aq = ms.map((m, j) => { const lf = m.L0 + m.g * MT[j].dl[i], vf = m.g * MT[j].v[i], F = m.F0 * fl(lf / m.L0) * fv(vf / (vmax * m.L0)); return MT[j].R[i].map(r => -F * r); });
+        const Aq = ms.map((m, j) => { const lf = m.L0 + m.g * MT[j].dl[i], vf = m.g * MT[j].v[i], F = m.F0 * fl(lf / m.L0) * fv(vf / (m.vx * m.L0)); return MT[j].R[i].map(r => -F * r); });
         const Jt = J.map(r => r[0] * t[0] + r[1] * t[1]), Jr = J.map(r => r[0] * rr[0] + r[1] * rr[1]);
         // la componente radiale della forza è libera (la assorbe la pedivella): si proietta via
         const nr = Math.hypot(...Jr) || 1, u0 = Jr.map(x => x / nr);
@@ -449,7 +462,7 @@ const MODEL = (() => {
       ms.forEach((m, j) => {
         // tendine elastico (rigidezza costante): stato = allungamento del tendine x, forza F = F0·x/(Ls·E0).
         // Dalla forza si ricava la velocità della fibra (inversa forza-velocità); la fibra vede Δl − x: lf = L0 + g·(Δl − x)
-        const T = MT[j], vm = vmax * m.L0, xs = m.Ls * K.E0, vs = 0.08 * Math.max(...T.v.map(Math.abs)) + 1e-9;
+        const T = MT[j], vm = m.vx * m.L0, xs = m.Ls * K.E0, vs = 0.08 * Math.max(...T.v.map(Math.abs)) + 1e-9;
         const sg = v => 1 / (1 + Math.exp(-v / vs));               // comando continuo: cresce con la velocità di accorciamento
         let a = 0, x = 0;
         for (let cy = 0; cy < CYC; cy++) for (let i = 0; i < N; i++) for (let s = 1; s <= NS; s++) {
@@ -572,7 +585,7 @@ const SL = [
 ];
 // interruttori del modello (0/1): si salvano con l'atleta come i cursori
 const CB = [['lev','Bracci di leva che cambiano con l\'angolo'],['ten','Tendini elastici'],['act','Attivazione con ritardo (10 ms su, 40 ms giù)']];
-const DEF = {h:178,ins:84,mass:72,ratio:1.15,crank:172.5,saddle:0.883,trunk:45,sta:73,stack:22,cleat:0,ankl:12,thigh:17.5,mito:6,slow:50,age:35,vo2:50,cad:90,cc:5,lev:1,ten:1,act:1};
+const DEF = {h:178,ins:84,mass:72,ratio:1.15,crank:172.5,saddle:0.883,trunk:45,sta:72,stack:22,cleat:0,ankl:21,thigh:17.5,mito:6,slow:50,age:35,vo2:50,cad:90,cc:5,lev:1,ten:1,act:1};
 const PRE = {'Amatore':{},'Scalatore':{h:172,ins:81,mass:60,slow:70,thigh:16,mito:8.5,vo2:68,cad:90},'Velocista':{h:180,ins:84,mass:85,slow:25,thigh:21,mito:5,vo2:55,cad:95,trunk:35},'Master 60':{age:60,mass:75,slow:60,thigh:16.5,mito:5.5,vo2:40,cad:85}};
 let p = {...DEF};
 try { const s = JSON.parse(localStorage.getItem('bio-cicl3')); if (s) p = {...DEF, ...s}; } catch (e) {}
@@ -593,8 +606,8 @@ const fmt = (k, v) => k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3)
 function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } const v = k === 'thigh' ? Math.round(p[k] * Math.PI * 2) / 2 : p[k]; i.value = v; $('#o-' + k).textContent = fmt(k, +v) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
 
 const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
-const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna', hair: 'corti', hairc: '#3a2a20', beard: 'nessuna', beardc: '#3a2a20', eyes: '#5b3b22'};
-const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS), scene: ['nessuno', 'montagna', 'mare', 'citta', 'campagna'], hair: ['corti', 'lunghi', 'coda', 'rasati'], beard: ['nessuna', 'corta', 'piena', 'pizzetto', 'baffi']};
+const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna', force: 'si', hair: 'corti', hairc: '#3a2a20', beard: 'nessuna', beardc: '#3a2a20', eyes: '#5b3b22'};
+const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS), scene: ['nessuno', 'montagna', 'mare', 'citta', 'campagna'], force: ['si', 'no'], hair: ['corti', 'lunghi', 'coda', 'rasati'], beard: ['nessuna', 'corta', 'piena', 'pizzetto', 'baffi']};
 const cleanLook = q => { const o = {...LOOK0}; if (!q || typeof q !== 'object') return o;
   for (const k in LOOK0) { const v = q[k]; if (typeof v !== 'string') continue;
     if (ENUM[k]) { if (ENUM[k].includes(v)) o[k] = v; }
@@ -678,7 +691,7 @@ function compute() {
   const J = ['Anca', 'Ginocchio', 'Caviglia'];
   $('#tr tbody').innerHTML = R.rom.map((r, k) => `<tr><td>${J[k]}</td><td>${Math.round(r[0])}°</td><td>${Math.round(r[1])}°</td><td>${Math.round(r[1] - r[0])}°</td></tr>`).join('');
   ftpCurve(); renderFit();
-  drawTq(); drawFtp(); drawCad(); drawAct(); drawBike();
+  drawTq(); drawFtp(); drawCad(); drawPd(); drawAct(); drawBike();
   if (onCompute) onCompute();
 }
 
@@ -750,7 +763,7 @@ function draw3D(s, W, H) {
   window.BIO3D.render(window.BIO.state(), W, H);
   let o = ''; // lo scenario è disegnato in 3D da bike3d.js
   const i = Math.round(th / (2 * Math.PI) * 72) % 72, fN = Math.round(Math.hypot(...R.leg[i].f));
-  o += `<text x="12" y="${H - 12}" font-size="13" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${W > 560 ? 'Alla soglia · freccia: forza sul pedale destro · ' + fN + ' N · trascina per ruotare' : 'Forza sul pedale · ' + fN + ' N'}</text>`;
+  o += `<text x="12" y="${H - 12}" font-size="13" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${LOOK.force === 'no' ? (W > 560 ? 'Alla soglia · trascina per ruotare' : 'Alla soglia') : W > 560 ? 'Alla soglia · freccia fucsia: forza sul pedale destro · ' + fN + ' N · trascina per ruotare' : 'Forza sul pedale · ' + fN + ' N'}</text>`;
   s.innerHTML = o;
 }
 
@@ -880,7 +893,7 @@ function drawBike() {
   o += crank(PN, ink, 6, 1);
   const fmax = Math.max(...R.leg.map(l => Math.hypot(...l.f)), 1), k = 0.13 / fmax, f = L.f, P = PR, e = [P.ped[0] + f[0] * k, P.ped[1] + f[1] * k, P.ped[2]];
   const tv = [Math.cos(th), -Math.sin(th)], ft = f[0] * tv[0] + f[1] * tv[1], et = [P.ped[0] + tv[0] * ft * k, P.ped[1] + tv[1] * ft * k, P.ped[2]];
-  if (Math.hypot(...f) > 20) {
+  if (Math.hypot(...f) > 20 && LOOK.force !== 'no') {
     o += `<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>`;
     o += ln(T(P.ped), T(et), 'var(--acc)', 3, .55, 'stroke-dasharray="5 4"') + ln(T(P.ped), T(e), 'var(--acc)', 5, 1, 'marker-end="url(#ah)"');
   }
@@ -944,6 +957,46 @@ function drawCad() {
   o += hits(CUR, xs, ys, x => `${x[0]} rpm: ${Math.round(x[1])} W`);
   s.innerHTML = o;
 }
+// ---- curva di potenza (modello omni-dominio, Puchowicz et al. 2020) ----
+// GoldenCheetah OpenData (372 uomini, record personali): percentili in W/kg; A/CP = calo oltre 30 min; W'/kg = b0 + b1·Pmax/kg + b2·CP/kg (R² 0,12)
+const GC = {n: 372, d: [1, 5, 10, 30, 60, 120, 300, 600, 1200, 1800, 3600], q: [10, 25, 50, 75, 90],
+  p: [[9.85, 11.78, 13.81, 16.5, 18.74], [8.84, 10.58, 12.5, 14.7, 16.61], [7.82, 9.55, 11.27, 13.28, 14.98], [6.07, 6.91, 8.2, 9.65, 10.88], [4.68, 5.45, 6.41, 7.38, 8.37], [3.9, 4.53, 5.2, 5.98, 6.64], [3.29, 3.84, 4.4, 5.04, 5.61], [2.99, 3.5, 4.01, 4.54, 5], [2.83, 3.27, 3.77, 4.24, 4.73], [2.6, 3.08, 3.56, 4.02, 4.47], [2.36, 2.82, 3.25, 3.66, 4.09]],
+  aCP: 0.1686, wp: [53.13, 6.82, 9.36], wpSD: 81.6};
+function pdModel(pmax, ftp, mass, dW = 0) { // potenza (W) a durata t (s); la soglia del modello è il punto a 60 minuti
+  const cp = ftp / (1 - GC.aCP * Math.log(2)), A = GC.aCP * cp;
+  const wp = Math.max(40, GC.wp[0] + GC.wp[1] * pmax / mass + GC.wp[2] * cp / mass + dW) * mass;
+  return {cp, wp, P: t => { const v = wp / t * (1 - Math.exp(-t * (pmax - cp) / wp)) + cp; return t > 1800 ? v - A * Math.log(t / 1800) : v; }};
+}
+function gcPct(t, wkg) { // percentile nella popolazione GoldenCheetah (interpolazione tra i quantili)
+  const k = GC.d.indexOf(t); if (k < 0) return null; const q = GC.p[k];
+  if (wkg <= q[0]) return '< 10'; if (wkg >= q[4]) return '> 90';
+  for (let i = 0; i < 4; i++) if (wkg <= q[i + 1]) return String(Math.round(GC.q[i] + (GC.q[i + 1] - GC.q[i]) * (wkg - q[i]) / (q[i + 1] - q[i])));
+}
+let REC = {}; try { REC = JSON.parse(localStorage.getItem('bio-rec') || '{}') || {}; } catch (e) {}
+const dlab = t => t < 60 ? t + ' s' : t / 60 + ' min';
+[5, 60, 300, 1200, 3600].forEach(t => { const el = $('#rec' + t); if (!el) return; if (REC[t]) el.value = REC[t];
+  el.addEventListener('input', () => { const v = +el.value; if (v > 0) REC[t] = v; else delete REC[t]; try { localStorage.setItem('bio-rec', JSON.stringify(REC)); } catch (e) {} drawPd(); }); });
+function drawPd() {
+  const s = $('#cpd svg'); if (!s || !R || !CUR) return; const W = s.clientWidth, H = s.clientHeight; if (!W) return;
+  const mass = p.mass, pmax = Math.max(...CUR.map(x => x[1])), M = pdModel(pmax, R.Pthr, mass), lo = pdModel(pmax, R.Pthr, mass, -GC.wpSD), hi = pdModel(pmax, R.Pthr, mass, GC.wpSD);
+  const m = {l: 46, r: 14, t: 26, b: 34}, L2 = Math.log(3600), ts = []; for (let e = 0; e <= 60; e++) ts.push(Math.exp(L2 * e / 60));
+  const top = Math.max(GC.p[0][4], pmax / mass, ...Object.values(REC).map(v => v / mass)) * 1.08, step = top > 20 ? 5 : top > 10 ? 2 : 1;
+  const xs = t => m.l + Math.log(t) / L2 * (W - m.l - m.r), ys = v => H - m.b - v / top * (H - m.t - m.b), yt = []; for (let v = 0; v <= top; v += step) yt.push(v);
+  let o = axes(W, H, m, xs, ys, 'durata (scala logaritmica)', 'Potenza (W/kg)', [], yt);
+  for (const [t, l] of [[1, '1 s'], [5, '5 s'], [30, '30 s'], [60, '1 min'], [300, '5 min'], [1200, '20 min'], [3600, '60 min']]) if (W > 480 || [1, 60, 1200, 3600].includes(t)) o += `<text x="${xs(t)}" y="${H - m.b + 18}" text-anchor="${t === 3600 ? 'end' : t === 1 ? 'start' : 'middle'}" font-size="12" fill="var(--mut)">${l}</text>`;
+  const band = (a, b, op) => { const up = GC.d.map((t, k) => [t, GC.p[k][b]]), dn = GC.d.map((t, k) => [t, GC.p[k][a]]).reverse(); return `<path d="${linePath(up, xs, ys)}L${linePath(dn, xs, ys).slice(1)}Z" fill="var(--mut)" opacity="${op}"/>`; };
+  o += band(0, 4, 0.12) + band(1, 3, 0.16) + `<path d="${linePath(GC.d.map((t, k) => [t, GC.p[k][2]]), xs, ys)}" fill="none" stroke="var(--mut)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  const up = ts.map(t => [t, hi.P(t) / mass]), dn = ts.map(t => [t, lo.P(t) / mass]).reverse();
+  o += `<path d="${linePath(up, xs, ys)}L${linePath(dn, xs, ys).slice(1)}Z" fill="var(--acc)" opacity=".14"/>`;
+  o += `<path d="${linePath(ts.map(t => [t, M.P(t) / mass]), xs, ys)}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>`;
+  o += hits(GC.d.map(t => [t, M.P(t) / mass]), xs, ys, x => `${dlab(x[0])}: ${Math.round(M.P(x[0]))} W · ${nf(x[1], 1)} W/kg`);
+  for (const [t, v] of Object.entries(REC)) o += `<circle cx="${xs(+t)}" cy="${ys(v / mass)}" r="6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2.5"><title>Tuo record ${dlab(+t)}: ${Math.round(v)} W · ${nf(v / mass, 1)} W/kg</title></circle>`;
+  o += `<text x="${W - m.r}" y="${m.t + 4}" text-anchor="end" font-size="12" fill="var(--ink)">— modello <tspan fill="var(--mut)">· - - mediana GoldenCheetah</tspan>${Object.keys(REC).length ? ' · ○ tuoi record' : ''}</text>`;
+  s.innerHTML = o;
+  $('#pdtab tbody').innerHTML = [5, 60, 300, 1200, 3600].map(t => { const w = M.P(t), r = REC[t];
+    return `<tr><td>${dlab(t)}</td><td>${Math.round(w)} W · ${nf(w / mass, 1)}</td><td>${gcPct(t, w / mass)}${r ? ` <span class="meta">(tuo ${gcPct(t, r / mass)})</span>` : ''}</td></tr>`; }).join('')
+    + `<tr><td>W′</td><td colspan="2">${nf(M.wp / 1000, 1)} kJ · ${Math.round(M.wp / mass)} J/kg <span class="meta">(± ${Math.round(GC.wpSD)})</span></td></tr>`;
+}
 const SHORT = {glut: 'Gluteo', hams: 'Ischiocrurali', vast: 'Vasti', rf: 'Retto femorale', ilio: 'Ileopsoas', gast: 'Gastrocnemio', sol: 'Soleo', ta: 'Tibiale ant.'};
 function drawAct() {
   const s = $('#cact svg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
@@ -989,7 +1042,7 @@ const redrawAB = () => { renderFit(); drawTq(); drawFtp(); drawBike(); };
 $('#fitA').addEventListener('click', () => { PA = {...p}; RA = R; SPA = SP; CURTA = CURT; $('#fitn').textContent = 'A fissato: ora cambia l\'assetto (B è quello attuale).'; redrawAB(); });
 $('#fitBack').addEventListener('click', () => { if (!PA) return; p = {...PA}; syncInputs(); compute(); });
 $('#fitOff').addEventListener('click', () => { RA = PA = SPA = CURTA = null; redrawAB(); });
-const ro = new ResizeObserver(() => { if (R) { drawTq(); drawFtp(); drawCad(); drawAct(); drawBike(); } });
+const ro = new ResizeObserver(() => { if (R) { drawTq(); drawFtp(); drawCad(); drawPd(); drawAct(); drawBike(); } });
 ['#bsvg', '#ctq svg', '#cftp svg', '#ccad svg', '#cact svg'].forEach(q => ro.observe($(q)));
 syncInputs(); compute(); requestAnimationFrame(frame);
 const setView = v => { VIEW = v; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); try { localStorage.setItem('bio-vista', v); } catch (e) {} drawBike(); };

@@ -2,7 +2,7 @@
 // a potenza fissa, e pendenza per +10 rpm (stesso intervento delle simulazioni Moco). Uso: node test/esporta-cadenze.js [watt] > prev.json
 const M = require('./load-model.js')();
 const watt = +process.argv[2] || 150;
-const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 12, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
+const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 21, thigh: 17.5, mito: 6, slow: 50, age: 35, vo2: 50, cad: 90, cc: 5, lev: 1, ten: 1, act: 1};
 M.run(B);
 const ids = M.MUSCLES.map(m => m.id), cads = [60, 70, 80, 90, 100, 110, 120], share = {};
 for (const c of cads) {
