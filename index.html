@@ -273,7 +273,7 @@ const MODEL = (() => {
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
     EB: 0.27, F0: 0.75, FII: 0.5, TAU: 0.25, TW: 0.2,
-    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0, VS: 5, VF: 15 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0, VS: 5, VF: 15, SOLC: 1.3 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -290,13 +290,14 @@ const MODEL = (() => {
     const fx = Lb - cl, fy = -(hA + st);        // asse del pedale nel sistema del piede
     const Lfoot = p.footL || Math.hypot(fx, fy), beta = Math.atan2(-fy, fx); // footL: lunghezza caviglia→pedale misurata (m), se disponibile
     const al = p.trunk * D, ank = p.ankl ?? 12;
-    return { H, L, Lf, Lt, Lc, S, sad: [-S * Math.cos(sta), S * Math.sin(sta)], hip, hA, Lb, st, cl, Lfoot, beta, al, ank };
+    const solC = K.SOLC * ((p.cad ?? 90) - 90) / 10;  // ad alta cadenza il tallone resta più alto (Moco, Clancy 2023: ~1,3° ogni 10 rpm)
+    return { H, L, Lf, Lt, Lc, S, sad: [-S * Math.cos(sta), S * Math.sin(sta)], hip, hA, Lb, st, cl, Lfoot, beta, al, ank, solC };
   }
 
   // cinematica inversa: angoli anatomici e posizioni a un angolo di pedivella th (0 = punto morto superiore)
   function pose(G, th) {
     const ped = [G.Lc * Math.sin(th), G.Lc * Math.cos(th)];
-    const sig = (K.SOLE - G.ank * Math.sin(th - K.SPH * D)) * D; // inclinazione della suola, punta in giù positiva: tallone giù in spinta, punta giù in risalita
+    const sig = (K.SOLE + (G.solC || 0) - G.ank * Math.sin(th - K.SPH * D)) * D; // inclinazione della suola, punta in giù positiva: tallone giù in spinta, punta giù in risalita
     const phi = sig + G.beta;                   // inclinazione della retta caviglia → asse del pedale
     const ank = [ped[0] - G.Lfoot * Math.cos(phi), ped[1] + G.Lfoot * Math.sin(phi)];
     let dx = ank[0] - G.hip[0], dy = ank[1] - G.hip[1];

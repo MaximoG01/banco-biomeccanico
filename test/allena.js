@@ -18,7 +18,7 @@ const med = k => { const v = Object.values(GEO).map(g => g[k]).filter(Number.isF
 const riderSetup = r => { const g = GEO[r.id], p = {...B, cad: r.cad, crank: r.crank, mass: r.mass || 72}, k = {...K0};
   if (g) { for (const key of KEYS) p[key] = Number.isFinite(g[key]) ? g[key] : med(key);
     // piede misurato: lunghezza e angolo della retta caviglia→pedale (phi = suola + beta nel modello)
-    if (Number.isFinite(g.footL)) { p.footL = g.footL; const beta = M.geom(p).beta / D; p.ankl = g.phiAmp; k.SOLE = g.phi0 - beta; k.SPH = g.phiPh; } }
+    if (Number.isFinite(g.footL)) { p.footL = g.footL; const beta = M.geom(p).beta / D; p.ankl = g.phiAmp; k.SOLE = g.phi0 - beta - M.K.SOLC * (r.cad - 90) / 10; k.SPH = g.phiPh; } }
   return {p, k, g}; };
 const train = T.riders.filter(r => +r.id.slice(1) <= 11), test = T.riders.filter(r => +r.id.slice(1) > 11);
 const actTrain = T.acts.slice(0, 4), actTest = T.acts.slice(4);
