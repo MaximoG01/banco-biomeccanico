@@ -39,9 +39,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-of
 .ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 28px;margin-top:18px}
 fieldset{border:0;border-top:2px solid var(--ink);margin:0;padding:10px 0 0}
 legend{font:600 20px "Barlow Condensed",sans-serif;padding:0 8px 0 0}
-.sl{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;margin:6px 0 10px}
-.sl label{font-size:15px}.sl output{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.sl input{grid-column:1/-1;width:100%;accent-color:var(--acc);height:28px}
+.sl{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;margin:3px 0;min-height:36px;border-bottom:1px solid var(--line)}
+.sl label{font-size:15px}.sl output{margin-left:6px;font-size:13px}.sl .num{display:flex;align-items:center;gap:5px}.sl .u{font-size:13px;color:var(--mut);min-width:3.2em}
+.sl input[type=number]{width:5.6em;font:600 15px Barlow,sans-serif;font-variant-numeric:tabular-nums;text-align:right;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}.sl input[type=number]:focus{outline:2px solid var(--acc);outline-offset:1px}.sl input[type=number]:disabled{opacity:.6}
 .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px}
 .charts .fig{min-height:260px}
 .pdwrap{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:24px;align-items:start;margin-top:8px}
@@ -616,7 +616,7 @@ MODEL.run(DEF); // riferimento angolare fisso
 
 // effetto tipico sulla soglia per una variazione normale del parametro (analisi DoWhy)
 const IMP = {ratio: '0,4%', sta: '0,6%', stack: '0,4%', cleat: '0,5%', ankl: '2%', cc: '3%'};
-const slider = ([k,l,mi,ma,st,u]) => `<div class="sl"><label for="s-${k}">${l}${IMP[k] ? ` <span class="imp">±${IMP[k]}</span>` : ''}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`;
+const slider = ([k,l,mi,ma,st,u]) => `<div class="sl"><label for="s-${k}">${l}${IMP[k] ? ` <span class="imp">±${IMP[k]}</span>` : ''}<output id="o-${k}" class="note"></output></label><span class="num"><input type="number" id="s-${k}" min="${mi}" max="${ma}" step="${st}" inputmode="decimal" data-u="${u}"><span class="u">${u}</span></span></div>`;
 $('#ctrls').innerHTML = SL.map(([g, items]) => g === 'La tua bici'
   ? `<details class="adv" id="bikeg"><summary>La tua bici: telaio e manubrio <span class="imp">geometria pubblicata dal costruttore</span></summary><div class="advg"><div><label class="cb"><input type="checkbox" id="s-geo"> Calcola l’inclinazione del busto da questa bici (mani sulle leve)</label><div class="btns" id="frames" role="group" aria-label="Telai di esempio"></div><p class="note" id="bikeout" aria-live="polite"></p></div>${items.map(slider).join('')}</div></details>`
   : g === 'Avanzate'
@@ -632,7 +632,7 @@ $('#frames').addEventListener('click', e => { const b = e.target.closest('[data-
 $('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
 
 const fmt = (k, v) => k === 'hta' ? v.toFixed(2) : k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3) : k === 'ratio' ? v.toFixed(2) : k === 'crank' ? v.toFixed(1) : (+v).toFixed(Number.isInteger(+v) ? 0 : 1);
-function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } const v = k === 'thigh' ? Math.round(p[k] * Math.PI * 2) / 2 : p[k]; i.value = v; $('#o-' + k).textContent = fmt(k, +v) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
+function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } const v = k === 'thigh' ? Math.round(p[k] * Math.PI * 2) / 2 : p[k]; if (document.activeElement !== i) i.value = fmt(k, +v); $('#o-' + k).textContent = ''; } }
 
 const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
 const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna', force: 'si', hair: 'corti', hairc: '#3a2a20', beard: 'nessuna', beardc: '#3a2a20', eyes: '#5b3b22'};
@@ -719,7 +719,7 @@ function compute() {
   $('#tm tbody').innerHTML = R.ms.map((m, k) => `<tr><td><span class="sw" style="background:${m.col}"></span>${m.n}</td><td>${(m.F0 / 30 / 1.45).toFixed(0)}</td><td>${Math.round(m.F0).toLocaleString('it')}</td><td>${Math.round(R.short[k] * 100)}%<span class="bar" style="width:${R.short[k] / mx * 100}%;background:${m.col}"></span></td><td>${Math.round(R.mpow[k])}</td><td>${Math.round(R.mpow[k] / tot * 100)}%</td></tr>`).join('');
   const J = ['Anca', 'Ginocchio', 'Caviglia'];
   $('#tr tbody').innerHTML = R.rom.map((r, k) => `<tr><td>${J[k]}</td><td>${Math.round(r[0])}°</td><td>${Math.round(r[1])}°</td><td>${Math.round(r[1] - r[0])}°</td></tr>`).join('');
-  { const tr = $('#s-trunk'); if (tr) { tr.disabled = !!p.geo; if (R.bike) $('#o-trunk').textContent = nf(R.trunk, 0) + '° (dalla bici)'; } const bo = $('#bikeout');
+  { const tr = $('#s-trunk'); if (tr) { tr.disabled = !!p.geo; if (R.bike) { tr.value = Math.round(R.trunk); $('#o-trunk').textContent = 'dalla bici'; } } const bo = $('#bikeout');
     if (bo) bo.textContent = R.bike ? `Busto ${nf(R.trunk, 0)}° · dislivello sella–manubrio ${nf(R.bike.drop, 1)} cm · sella–manubrio ${nf(R.bike.reach, 1)} cm${R.bike.fit === 'lontano' ? ' · manubrio troppo lontano: telaio grande o attacco lungo' : R.bike.fit === 'vicino' ? ' · manubrio troppo vicino: telaio piccolo o attacco corto' : ''}` : 'Busto impostato a mano (cursore “Inclinazione busto”).'; }
   ftpCurve(); renderFit();
   drawTq(); drawFtp(); drawCad(); drawPd(); drawAct(); drawBike();
@@ -1063,7 +1063,12 @@ function frame(t) {
 }
 
 let pend = false;
-$('#ctrls').addEventListener('input', e => { const k = e.target.id.slice(2); p[k] = e.target.type === 'checkbox' ? (e.target.checked ? 1 : 0) : k === 'thigh' ? +e.target.value / Math.PI : +e.target.value; syncInputs(); if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; compute(); }); } });
+let typT = 0;
+const setFrom = (el, strict) => { const k = el.id.slice(2); if (!(k in RANGES)) return false; if (el.type === 'checkbox') { p[k] = el.checked ? 1 : 0; return true; }
+  const raw = parseFloat(String(el.value).replace(',', '.')), mi = +el.min, ma = +el.max; if (!Number.isFinite(raw)) return false;
+  if (!strict && (raw < mi || raw > ma)) return false; const v = Math.min(ma, Math.max(mi, raw)); p[k] = k === 'thigh' ? v / Math.PI : v; return true; };
+$('#ctrls').addEventListener('input', e => { if (e.target.type === 'checkbox') { setFrom(e.target, true); compute(); return; } if (!setFrom(e.target, false)) return; clearTimeout(typT); typT = setTimeout(compute, 350); });
+$('#ctrls').addEventListener('change', e => { if (e.target.type === 'checkbox') return; clearTimeout(typT); setFrom(e.target, true); syncInputs(); compute(); });
 $('#bikes').addEventListener('click', e => { const b = BIKES[e.target.dataset.b]; if (!b) return; Object.assign(p, b.p); if (b.l) { LOOK = cleanLook({...LOOK, ...b.l}); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (er) {} syncLook(); } syncInputs(); compute(); });
 $('#presets').addEventListener('click', e => { const n = e.target.dataset.p; if (!n) return; p = {...DEF, ...PRE[n]}; syncInputs(); compute(); });
 $('#reset').addEventListener('click', () => { p = {...DEF}; syncInputs(); compute(); });
