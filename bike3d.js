@@ -134,7 +134,7 @@ if (renderer && window.BIO && host) {
     hemi.intensity = 1.1; sun.intensity = 2.4; sun.color.set('#fff6ea');
     if (!pal) return;
     seed = 7;
-    scene.fog = new THREE.Fog(pal.fog, 35, 170);
+    scene.fog = new THREE.Fog(pal.fog, 80, 340);
     hemi.intensity = 1.1 * pal.light; sun.intensity = 2.4 * pal.light; if (name === 'citta') sun.color.set('#ffd2a8');
     // cielo: cupola con sfumatura verticale
     const skyG = new THREE.SphereGeometry(300, 32, 20), top = new THREE.Color(pal.top), hor = new THREE.Color(pal.hor), cs = [];

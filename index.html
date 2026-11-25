@@ -88,6 +88,10 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .sub{font:600 20px "Barlow Condensed",sans-serif;margin:18px 0 8px}
 #ccode{font-variant-numeric:tabular-nums;font-size:14px}
+.adv{grid-column:1/-1;border-top:2px solid var(--ink);padding:10px 0 0}
+.adv summary{font:600 20px "Barlow Condensed",sans-serif;cursor:pointer}
+.advg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 28px;margin-top:10px}
+.imp{font:500 13px Barlow,sans-serif;color:var(--mut)}
 .alist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .alist li{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
 .alist li.on{border-color:var(--acc)}
@@ -111,23 +115,19 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 <body>
 <section class="band"><div class="wrap">
 <h1>Banco biomeccanico: da dove nasce la tua soglia</h1>
-<p class="lede">Modello dinamico della pedalata: proporzioni del corpo, assetto, scarpe e tacchette, muscoli, tendini e mitocondri determinano angoli articolari, lavoro delle fibre ed efficienza, e da lì la soglia (FTP) in W/kg. Lo sprint è la potenza massimale alla cadenza migliore.</p>
+<p class="lede">Dal corpo, dalla bici e dalla fisiologia alla tua soglia (FTP) in W/kg, con un modello muscolare della pedalata.</p>
 <div class="top">
   <div class="fig" id="bike"><svg id="bsvg" role="img" aria-label="Ciclista in vista laterale con muscoli della gamba e vettore di forza sul pedale"></svg><button type="button" id="dopen" class="figbtn" aria-expanded="false" aria-controls="drawer">Personalizza</button></div>
   <div class="read">
     <div class="res"><div class="note">Soglia (FTP) pedalando a <b id="cadl">90</b> rpm</div><div class="big" id="pw">–</div><div class="big" style="font-size:clamp(34px,5vw,48px)" id="wkg">–</div></div>
     <div class="kv">
-      <span>Potenza massima (sprint)</span><span id="ftp">–</span>
-      <span>Efficienza lorda alla soglia (lunghezza · velocità · lavoro negativo)</span><span id="ge">–</span>
-      <span>Muscolo delle cosce (due gambe)</span><span id="mm">–</span>
-      <span>Mitocondri attivi → O₂ che il muscolo può usare</span><span id="mi">–</span>
-      <span>O₂ che cuore e sangue portano (VO₂max)</span><span id="vc">–</span>
-      <span>Cosa limita la soglia</span><span id="lim">–</span>
-      <span>Frazione di VO₂max sostenibile alla soglia</span><span id="fth">–</span>
-      <span>Attivazione dei muscoli alla soglia</span><span id="opt">–</span>
-      <span>Indice di efficacia (forza utile / totale)</span><span id="ie">–</span>
-      <span>Ginocchio al punto morto inferiore</span><span id="kbdc">–</span>
-      <span>Velocità massima di accorciamento</span><span id="vm">–</span>
+      <span>Sprint (100–130 rpm)</span><span id="ftp">–</span>
+      <span>Efficienza lorda</span><span id="ge">–</span>
+      <span>VO₂max (O₂ dal cuore)</span><span id="vc">–</span>
+      <span>Frazione sostenibile</span><span id="fth">–</span>
+      <span>Cosa limita</span><span id="lim">–</span>
+      <span>Indice di efficacia</span><span id="ie">–</span>
+      <span>Ginocchio in basso</span><span id="kbdc">–</span>
     </div>
     <div class="warn" id="warn" role="status"></div>
     <div class="btns"><button id="play" aria-pressed="true">Pausa</button><button id="reset">Valori iniziali</button></div>
@@ -159,7 +159,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
     </div>
     <div data-p="sfondo" role="tabpanel" hidden>
       <div class="scenes" id="scenes" role="group" aria-label="Sfondo"></div>
-      <p class="note">Lo sfondo si vede nelle viste Atleta e Atleta + muscoli (nella vista Muscoli resta tenue) e scorre mentre il ciclista pedala.</p>
+      <p class="note">Lo scenario scorre mentre il ciclista pedala.</p>
     </div>
     <p class="note" id="lnote">L'aspetto si salva insieme all'atleta.</p>
   </div>
@@ -167,7 +167,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 <div class="ctrls" id="ctrls"></div>
 <section class="ath" aria-labelledby="fit-h">
   <h2 id="fit-h">Bike fit: confronta due assetti</h2>
-  <p class="note" id="fitn">Fissa l'assetto attuale come A, poi cambia sella, pedivelle, busto, scarpe, tacchette o cadenza: la tabella confronta A con l'assetto attuale (B) e la figura mostra la gamba di A tratteggiata.</p>
+  <p class="note" id="fitn">Fissa A, poi cambia l'assetto: la tabella confronta A con l'attuale (B).</p>
   <div class="btns"><button type="button" id="fitA">Fissa questo assetto come A</button><button type="button" id="fitBack" disabled>Torna ad A</button><button type="button" id="fitOff" disabled>Togli il confronto</button></div>
   <div class="scroll" style="margin-top:12px"><table class="stack" id="tfit"><thead><tr><th>Misura</th><th>A</th><th>B (attuale)</th><th>Differenza</th><th>Riferimento</th></tr></thead><tbody></tbody></table></div>
 </section>
@@ -183,10 +183,10 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
     <ul class="alist" id="llist"></ul>
   </div>
   <h3 class="sub">Scarica e importa</h3>
-  <p class="note">Il file JSON contiene parametri, aspetto, codice e i risultati del modello (soglia, efficienza, frazione di VO₂max, sprint, angoli) e si può reimportare; il CSV si apre con Excel o Fogli.</p>
+  <p class="note">JSON reimportabile con parametri e risultati; CSV per Excel.</p>
   <div class="btns"><button type="button" id="xcur">Scarica configurazione attuale (.json)</button><button type="button" id="xall">Scarica atleti del dispositivo (.json)</button><button type="button" id="xcsv">Scarica tabella (.csv)</button><label class="up">Importa file .json<input type="file" id="ximp" accept=".json,application/json"></label></div>
   <h3 class="sub">Condividi con un codice</h3>
-  <p class="note">Il codice contiene tutta la configurazione: corpo, bici, scarpe, fisiologia, sfondo e colori principali. Chi lo incolla qui sotto vede lo stesso atleta; aggiunto in fondo al link della pagina dopo il simbolo #, apre direttamente quella configurazione.</p>
+  <p class="note">Il codice contiene tutta la configurazione: incollalo qui o aggiungilo al link dopo #.</p>
   <div class="savef"><label for="ccode" class="sr">Codice della configurazione attuale</label><input id="ccode" readonly><button type="button" id="ccopy">Copia codice</button></div>
   <form class="savef" id="cimp"><label for="cin" class="sr">Codice da aprire</label><input id="cin" placeholder="Incolla un codice atleta (cfg1-…)" autocomplete="off"><button type="submit">Apri codice</button></form>
 </section>
@@ -194,42 +194,35 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 
 <section class="band" style="background:var(--soft)"><div class="wrap">
 <h2>La pedalata alla soglia, giro per giro</h2>
-<p class="lede" style="margin-bottom:16px">La coppia sul movimento centrale alla potenza di soglia (due gambe sommate), poi soglia e sprint al variare della cadenza. Pedalando troppo agile l'efficienza cala perché le fibre lente si accorciano troppo in fretta e i muscoli non fanno in tempo ad accendersi e spegnersi. Pedalando troppo duro manca velocità.</p>
+<p class="lede" style="margin-bottom:16px">Coppia sulla pedivella alla soglia, e come cambiano soglia e sprint con la cadenza.</p>
 <div class="charts"><div class="fig" id="ctq"><svg></svg></div><div class="fig" id="cftp"><svg></svg></div><div class="fig" id="ccad"><svg></svg></div></div>
 <h2 style="margin-top:32px">Quando si accendono i muscoli</h2>
-<p class="note" style="max-width:72ch">Attivazione alla soglia lungo il giro (0° = punto morto superiore): più pieno il colore, più attivo il muscolo. Il comando parte quando il muscolo inizia ad accorciarsi e si spegne con anticipo, perché per disattivarsi servono circa 40 ms. Le strisce tenui fuori dalla fase attiva sono la co-contrazione.</p>
+<p class="note">Attivazione lungo il giro alla soglia (0° = punto morto superiore).</p>
 <div class="fig" id="cact" style="min-height:330px;margin-top:8px"><svg></svg></div>
 </div></section>
 
 <section class="band"><div class="wrap cols">
 <div><h2>Muscoli alla soglia: chi lavora e quanto si accorcia</h2>
-<p class="note">Accorciamento = escursione della fibra nel giro, in % della sua lunghezza ottimale (con tendini elastici è minore di quella del muscolo intero). Oltre il 40–50% la fibra lavora lontano dalla zona di forza massima. Potenza e quota sono quelle alla soglia.</p>
+<p class="note">Accorciamento della fibra nel giro (% della lunghezza ottimale); potenza alla soglia.</p>
 <div class="scroll"><table class="stack" id="tm"><thead><tr><th>Muscolo</th><th>Sezione (cm²)</th><th>Forza max (N)</th><th>Accorciamento</th><th>Potenza (W)</th><th>Quota</th></tr></thead><tbody></tbody></table></div></div>
 <div><h2>Escursione articolare (ROM)</h2>
-<p class="note">Angoli nel giro completo. Anca: flessione rispetto al busto; ginocchio: 0° = gamba tesa; caviglia: positivo = punta verso l'alto.</p>
+<p class="note">Ginocchio 0° = gamba tesa; caviglia + = punta in su.</p>
 <table id="tr"><thead><tr><th>Articolazione</th><th>Min</th><th>Max</th><th>Escursione</th></tr></thead><tbody></tbody></table></div>
 </div></section>
 
 <section class="band method" style="background:var(--soft)"><div class="wrap">
-<h2>Come calcola il modello e dove sbaglia</h2>
-<details open><summary>Il metodo in 8 passaggi</summary><ol>
-<li><b>Geometria.</b> Dal cavallo e dall'altezza ricava la gamba (anca → caviglia), divisa in femore e tibia secondo il rapporto scelto. La sella è al valore % del cavallo sul tubo sella; il centro dell'anca sta 3,3% dell'altezza sopra il punto di appoggio.</li>
-<li><b>Piede, scarpa e tacchetta.</b> Il piede è un corpo rigido: caviglia 4% dell'altezza sopra la pianta, testa del 1° metatarso 9% davanti alla caviglia. L'asse del pedale sta sotto la pianta di quanto vale lo stack (pedale + suola) e indietro rispetto al metatarso di quanto è arretrata la tacchetta. La suola oscilla nel giro (ankling): tallone giù in spinta, punta giù in risalita, con l'ampiezza scelta.</li>
-<li><b>Cinematica inversa.</b> Per 72 posizioni della pedivella calcola dove stanno ginocchio e caviglia e quindi gli angoli anatomici di anca, ginocchio e caviglia (la caviglia come angolo tra tibia e pianta).</li>
-<li><b>Muscoli di Hill.</b> 8 gruppi muscolari con lunghezza ottimale della fibra e sezione trasversale. La forza dipende da quanto è lunga la fibra (forza-lunghezza) e da quanto velocemente si accorcia o si allunga (forza-velocità, fino a 1,5 volte in allungamento). Il diametro della coscia scala la sezione (al quadrato), le fibre lente abbassano la velocità massima (3,5 contro 10 lunghezze/s), l'età riduce forza (−0,6%/anno) e velocità (−0,4%/anno) dopo i 30.</li>
-<li><b>Leve, tendini e attivazione.</b> Il braccio di leva di ogni muscolo cambia con l'angolo (es. quello dei vasti è massimo intorno a 30° di flessione del ginocchio); la lunghezza del muscolo-tendine è l'integrale del braccio. Il tendine è una molla (si allunga del 4% della sua lunghezza alla forza massima): ruba accorciamento alla fibra quando la forza sale e lo restituisce quando scende. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa; biarticolari e tibiale co-contraggono nella fase in cui non spingono. Ogni muscolo è simulato nel tempo per 3 giri, fino a regime.</li>
-<li><b>Soglia (FTP).</b> L'ossigeno disponibile è il VO₂max (× massa), che cuore e sangue riescono a portare. I mitocondri dei muscoli attivi (volume × densità × circa 5 mL di O₂ al minuto per mL) possono usarne fino a circa il doppio (Andersen e Saltin 1985): in pedalata il limite è quasi sempre centrale, e il tetto muscolare conta solo in casi estremi. Alla soglia se ne usa una frazione, dal 75% al 94%, che cresce con la densità mitocondriale e con le fibre lente (Coyle; Holloszy e Coyle) e cala quando la forza per pedalata è così alta da reclutare le fibre veloci, che producono lattato (principio di Henneman: per questo a cadenza bassa la soglia scende). L'ossigeno diventa watt attraverso l'efficienza lorda, calcolata simulando la pedalata proprio alla potenza di soglia: è massima con fibre vicine alla lunghezza ottimale, che si accorciano a circa un quarto della loro velocità massima, poco lavoro negativo e più fibre lente (Coyle 1992). Cinque costanti globali (efficienza di base, frazione minima, peso del lattato da fibre veloci, soglia e ampiezza del reclutamento) sono tarate su 13 obiettivi: FTP di amatori, ProTeam (5,4 W/kg) e WorldTour (5,8 W/kg), efficienza e frazione tipiche, cadenza di soglia, e due vincoli fisiologici: raddoppiando il VO₂max la soglia quasi raddoppia, mentre il diametro della coscia la sposta appena.</li>
-<li><b>Sprint.</b> Stessa simulazione con attivazione massimale e tempi di comando che massimizzano la potenza, ripetuta da 40 a 160 rpm: lo sprint è il massimo della curva.</li>
-<li><b>Vettori e bike fit.</b> Le coppie alle articolazioni diventano forza sul pedale (minimi quadrati sullo jacobiano della gamba); l'indice di efficacia è la parte di forza che spinge davvero la pedivella. Le misure di bike fit (ginocchio ai punti morti, angolo busto-coscia, ginocchio sul pedale a ore 3) vengono dalla stessa cinematica.</li></ol></details>
-<details><summary>Limiti da tenere presenti</summary><ul>
-<li>Modello 2D sagittale: niente movimenti laterali del ginocchio, rotazione del piede (float della tacchetta) né rotazioni del bacino.</li>
-<li>Il comando nervoso è una regola fissa (acceso mentre il muscolo si accorcia, con anticipi diversi per sprint e soglia), non un'ottimizzazione completa come in OpenSim Moco. Niente forza passiva delle fibre.</li>
-<li>Calibrazione: un fattore 1,45 su tutte le forze compensa muscoli non modellati (adduttori, tensore della fascia lata, tronco e braccia). Pesa sullo sprint, non sulla soglia, che dipende da ossigeno ed efficienza.</li>
-<li>Soglia: la densità mitocondriale va da circa 3–4% (sedentario) a 8–10% (endurance d'élite); consumo per mL di mitocondri, massa muscolare attiva e le cinque costanti tarate sono stime con incertezza. Sui profili tipo il modello resta entro circa ±6% dai valori pubblicati (il velocista −10%), con efficienza lorda 21–23% e frazione sostenibile 81–92%. Il passo successivo è una taratura bayesiana con validazione su dati reali.</li>
-<li>Analisi di sensibilità (DoWhy, 2000 atleti virtuali): il VO₂max spiega il 62% della variabilità della soglia (+17% per deviazione standard), poi fibre lente (+7%) e mitocondri (+5%); diametro della coscia +3%; assetto, pedivelle, tacchette e stack meno del 2%, in linea con gli studi.</li>
-<li>Assetto, scarpe e tacchette spostano la soglia di pochi centesimi di W/kg finché gli angoli restano nei range consigliati: il loro effetto si vede soprattutto negli angoli articolari. Il lavoro di ogni muscolo dipende dal movimento, non dalla coppia richiesta alla caviglia: per questo la tacchetta arretrata qui non scarica i polpacci come accade nella realtà.</li>
-<li>Strumento didattico e di esplorazione, non un bike fit né una diagnosi.</li></ul></details>
-<details><summary>Fonti dei parametri</summary><p>Modello muscolare di Hill (forza-lunghezza gaussiana, forza-velocità iperbolica) con tendine elastico e dinamica di attivazione (Zajac, 1989); frazione sostenibile e tipo di fibre (Coyle et al. 1988, 1991, 1992; Holloszy e Coyle 1984); reclutamento per taglia (Henneman); profili di riferimento: Lucía et al. 2001–2002, studio Vuelta 2020 su WorldTour e ProTeam; sezioni e lunghezze di fibra in linea con i modelli muscoloscheletrici OpenSim degli arti inferiori; sella a 0,883 × cavallo (formula di LeMond). Per simulazioni complete: OpenSim + Moco, progetto <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> di Stanford (Clancy et al., 2023).</p></details>
+<h2>Come funziona, in breve</h2>
+<details><summary>Il modello</summary><ul>
+<li><b>Cinematica:</b> gamba e piede rigido (stack, tacchetta, ankling), 72 posizioni della pedivella.</li>
+<li><b>Muscoli:</b> 8 gruppi di Hill con leve variabili, tendini elastici e attivazione con ritardo.</li>
+<li><b>Soglia:</b> VO₂max × frazione sostenibile (mitocondri, fibre lente, reclutamento delle fibre veloci) × efficienza lorda simulata alla soglia.</li>
+<li><b>Sprint:</b> potenza massimale tra 100 e 130 rpm.</li>
+<li><b>Taratura:</b> 5 costanti su profili pubblicati (amatori, ProTeam 5,4 W/kg, WorldTour 5,8 W/kg). Il VO₂max spiega il 62% delle differenze di soglia; assetto e tacchette meno del 2%.</li></ul></details>
+<details><summary>Limiti</summary><ul>
+<li>Modello 2D sagittale, senza peso e inerzia delle gambe: niente coppia negativa in risalita.</li>
+<li>Tempi dei muscoli da una regola semplice: gastrocnemio, ischiocrurali e tibiale si accendono in fasi diverse dall'EMG reale.</li>
+<li>Stime medie con incertezza: non è un bike fit né una diagnosi.</li></ul></details>
+<details><summary>Fonti</summary><p>Hill; Zajac 1989; Coyle 1988–1992; Holloszy e Coyle 1984; Henneman; Andersen e Saltin 1985; Lucía 2001–2002; studio Vuelta 2020; OpenSim <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> (Clancy et al. 2023).</p></details>
 </div></section>
 
 <script>
@@ -467,11 +460,9 @@ const MODEL = (() => {
     return out;
   }
   // sprint: cadenza ottimale e potenza massima (ricerca grossolana poi fine)
-  function sprint(p) {
-    const P = c => run({ ...p, cad: c }, { fast: true, max: true }).Pavg;
-    let best = [70, P(70)];
-    for (let c = 85; c <= 160; c += 15) { const v = P(c); if (v > best[1]) best = [c, v]; }
-    for (const c of [best[0] - 10, best[0] - 5, best[0] + 5, best[0] + 10]) { if (c < 40 || c > 160) continue; const v = P(c); if (v > best[1]) best = [c, v]; }
+  function sprint(p) { // sprint alle cadenze tipiche, 100–130 rpm
+    let best = [100, -1];
+    for (let c = 100; c <= 130; c += 5) { const v = run({ ...p, cad: c }, { fast: true, max: true }).Pavg; if (v > best[1]) best = [c, v]; }
     return best;
   }
 
@@ -483,12 +474,10 @@ if (typeof module !== 'undefined') module.exports = MODEL;
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SL = [
- ['Antropometria', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['mass','Massa corporea',45,110,0.5,'kg']]],
- ['Bici e posizione', [['crank','Pedivella',150,185,2.5,'mm'],['saddle','Altezza sella (× cavallo)',0.84,0.92,0.001,''],['trunk','Inclinazione busto',10,80,1,'°'],['sta','Angolo tubo sella',70,80,0.5,'°']]],
- ['Scarpe e pedali', [['stack','Stack pedale + suola',12,40,1,'mm'],['cleat','Tacchetta arretrata dal metatarso',-5,40,1,'mm'],['ankl','Ankling (oscillazione della suola)',0,25,1,'°']]],
- ['Muscolo e mitocondri', [['thigh','Diametro coscia',12,24,0.5,'cm'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%']]],
- ['Atleta e gesto', [['age','Età',18,80,1,'anni'],['vo2','VO₂max',25,90,1,'mL/kg/min'],['cad','Cadenza di pedalata',50,130,1,'rpm']]],
- ['Realismo del modello', [['cc','Co-contrazione (biarticolari e tibiale)',0,20,1,'%']]],
+ ['Atleta', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['mass','Massa corporea',45,140,0.5,'kg'],['age','Età',18,80,1,'anni']]],
+ ['Fisiologia', [['vo2','VO₂max',25,90,1,'mL/kg/min'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%'],['thigh','Diametro coscia',12,24,0.5,'cm']]],
+ ['Bici e pedalata', [['saddle','Altezza sella (× cavallo)',0.84,0.92,0.001,''],['crank','Pedivella',150,185,2.5,'mm'],['trunk','Inclinazione busto',10,80,1,'°'],['cad','Cadenza',50,130,1,'rpm']]],
+ ['Avanzate', [['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['sta','Angolo tubo sella',70,80,0.5,'°'],['stack','Stack pedale + suola',12,40,1,'mm'],['cleat','Tacchetta arretrata',-5,40,1,'mm'],['ankl','Ankling',0,25,1,'°'],['cc','Co-contrazione muscoli',0,20,1,'%']]],
 ];
 // interruttori del modello (0/1): si salvano con l'atleta come i cursori
 const CB = [['lev','Bracci di leva che cambiano con l\'angolo'],['ten','Tendini elastici'],['act','Attivazione con ritardo (10 ms su, 40 ms giù)']];
@@ -498,10 +487,14 @@ let p = {...DEF};
 try { const s = JSON.parse(localStorage.getItem('bio-cicl3')); if (s) p = {...DEF, ...s}; } catch (e) {}
 MODEL.run(DEF); // riferimento angolare fisso
 
-$('#ctrls').innerHTML = SL.map(([g, items]) => `<fieldset><legend>${g}</legend>${items.map(([k,l,mi,ma,st,u]) =>
- `<div class="sl"><label for="s-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`).join('')}${g === 'Realismo del modello' ? CB.map(([k, l]) => `<label class="cb"><input type="checkbox" id="s-${k}"><span>${l}</span></label>`).join('') : ''}</fieldset>`).join('');
+// effetto tipico sulla soglia per una variazione normale del parametro (analisi DoWhy)
+const IMP = {ratio: '0,4%', sta: '0,6%', stack: '0,4%', cleat: '0,5%', ankl: '2%', cc: '3%'};
+const slider = ([k,l,mi,ma,st,u]) => `<div class="sl"><label for="s-${k}">${l}${IMP[k] ? ` <span class="imp">±${IMP[k]}</span>` : ''}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`;
+$('#ctrls').innerHTML = SL.map(([g, items]) => g === 'Avanzate'
+  ? `<details class="adv"><summary>Avanzate <span class="imp">incidono poco: tra parentesi l'effetto tipico sulla soglia</span></summary><div class="advg">${items.map(slider).join('')}<div>${CB.map(([k, l]) => `<label class="cb"><input type="checkbox" id="s-${k}"><span>${l}</span></label>`).join('')}</div></div></details>`
+  : `<fieldset><legend>${g}</legend>${items.map(slider).join('')}</fieldset>`).join('');
 const BIKES = {'Endurance': {p: {sta: 72.5, trunk: 55}}, 'Scalatrice': {p: {sta: 73.5, trunk: 45}}, 'Aero': {p: {sta: 73.5, trunk: 36}, l: {wheels: 'alto'}}, 'Crono': {p: {sta: 78, trunk: 15}, l: {wheels: 'lenticolare', head: 'aero'}}};
-{ const fs = document.querySelectorAll('#ctrls fieldset')[1]; const d = document.createElement('div'); d.className = 'btns'; d.id = 'bikes'; d.setAttribute('role', 'group'); d.setAttribute('aria-label', 'Tipo di bici');
+{ const fs = [...document.querySelectorAll('#ctrls fieldset')].find(x => x.querySelector('legend').textContent === 'Bici e pedalata'); const d = document.createElement('div'); d.className = 'btns'; d.id = 'bikes'; d.setAttribute('role', 'group'); d.setAttribute('aria-label', 'Tipo di bici');
   d.innerHTML = Object.keys(BIKES).map(n => `<button type="button" data-b="${n}">${n}</button>`).join(''); fs.appendChild(d); }
 $('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
 
@@ -532,7 +525,7 @@ const FITR = [
   ['Soglia (FTP)', (r, q) => r.Pthr / q.mass, 2, 'W/kg', null, 1],
   ['Soglia in watt', r => r.Pthr, 0, 'W', null, 1],
   ['Efficienza lorda alla soglia', r => r.GE * 100, 1, '%', [18, 24, '18–24%'], 1],
-  ['Sprint (potenza massima)', (r, q, sp) => sp[1], 0, 'W', null, 1],
+  ['Sprint (100–130 rpm)', (r, q, sp) => sp[1], 0, 'W', null, 1],
   ['Ginocchio al punto morto inferiore', r => r.fit.kneeBDC, 0, '°', [30, 40, '30–40° (dinamico)'], 0],
   ['Ginocchio al punto morto superiore', r => r.fit.kneeTDC, 0, '°', [null, 122, '≤ 122°'], 0],
   ['Angolo busto–coscia più chiuso', r => r.fit.hipMin, 0, '°', [45, null, '≥ 45°'], 0],
@@ -567,7 +560,7 @@ function ftpCurve() {
 }
 let onCompute = null; // aggiorna il codice atleta
 function compute() {
-  R = MODEL.run(p); CUR = MODEL.curve(p); SP = CUR.reduce((a, x) => x[1] > a[1] ? x : a);
+  R = MODEL.run(p); CUR = MODEL.curve(p); SP = CUR.filter(x => x[0] >= 100 && x[0] <= 130).reduce((a, x) => x[1] > a[1] ? x : a);
   if (window.BIO) window.BIO.ver++;
   try { localStorage.setItem('bio-cicl3', JSON.stringify(p)); } catch (e) {}
   const f = R.Pthr;
@@ -575,16 +568,12 @@ function compute() {
   $('#pw').innerHTML = `${nf(f / p.mass, 2)}<small>W/kg</small>`;
   $('#wkg').innerHTML = `${Math.round(f)}<small>W</small>`;
   $('#ftp').textContent = `${Math.round(SP[1])} W · ${nf(SP[1] / p.mass, 1)} W/kg a ${SP[0]} rpm`;
-  $('#ge').textContent = `${nf(R.GE * 100, 1)}% (${Math.round(R.eLen * 100)} · ${Math.round(R.eVel * 100)} · ${Math.round(R.eNeg * 100)}%)`;
-  $('#mm').textContent = `${(2 * R.volT * 1.06 / 1000).toFixed(1)} kg · circ. ${Math.round(Math.PI * p.thigh)} cm`;
-  $('#mi').textContent = `${Math.round(R.volMito)} mL → ${R.VO2mus.toFixed(1)} L/min`;
+  $('#ge').textContent = `${nf(R.GE * 100, 1)}%`;
   $('#vc').textContent = `${R.VO2cen.toFixed(1)} L/min`;
   $('#lim').textContent = R.lim === 'centrale' ? 'trasporto di O₂ (cuore)' : 'muscolo (mitocondri)';
-  $('#opt').textContent = `${Math.round(R.al * 100)}% del massimo`;
   $('#fth').textContent = `${Math.round(R.fthr * 100)}%${R.wII > 0.01 ? ` (fibre veloci ${Math.round(R.wII * 100)}% del lavoro)` : ''}`;
   $('#ie').textContent = `${Math.round(R.IE * 100)}%`;
   $('#kbdc').textContent = `${Math.round(R.rom[1][0])}° di flessione`;
-  $('#vm').textContent = `${R.vmax.toFixed(1)} lunghezze/s`;
   const w = [], r = p.ins / p.h;
   if (R.over) w.push('Sella troppo alta: la gamba arriva tesa e il bacino dovrebbe oscillare.');
   else if (R.rom[1][0] < 25) w.push('Ginocchio quasi teso in basso (< 25°): sella al limite alto.');
@@ -856,7 +845,7 @@ function drawCad() {
   const s = $('#ccad svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
   const m = {l: 52, r: 14, t: 26, b: 34}, mx = Math.max(...CUR.map(x => x[1])) * 1.1;
   const xs = c => m.l + (c - 40) / 120 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
-  let o = axes(W, H, m, xs, ys, 'cadenza (rpm)', 'Sprint, potenza massima (W)', W < 520 ? [40, 100, 160] : [40, 60, 80, 100, 120, 140, 160], nice(mx));
+  let o = `<rect x="${xs(100)}" y="${m.t}" width="${xs(130) - xs(100)}" height="${H - m.t - m.b}" fill="var(--acc)" opacity=".08"/><text x="${xs(115)}" y="${m.t + 14}" text-anchor="middle" font-size="12" fill="var(--mut)">zona sprint</text>` + axes(W, H, m, xs, ys, 'cadenza (rpm)', 'Sprint, potenza massima (W)', W < 520 ? [40, 100, 160] : [40, 60, 80, 100, 120, 140, 160], nice(mx));
   o += `<path d="${linePath(CUR, xs, ys)}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
   const b = SP;
   o += `<circle cx="${xs(b[0])}" cy="${ys(b[1])}" r="6" fill="var(--ink)"/><text x="${xs(b[0])}" y="${ys(b[1]) - 12}" text-anchor="middle" font-size="12" fill="var(--mut)">${Math.round(b[1])} W a ${b[0]} rpm</text>`;
@@ -905,7 +894,7 @@ $('#reset').addEventListener('click', () => { p = {...DEF}; syncInputs(); comput
 $('#play').addEventListener('click', e => { playing = !playing; last = 0; e.target.textContent = playing ? 'Pausa' : 'Avvia'; e.target.setAttribute('aria-pressed', playing); });
 $('#play').textContent = playing ? 'Pausa' : 'Avvia'; $('#play').setAttribute('aria-pressed', playing);
 const redrawAB = () => { renderFit(); drawTq(); drawFtp(); drawBike(); };
-$('#fitA').addEventListener('click', () => { PA = {...p}; RA = R; SPA = SP; CURTA = CURT; $('#fitn').textContent = 'Assetto A fissato. Ora cambia sella, pedivelle, busto, scarpe, tacchette o cadenza: B è sempre l\'assetto attuale.'; redrawAB(); });
+$('#fitA').addEventListener('click', () => { PA = {...p}; RA = R; SPA = SP; CURTA = CURT; $('#fitn').textContent = 'A fissato: ora cambia l\'assetto (B è quello attuale).'; redrawAB(); });
 $('#fitBack').addEventListener('click', () => { if (!PA) return; p = {...PA}; syncInputs(); compute(); });
 $('#fitOff').addEventListener('click', () => { RA = PA = SPA = CURTA = null; redrawAB(); });
 const ro = new ResizeObserver(() => { if (R) { drawTq(); drawFtp(); drawCad(); drawAct(); drawBike(); } });
@@ -1003,7 +992,7 @@ const LKEY = 'bio-atleti';
 const loadLocal = () => { try { LOC = (JSON.parse(localStorage.getItem(LKEY)) || []).map(a => ({id: String(a.id), name: String(a.name || a.id).slice(0, 40), p: clean(a.p), look: a.look ? cleanLook(a.look) : null})); } catch (e) { LOC = []; } };
 const saveLocal = () => { try { localStorage.setItem(LKEY, JSON.stringify(LOC)); return true; } catch (e) { return false; } };
 const setMode = () => { $('#arch').hidden = !DB; $('#savebtn').textContent = canW ? 'Salva nell\'archivio' : 'Salva sul dispositivo';
-  $('#anote').textContent = canW ? 'Salvi nell\'archivio condiviso: chi ha il link vede i tuoi atleti.' : DB ? 'Puoi consultare l\'archivio condiviso ma non scriverci: i tuoi atleti si salvano in questo browser e si condividono con il codice o con il file.' : 'Gli atleti si salvano in questo browser. Per portarli altrove o mandarli a qualcuno, scarica il file o copia il codice.'; };
+  $('#anote').textContent = canW ? 'Salvi nell\'archivio condiviso.' : DB ? 'Archivio in sola lettura: salvi in questo browser.' : 'Gli atleti restano in questo browser: per mandarli, scarica il file o copia il codice.'; };
 function saveLoc(name, id, doc) { LOC = LOC.filter(a => a.id !== id).concat([{id, name, p: doc.p, look: doc.look}]).sort((a, b) => a.name.localeCompare(b.name));
   stat(saveLocal() ? `Salvato «${name}» su questo dispositivo. Per farlo vedere ad altri, copia il codice.` : 'Questo browser non permette di salvare: usa il codice.'); }
 $('#savef').addEventListener('submit', async e => {

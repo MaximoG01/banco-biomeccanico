@@ -31,7 +31,7 @@ Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e a
    - ossigeno disponibile: VO₂max; i mitocondri possono usarne circa il doppio, quindi il limite è quasi sempre centrale;
    - frazione sostenibile (75–94%): cresce con la densità mitocondriale e le fibre lente, e cala quando la forza per pedalata recluta fibre veloci (principio di Henneman);
    - efficienza lorda: viene da una simulazione della pedalata proprio alla potenza di soglia.
-5. **Sprint:** attivazione massimale da 40 a 160 rpm; si prende il massimo.
+5. **Sprint:** attivazione massimale, massimo tra 100 e 130 rpm (le cadenze tipiche dello sprint).
 
 Cinque costanti globali sono tarate su 13 obiettivi: FTP di profili pubblicati, efficienza e frazione tipiche, cadenza di soglia e due vincoli fisiologici (raddoppiando il VO₂max la soglia quasi raddoppia; il diametro della coscia la sposta appena).
 
