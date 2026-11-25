@@ -9,7 +9,7 @@ Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e a
 ## Cosa si può fare
 
 - Regolare antropometria, bici (sella, pedivelle, busto, tubo sella), scarpe e pedali (stack, tacchetta, ankling), muscolo e mitocondri, età, VO₂max e cadenza, e vedere subito soglia, efficienza, sprint e angoli articolari.
-- Guardare il ciclista animato **in 3D**, con il motore WebGL Three.js caricato dalla rete: si ruota trascinando, in orizzontale e in verticale col mouse. Sono visibili i muscoli attivi e la forza sul pedale, con sfondi (montagna, mare, città, campagna) e colori personalizzabili dal pannello **Personalizza**. Se il browser non supporta WebGL, la pagina torna al disegno 2D.
+- Guardare il ciclista animato **in 3D** (busto e testa come superficie continua, pancia e volumi che crescono con la massa grassa, scenario a 360°), con il motore WebGL Three.js caricato dalla rete: si ruota trascinando, in orizzontale e in verticale col mouse. Sono visibili i muscoli attivi e la forza sul pedale, con sfondi (montagna, mare, città, campagna) e colori personalizzabili dal pannello **Personalizza**. Se il browser non supporta WebGL, la pagina torna al disegno 2D.
 - Confrontare due assetti (**Bike fit A/B**): la tabella mostra le differenze e i range consigliati, e la figura mostra la gamba di A tratteggiata.
 - Seguire nei grafici la coppia lungo il giro, la soglia e lo sprint al variare della cadenza, e la mappa di attivazione dei muscoli.
 - **Salvare gli atleti** nel browser e condividerli:
@@ -28,31 +28,31 @@ Simulatore della pedalata che parte dal corpo, dalla bici e dalla fisiologia e a
    - attivazione con ritardo (10 ms in salita, 40 ms in discesa);
    - co-contrazione dei biarticolari.
 4. **Soglia:**
-   - ossigeno disponibile: VO₂max, con un tetto dai mitocondri;
+   - ossigeno disponibile: VO₂max; i mitocondri possono usarne circa il doppio, quindi il limite è quasi sempre centrale;
    - frazione sostenibile (75–94%): cresce con la densità mitocondriale e le fibre lente, e cala quando la forza per pedalata recluta fibre veloci (principio di Henneman);
    - efficienza lorda: viene da una simulazione della pedalata proprio alla potenza di soglia.
 5. **Sprint:** attivazione massimale da 40 a 160 rpm; si prende il massimo.
 
-Quattro costanti globali sono tarate su valori pubblicati: efficienza di base, frazione minima, peso del lattato da fibre veloci e soglia di reclutamento.
+Cinque costanti globali sono tarate su 13 obiettivi: FTP di profili pubblicati, efficienza e frazione tipiche, cadenza di soglia e due vincoli fisiologici (raddoppiando il VO₂max la soglia quasi raddoppia; il diametro della coscia la sposta appena).
 
 ## Validazione
 
 | Profilo | FTP modello | Atteso | Fonte |
 |---|---|---|---|
-| Amatore ricreativo | 2,53 W/kg | 2,3–2,9 | Cycling Weekly |
-| Amatore allenato | 3,83 W/kg | 3,2–3,9 | tipico agonista amatore |
-| ProTeam | 5,24 W/kg | 5,1–5,7 | studio Vuelta 2020 (media 5,4) |
-| WorldTour scalatore | 5,76 W/kg | 5,8–6,4 | studio Vuelta 2020 (media 5,8); Lucía et al. |
-| Velocista pro | 4,55 W/kg | 4,8–5,5 | stima; sprint 17,4 W/kg ✓ (velocisti pro) |
+| Amatore ricreativo | 2,62 W/kg | 2,3–2,9 | Cycling Weekly |
+| Amatore allenato | 3,72 W/kg | 3,2–3,9 | tipico agonista amatore |
+| ProTeam | 5,28 W/kg | 5,1–5,7 | studio Vuelta 2020 (media 5,4) |
+| WorldTour scalatore | 5,80 W/kg | 5,8–6,4 | studio Vuelta 2020 (media 5,8); Lucía et al. |
+| Velocista pro | 4,66 W/kg | 4,8–5,5 | stima; sprint 17,4 W/kg ✓ (velocisti pro) |
 
-**Analisi di sensibilità** (DoWhy, 3000 atleti virtuali, `test/`):
-- la soglia dipende soprattutto da densità mitocondriale, VO₂max e fibre lente;
-- assetto, pedivelle, tacchette e stack la spostano dello 0–1%, in linea con gli studi su pedivelle (Ferrer-Roca) e tacchette.
+**Analisi di sensibilità** (DoWhy, 2000 atleti virtuali, `test/`):
+- il VO₂max spiega il 62% della variabilità della soglia (+17% per deviazione standard); raddoppiandolo la soglia diventa ×1,87;
+- seguono fibre lente (+7%) e densità mitocondriale (+5%); il diametro della coscia pesa +3% (da 15 a 22 cm: ×0,99);
+- assetto, pedivelle, tacchette e stack spostano la soglia meno del 2%, in linea con gli studi su pedivelle (Ferrer-Roca) e tacchette.
 
 ### Limiti noti
 
-- **Efficienza lorda alta:** tende al 22–25%, sopra il 19–23% misurato. Le costanti tarate si compensano a vicenda.
-- **Pesi da correggere:** il diametro della coscia pesa più del dovuto, il VO₂max meno.
+- **Taratura:** cinque costanti globali tarate su 13 obiettivi di letteratura; manca ancora la validazione su dati reali individuali.
 - **Sprint:** sottostimato negli amatori.
 - **Masse dei segmenti:** mancano peso e inerzia di coscia, gamba e piede, quindi la Power Phase dei pedali non è ancora confrontabile.
 - **Modello 2D:** niente movimenti laterali del ginocchio né float della tacchetta.

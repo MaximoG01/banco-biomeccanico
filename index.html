@@ -79,6 +79,7 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 .rot input[type=range]{flex:1 1 160px;accent-color:var(--acc);height:28px}.rot output{min-width:3.2em;font-weight:600;font-variant-numeric:tabular-nums}
 #bike{touch-action:pan-y;cursor:grab}
 #bike canvas.bike3d{position:absolute;inset:0;width:100%;height:100%;z-index:1;touch-action:pan-y}
+#bike.has3d #bsvg{z-index:2;pointer-events:none}
 @media(min-width:901px){#bike{position:sticky;top:16px}}
 .lrow .tx{flex:1 1 140px;font:16px Barlow,sans-serif;min-height:40px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
 .ath{margin-top:28px;border-top:2px solid var(--ink);padding-top:14px}
@@ -217,15 +218,15 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
 <li><b>Cinematica inversa.</b> Per 72 posizioni della pedivella calcola dove stanno ginocchio e caviglia e quindi gli angoli anatomici di anca, ginocchio e caviglia (la caviglia come angolo tra tibia e pianta).</li>
 <li><b>Muscoli di Hill.</b> 8 gruppi muscolari con lunghezza ottimale della fibra e sezione trasversale. La forza dipende da quanto è lunga la fibra (forza-lunghezza) e da quanto velocemente si accorcia o si allunga (forza-velocità, fino a 1,5 volte in allungamento). Il diametro della coscia scala la sezione (al quadrato), le fibre lente abbassano la velocità massima (3,5 contro 10 lunghezze/s), l'età riduce forza (−0,6%/anno) e velocità (−0,4%/anno) dopo i 30.</li>
 <li><b>Leve, tendini e attivazione.</b> Il braccio di leva di ogni muscolo cambia con l'angolo (es. quello dei vasti è massimo intorno a 30° di flessione del ginocchio); la lunghezza del muscolo-tendine è l'integrale del braccio. Il tendine è una molla (si allunga del 4% della sua lunghezza alla forza massima): ruba accorciamento alla fibra quando la forza sale e lo restituisce quando scende. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa; biarticolari e tibiale co-contraggono nella fase in cui non spingono. Ogni muscolo è simulato nel tempo per 3 giri, fino a regime.</li>
-<li><b>Soglia (FTP).</b> L'ossigeno disponibile è il VO₂max (× massa), che cuore e sangue riescono a portare, con un tetto dato dai mitocondri dei muscoli attivi (volume muscolare × densità mitocondriale × circa 5 mL di O₂ al minuto per mL): i due limiti si combinano in un minimo morbido. Alla soglia se ne usa una frazione, dal 75% al 94%, che cresce con la densità mitocondriale e con le fibre lente (Coyle; Holloszy e Coyle) e cala quando la forza per pedalata è così alta da reclutare le fibre veloci, che producono lattato (principio di Henneman: per questo a cadenza bassa la soglia scende). L'ossigeno diventa watt attraverso l'efficienza lorda, calcolata simulando la pedalata proprio alla potenza di soglia: è massima con fibre vicine alla lunghezza ottimale, che si accorciano a circa un quarto della loro velocità massima, poco lavoro negativo e più fibre lente (Coyle 1992). Quattro costanti globali (efficienza di base, frazione minima, peso del lattato da fibre veloci, soglia di reclutamento) sono tarate su valori pubblicati: FTP di amatori, ProTeam (5,4 W/kg) e WorldTour (5,8 W/kg), cadenza di soglia ottimale.</li>
+<li><b>Soglia (FTP).</b> L'ossigeno disponibile è il VO₂max (× massa), che cuore e sangue riescono a portare. I mitocondri dei muscoli attivi (volume × densità × circa 5 mL di O₂ al minuto per mL) possono usarne fino a circa il doppio (Andersen e Saltin 1985): in pedalata il limite è quasi sempre centrale, e il tetto muscolare conta solo in casi estremi. Alla soglia se ne usa una frazione, dal 75% al 94%, che cresce con la densità mitocondriale e con le fibre lente (Coyle; Holloszy e Coyle) e cala quando la forza per pedalata è così alta da reclutare le fibre veloci, che producono lattato (principio di Henneman: per questo a cadenza bassa la soglia scende). L'ossigeno diventa watt attraverso l'efficienza lorda, calcolata simulando la pedalata proprio alla potenza di soglia: è massima con fibre vicine alla lunghezza ottimale, che si accorciano a circa un quarto della loro velocità massima, poco lavoro negativo e più fibre lente (Coyle 1992). Cinque costanti globali (efficienza di base, frazione minima, peso del lattato da fibre veloci, soglia e ampiezza del reclutamento) sono tarate su 13 obiettivi: FTP di amatori, ProTeam (5,4 W/kg) e WorldTour (5,8 W/kg), efficienza e frazione tipiche, cadenza di soglia, e due vincoli fisiologici: raddoppiando il VO₂max la soglia quasi raddoppia, mentre il diametro della coscia la sposta appena.</li>
 <li><b>Sprint.</b> Stessa simulazione con attivazione massimale e tempi di comando che massimizzano la potenza, ripetuta da 40 a 160 rpm: lo sprint è il massimo della curva.</li>
 <li><b>Vettori e bike fit.</b> Le coppie alle articolazioni diventano forza sul pedale (minimi quadrati sullo jacobiano della gamba); l'indice di efficacia è la parte di forza che spinge davvero la pedivella. Le misure di bike fit (ginocchio ai punti morti, angolo busto-coscia, ginocchio sul pedale a ore 3) vengono dalla stessa cinematica.</li></ol></details>
 <details><summary>Limiti da tenere presenti</summary><ul>
 <li>Modello 2D sagittale: niente movimenti laterali del ginocchio, rotazione del piede (float della tacchetta) né rotazioni del bacino.</li>
 <li>Il comando nervoso è una regola fissa (acceso mentre il muscolo si accorcia, con anticipi diversi per sprint e soglia), non un'ottimizzazione completa come in OpenSim Moco. Niente forza passiva delle fibre.</li>
 <li>Calibrazione: un fattore 1,45 su tutte le forze compensa muscoli non modellati (adduttori, tensore della fascia lata, tronco e braccia). Pesa sullo sprint, non sulla soglia, che dipende da ossigeno ed efficienza.</li>
-<li>Soglia: la densità mitocondriale va da circa 3–4% (sedentario) a 8–10% (endurance d'élite); consumo per mL di mitocondri, massa muscolare attiva e le quattro costanti tarate sono stime con incertezza. Sui profili tipo il modello resta entro circa ±10% dai valori pubblicati, ma l'efficienza lorda tende al 22–24%, un po' sopra il 19–23% misurato: le costanti compensano tra loro, e il passo successivo è una taratura bayesiana con validazione su dati reali.</li>
-<li>Analisi di sensibilità (DoWhy, 3000 atleti virtuali): oggi la soglia dipende soprattutto da densità mitocondriale, VO₂max e fibre lente; assetto, pedivelle, tacchette e stack la spostano dello 0–1%, in linea con gli studi. Il diametro della coscia pesa ancora più del dovuto.</li>
+<li>Soglia: la densità mitocondriale va da circa 3–4% (sedentario) a 8–10% (endurance d'élite); consumo per mL di mitocondri, massa muscolare attiva e le cinque costanti tarate sono stime con incertezza. Sui profili tipo il modello resta entro circa ±6% dai valori pubblicati (il velocista −10%), con efficienza lorda 21–23% e frazione sostenibile 81–92%. Il passo successivo è una taratura bayesiana con validazione su dati reali.</li>
+<li>Analisi di sensibilità (DoWhy, 2000 atleti virtuali): il VO₂max spiega il 62% della variabilità della soglia (+17% per deviazione standard), poi fibre lente (+7%) e mitocondri (+5%); diametro della coscia +3%; assetto, pedivelle, tacchette e stack meno del 2%, in linea con gli studi.</li>
 <li>Assetto, scarpe e tacchette spostano la soglia di pochi centesimi di W/kg finché gli angoli restano nei range consigliati: il loro effetto si vede soprattutto negli angoli articolari. Il lavoro di ogni muscolo dipende dal movimento, non dalla coppia richiesta alla caviglia: per questo la tacchetta arretrata qui non scarica i polpacci come accade nella realtà.</li>
 <li>Strumento didattico e di esplorazione, non un bike fit né una diagnosi.</li></ul></details>
 <details><summary>Fonti dei parametri</summary><p>Modello muscolare di Hill (forza-lunghezza gaussiana, forza-velocità iperbolica) con tendine elastico e dinamica di attivazione (Zajac, 1989); frazione sostenibile e tipo di fibre (Coyle et al. 1988, 1991, 1992; Holloszy e Coyle 1984); reclutamento per taglia (Henneman); profili di riferimento: Lucía et al. 2001–2002, studio Vuelta 2020 su WorldTour e ProTeam; sezioni e lunghezze di fibra in linea con i modelli muscoloscheletrici OpenSim degli arti inferiori; sella a 0,883 × cavallo (formula di LeMond). Per simulazioni complete: OpenSim + Moco, progetto <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> di Stanford (Clancy et al., 2023).</p></details>
@@ -257,7 +258,7 @@ const MODEL = (() => {
   // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
-    EB: 0.29, F0: 0.75, FII: 1.0, TAU: 0.3 }; // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    EB: 0.27, F0: 0.78, FII: 0.25, TAU: 0.3, TW: 0.1 }; // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -423,7 +424,7 @@ const MODEL = (() => {
       // reclutamento per taglia (Henneman): oltre una forza relativa che cresce con la quota di fibre lente entrano le fibre veloci,
       // meno efficienti (−20%) e con l'ottimo di velocità più alto (10 contro 3,5 lunghezze/s)
       const vfm = sF ? sFv / sF : 0, fr = sF ? sFr / sF : 0, tau = K.TAU * slow;
-      const wII = (1 - slow) * Math.min(1, Math.max(0, (fr - tau) / 0.1));
+      const wII = (1 - slow) * Math.min(1, Math.max(0, (fr - tau) / K.TW));
       // efficienza-velocità: massima a ~1/4 della velocità massima, curva larga (Barclay 1996; He et al. 2000)
       const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / 0.6) ** 2), rv = vfm / (3.5 * vA);
       const eVel = (1 - wII) * eV(vfm, 3.5 * vA) + wII * 0.8 * eV(vfm, 10 * vA);
@@ -437,7 +438,8 @@ const MODEL = (() => {
     const rom = [0, 1, 2].map(k => { const v = qs.map(q => q[k] / D); return [Math.min(...v), Math.max(...v)]; });
     const VO2mus = volMito * 5.0 / 1000;                       // L O2/min che i mitocondri possono usare (~5 mL/min per mL, Schwerzmann 1989)
     const VO2cen = (p.vo2 || 99) * p.mass / 1000;              // L O2/min che cuore e sangue possono portare (VO2max)
-    const VO2 = (VO2mus ** -10 + VO2cen ** -10) ** -0.1, lim = VO2cen < VO2mus ? 'centrale' : 'muscolare'; // minimo morbido: i due limiti si sommano vicino al pareggio
+    const RES = 2;                                              // riserva periferica: i muscoli che pedalano possono usare ~2 volte l'O2 che il cuore porta (Andersen e Saltin 1985)
+    const VO2 = ((RES * VO2mus) ** -10 + VO2cen ** -10) ** -0.1, lim = VO2cen < RES * VO2mus ? 'centrale' : 'muscolare'; // minimo morbido
     const O2W = VO2 * 20.9 * 1000 / 60;                        // W metabolici al VO2max
     // pedalata alla soglia: si cerca l'attivazione che produce proprio la potenza di soglia (l'efficienza dipende dall'intensità)
     // bisezione su f(α) = potenza simulata − potenza di soglia ottenibile con quell'efficienza
@@ -666,8 +668,7 @@ let DIST = 0; // metri percorsi, per far scorrere lo sfondo
 window.BIO = {ver: 0, elev: 8, state: () => ({R, p, LOOK, VIEW, ROT, th, DIST, RA, ver: window.BIO.ver, elev: window.BIO.elev})};
 function draw3D(s, W, H) {
   window.BIO3D.render(window.BIO.state(), W, H);
-  const gp = window.BIO3D.ground(), ac = Math.abs(Math.cos(ROT * Math.PI / 180)), scO = Math.max(0, Math.min(1, ac * 1.4 - 0.4)) * (VIEW === 'muscoli' ? 0.35 : 1);
-  let o = SCENE[LOOK.scene] && scO > 0 ? `<g opacity="${scO.toFixed(2)}">${SCENE[LOOK.scene](W, H, gp.gy, DIST * 0.35 * gp.s, gp.s)}</g>` : '';
+  let o = ''; // lo scenario è disegnato in 3D da bike3d.js
   const i = Math.round(th / (2 * Math.PI) * 72) % 72, fN = Math.round(Math.hypot(...R.leg[i].f));
   o += `<text x="12" y="${H - 12}" font-size="13" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${W > 560 ? 'Alla soglia · freccia: forza sul pedale destro · ' + fN + ' N · trascina per ruotare' : 'Forza sul pedale · ' + fN + ' N'}</text>`;
   s.innerHTML = o;
