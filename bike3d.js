@@ -20,7 +20,7 @@ if (renderer && window.BIO && host) {
   host.insertBefore(cv, host.querySelector('.figbtn')); host.classList.add('has3d');
 
   const scene = new THREE.Scene();
-  const cam = new THREE.PerspectiveCamera(26, 1, 0.05, 400);
+  const cam = new THREE.PerspectiveCamera(26, 1, 0.05, 900);
   const hemi = new THREE.HemisphereLight(0xeef6ff, 0x5c5248, 1.1); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff6ea, 2.4);
   sun.position.set(1.2, 3.2, 2.4); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
@@ -134,11 +134,11 @@ if (renderer && window.BIO && host) {
     hemi.intensity = 1.1; sun.intensity = 2.4; sun.color.set('#fff6ea');
     if (!pal) return;
     seed = 7;
-    scene.fog = new THREE.Fog(pal.fog, 80, 340);
+    scene.fog = new THREE.Fog(pal.fog, 80, name === 'montagna' ? 900 : 340);
     hemi.intensity = 1.1 * pal.light; sun.intensity = 2.4 * pal.light; if (name === 'citta') sun.color.set('#ffd2a8');
     // cielo: cupola con sfumatura verticale
-    const skyG = new THREE.SphereGeometry(300, 32, 20), top = new THREE.Color(pal.top), hor = new THREE.Color(pal.hor), cs = [];
-    const P = skyG.attributes.position; for (let i = 0; i < P.count; i++) { const t = Math.max(0, P.getY(i) / 300); const c = hor.clone().lerp(top, Math.pow(t, 0.55)); cs.push(c.r, c.g, c.b); }
+    const RS = 800, skyG = new THREE.SphereGeometry(RS, 32, 20), top = new THREE.Color(pal.top), hor = new THREE.Color(pal.hor), cs = [];
+    const P = skyG.attributes.position; for (let i = 0; i < P.count; i++) { const t = Math.max(0, P.getY(i) / RS); const c = hor.clone().lerp(top, Math.pow(t, 0.55)); cs.push(c.r, c.g, c.b); }
     skyG.setAttribute('color', new THREE.Float32BufferAttribute(cs, 3));
     env.add(new THREE.Mesh(skyG, new THREE.MeshBasicMaterial({vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false})));
     // terreno e strada (la bici è nella corsia di destra)
@@ -151,13 +151,14 @@ if (renderer && window.BIO && host) {
     const alongRoad = (step, zs, fn) => { for (let x = -PERIOD * 2; x < PERIOD * 2; x += step) for (const z of zs) fn(x, z); };
     if (name === 'montagna') {
       const far = [], snow = [];
-      for (let i = 0; i < 34; i++) { const a = i / 34 * Math.PI * 2 + rnd() * 0.15, d = 70 + rnd() * 90, h = 25 + rnd() * 45, r = 22 + rnd() * 26;
+      // catena lontana (200–330 m): le cime restano dentro l'inquadratura (3–9° sopra l'orizzonte), con neve sulle più alte
+      for (let i = 0; i < 46; i++) { const a = i / 46 * Math.PI * 2 + rnd() * 0.1, d = 200 + rnd() * 130, h = d * (0.05 + rnd() * 0.11), r = h * (1.3 + rnd() * 0.8);
         far.push([Math.cos(a) * d, GROUND_Y + h / 2 - 2, Math.sin(a) * d, r, h, r, rnd() * 6]);
-        if (h > 40) snow.push([Math.cos(a) * d, GROUND_Y + h - 2 - h * 0.13, Math.sin(a) * d, r * 0.27, h * 0.27, r * 0.27, 0]); }
-      inst(new THREE.ConeGeometry(1, 1, 7), lam('#7f95a9', {flatShading: true}), far, env);
+        if (h > d * 0.1) snow.push([Math.cos(a) * d, GROUND_Y + h - 2 - h * 0.15, Math.sin(a) * d, r * 0.31, h * 0.31, r * 0.31, 0]); }
+      inst(new THREE.ConeGeometry(1, 1, 7), lam('#6f8399', {flatShading: true}), far, env);
       inst(new THREE.ConeGeometry(1, 1, 7), lam('#f4f7fa', {flatShading: true}), snow, env);
       const pines = [], trunks = [];
-      alongRoad(3.2, [1, -1], (x, s) => { if (rnd() < 0.5) return; const z = s > 0 ? 12 + rnd() * 30 : -(13 + rnd() * 30), h = 4 + rnd() * 6;
+      alongRoad(3.2, [1, -1], (x, s) => { if (rnd() < (s > 0 ? 0.5 : 0.72)) return; const z = s > 0 ? 12 + rnd() * 30 : -(22 + rnd() * 40), h = 3.5 + rnd() * 5;
         pines.push([x + rnd() * 2, GROUND_Y + h * 0.55, z, h * 0.24, h * 0.8, h * 0.24, rnd() * 6]); trunks.push([x, GROUND_Y + h * 0.1, z, 0.15, h * 0.2, 0.15, 0]); });
       inst(new THREE.ConeGeometry(1, 1, 9), lam('#2f5a46', {roughness: 1}), pines.map(q => [q[0], q[1], q[2], q[3], q[4], q[5], q[6]]), near, false);
       inst(new THREE.CylinderGeometry(1, 1, 1, 6), lam('#4a3a2c'), trunks, near);
@@ -451,7 +452,7 @@ if (renderer && window.BIO && host) {
     if (st.ver !== ver || !rig) { build(st); ver = st.ver; rig.view = null; }
     setView(st.VIEW);
     const {R} = st, N = R.leg.length, i = Math.round(st.th / (2 * Math.PI) * N) % N, run = st.DIST * 0.5;
-    const az = (st.ROT || 0) * Math.PI / 180, el = (st.elev ?? 8) * Math.PI / 180, target = V(0.09, 0.6, 0);
+    const az = (st.ROT || 0) * Math.PI / 180, el = (st.elev ?? 4) * Math.PI / 180, target = V(0.09, 0.6, 0);
     const vh = 1.92, vw = 2.1, f = Math.tan(cam.fov * Math.PI / 360), d = Math.max(vh / 2 / f, vw / 2 / (f * cam.aspect)) * 1.02;
     cam.position.set(target.x - Math.sin(az) * Math.cos(el) * d, target.y + Math.sin(el) * d, target.z + Math.cos(az) * Math.cos(el) * d);
     cam.lookAt(target); cam.updateProjectionMatrix();

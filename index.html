@@ -272,8 +272,8 @@ const MODEL = (() => {
   // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
-    EB: 0.29, F0: 0.78, FII: 0.5, TAU: 0.3, TW: 0.1,
-    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    EB: 0.27, F0: 0.75, FII: 0.5, TAU: 0.25, TW: 0.2,
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0, VS: 5, VF: 15 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -348,9 +348,9 @@ const MODEL = (() => {
     const G = geom(p);
     const sH = G.H / 1.78, sL = G.L / (0.84 + 0.011 * 1.78);
     const age = Math.max(0, p.age - 30);
-    const fA = (1 - 0.006 * age), vA = (1 - 0.004 * age);
+    const fA = (1 - 0.0015 * age), vA = (1 - 0.004 * age); // forza: solo un piccolo residuo, la perdita di muscolo è già nella circonferenza della coscia (Martin 2000); velocità: fibre più lente
     const slow = p.slow / 100;
-    const vmax = (slow * 3.5 + (1 - slow) * 10) * vA;     // L0/s
+    const vmax = (slow * K.VS + (1 - slow) * K.VF) * vA;   // L0/s (fibre lente / veloci)
     const area = (p.thigh / 17.5) ** 2;                    // sezione muscolare scala col diametro coscia
     const lev = p.lev ?? 1, ten = p.ten ?? 1, act = p.act ?? 1, cc = (p.cc ?? 0) / 100;
     const csaT = Math.PI * (p.thigh / 2) ** 2 * 0.70;          // cm2 di muscolo a metà coscia (70% della sezione)
@@ -434,9 +434,11 @@ const MODEL = (() => {
         if (!a || a.some(x => x < -1e-9)) { unit.push(ms.map(() => 0)); cost.push(Infinity); continue; }
         unit.push(a); cost.push(a.reduce((s, x, j) => s + wts[j] * x * x, 0));
       }
-      SHAPE = ms.map(() => new Array(N).fill(0)); let mx = 0;
-      for (let i = 0; i < N; i++) { const k = isFinite(cost[i]) && cost[i] > 0 ? 1 / cost[i] : 0; ms.forEach((m, j) => { SHAPE[j][i] = unit[i][j] * k; mx = Math.max(mx, SHAPE[j][i]); }); }
-      if (mx > 0) SHAPE.forEach(r => r.forEach((x, i) => { r[i] = x / mx; }));
+      SHAPE = ms.map(() => new Array(N).fill(0));
+      for (let i = 0; i < N; i++) { const k = isFinite(cost[i]) && cost[i] > 0 ? 1 / cost[i] : 0; ms.forEach((m, j) => { SHAPE[j][i] = unit[i][j] * k; }); }
+      // normalizzazione robusta: 90° percentile dei massimi per posizione (una posizione quasi singolare non schiaccia il resto del giro)
+      const pk = Array.from({length: N}, (_, i) => Math.max(...SHAPE.map(r => r[i]))).sort((x, y) => x - y), mx = pk[Math.floor(0.9 * (N - 1))];
+      if (mx > 0) SHAPE.forEach(r => r.forEach((x, i) => { r[i] = Math.min(1, x / mx); }));
       else SHAPE = null;
     }
     const leadO = act ? K.LOPT / dt : 0;
@@ -455,10 +457,16 @@ const MODEL = (() => {
           let F, lf, vf;
           if (!ten) { lf = m.L0 + m.g * dl; vf = m.g * vmt; F = a * m.F0 * fl(lf / m.L0) * fv(vf / vm); }
           else {
-            lf = m.L0 + m.g * (dl - x); F = m.F0 * x / xs;
-            const cap = 1.3 * a * fl(lf / m.L0) * m.F0;                // oltre questa forza la fibra cede (tratto eccentrico piatto)
-            if (F >= cap) { const xn = xs * cap / m.F0; vf = m.g * ((xn - x) / dts + vmt); x = xn; F = (F + cap) / 2; } // la fibra cede (forza media del passo)
-            else { vf = fvInv(F / (a * fl(lf / m.L0) * m.F0)) * vm; x = Math.max(0, x + (vf / m.g - vmt) * dts); }
+            // passo implicito: il tendine è una molla rigida (costante di tempo ≪ passo), quindi si cerca l'allungamento xn
+            // per cui forza del tendine e velocità della fibra sono coerenti a fine passo (bisezione: h cresce con xn)
+            lf = m.L0 + m.g * (dl - x);
+            const Fi = Math.max(1e-6, a) * fl(lf / m.L0) * m.F0, cap = 1.3 * Fi, xc = xs * cap / m.F0; // oltre cap la fibra cede
+            const vfx = xn => fvInv(m.F0 * xn / xs / Fi) * vm, h = xn => xn - x - (vfx(xn) / m.g - vmt) * dts;
+            let xn;
+            if (h(xc) <= 0) { xn = xc; F = cap; vf = m.g * ((xn - x) / dts + vmt); }        // la fibra cede (tratto eccentrico piatto)
+            else if (h(0) >= 0) { xn = 0; F = 0; vf = m.g * ((xn - x) / dts + vmt); }       // tendine scarico
+            else { let l = 0, u = xc; for (let it = 0; it < 24; it++) { const c = (l + u) / 2; if (h(c) > 0) u = c; else l = c; } xn = (l + u) / 2; F = m.F0 * xn / xs; vf = vfx(xn); }
+            x = xn;
           }
           if (cy === CYC - 1) {
             const pf = F * vf / m.g;
@@ -497,12 +505,12 @@ const MODEL = (() => {
       // efficienza: fibre vicine alla lunghezza ottimale (ROM), fibre lente a ~1/4 della velocità massima, lavoro negativo che costa
       const eLen = sF ? sFl / sF : 0;
       // reclutamento per taglia (Henneman): oltre una forza relativa che cresce con la quota di fibre lente entrano le fibre veloci,
-      // meno efficienti (−20%) e con l'ottimo di velocità più alto (10 contro 3,5 lunghezze/s)
+      // meno efficienti (−20%) e con l'ottimo di velocità più alto (K.VF contro K.VS lunghezze/s)
       const vfm = sF ? sFv / sF : 0, fr = sF ? sFr / sF : 0, tau = K.TAU * slow;
       const wII = (1 - slow) * Math.min(1, Math.max(0, (fr - tau) / K.TW));
       // efficienza-velocità: massima a ~1/4 della velocità massima, curva larga (Barclay 1996; He et al. 2000)
-      const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / K.EVW) ** 2), rv = vfm / (3.5 * vA);
-      const eVel = (1 - wII) * eV(vfm, 3.5 * vA) + wII * 0.8 * eV(vfm, 10 * vA);
+      const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / K.EVW) ** 2), rv = vfm / (K.VS * vA);
+      const eVel = (1 - wII) * eV(vfm, K.VS * vA) + wII * 0.8 * eV(vfm, K.VF * vA);
       const eNeg = Ppos ? Math.max(0.2, (Ppos - Pneg) / (Ppos + 0.3 * Pneg)) : 1;
       const eTyp = 0.85 + 0.3 * slow;                         // efficienza di base più alta con più fibre lente (Coyle 1992)
       return { al, leg, tq, Pavg, mpow, short, IE: ft / fm, eLen, eVel, eNeg, eTyp, rv, fr, wII, GE: K.EB * eTyp * eLen * eVel * eNeg, Ppos: 2 * Ppos / (N * NS), Pneg: 2 * Pneg / (N * NS) };
@@ -736,7 +744,7 @@ const SCENE = {
 $('#scenes').innerHTML = SCN.map(([k, l]) => `<button type="button" class="scn" data-s="${k}" aria-pressed="false"><svg viewBox="0 0 160 90" aria-hidden="true">${SCENE[k] ? SCENE[k](160, 90, 70, 40, 18) : ''}</svg><span>${l}</span></button>`).join('');
 let DIST = 0; // metri percorsi, per far scorrere lo sfondo
 // stato letto dal motore 3D (bike3d.js); ver cambia quando cambiano parametri o aspetto
-window.BIO = {ver: 0, elev: 8, state: () => ({R, p, LOOK, VIEW, ROT, th, DIST, RA, ver: window.BIO.ver, elev: window.BIO.elev})};
+window.BIO = {ver: 0, elev: 4, state: () => ({R, p, LOOK, VIEW, ROT, th, DIST, RA, ver: window.BIO.ver, elev: window.BIO.elev})};
 function draw3D(s, W, H) {
   window.BIO3D.render(window.BIO.state(), W, H);
   let o = ''; // lo scenario è disegnato in 3D da bike3d.js

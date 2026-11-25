@@ -1,4 +1,5 @@
-// Profili tipo simulati e confrontati con valori pubblicati (FTP W/kg, sprint W/kg, efficienza lorda).
+// Profili tipo simulati e confrontati con valori pubblicati (FTP W/kg, efficienza lorda). Lo sprint del modello è la potenza
+// massima sul giro (come in laboratorio): i range su strada a 5 s sono solo indicativi; la validazione è in sprint-validazione.js.
 // Uso: node test/profili-pro.js [file.html]
 const M = require('./load-model.js')(process.argv[2]);
 const B = {h: 178, ins: 84, mass: 72, ratio: 1.15, crank: 172.5, saddle: 0.883, trunk: 45, sta: 73, stack: 22, cleat: 0, ankl: 12,
@@ -13,8 +14,8 @@ const PRO = [
   ['Velocista pro', {h: 180, ins: 84, mass: 75, vo2: 72, mito: 8.5, slow: 40, age: 27, thigh: 20.5, trunk: 38}, [4.8, 5.5], [15.7, 19.1], 'sprint 17,4 ± 1,7 W/kg (velocisti pro)'],
 ];
 const ok = (v, r) => v >= r[0] && v <= r[1] ? 'ok' : v < r[0] ? 'BASSO' : 'ALTO';
-console.log('profilo                 FTP W/kg  atteso     | sprint W/kg atteso      | GE    lim   frazione');
+console.log('profilo                 FTP W/kg  atteso     | sprint W/kg (5 s strada)| GE    lim   frazione');
 for (const [n, o, ef, es, src] of PRO) {
   const p = {...B, ...o}, r = M.run(p), sp = M.sprint(p), f = r.Pthr / p.mass, s = sp[1] / p.mass;
-  console.log(`${n.padEnd(22)} ${f.toFixed(2).padStart(5)} ${ok(f, ef).padEnd(5)} ${ef.join('–').padEnd(9)} | ${s.toFixed(1).padStart(5)} ${ok(s, es).padEnd(5)} ${es.join('–').padEnd(9)} | ${(r.GE * 100).toFixed(1)}% ${r.lim.slice(0, 4)} ${(r.fthr ?? 0.82).toFixed(2)}  · ${src}`);
+  console.log(`${n.padEnd(22)} ${f.toFixed(2).padStart(5)} ${ok(f, ef).padEnd(5)} ${ef.join('–').padEnd(9)} | ${s.toFixed(1).padStart(5)} ${"".padEnd(5)} ${es.join('–').padEnd(9)} | ${(r.GE * 100).toFixed(1)}% ${r.lim.slice(0, 4)} ${(r.fthr ?? 0.82).toFixed(2)}  · ${src}`);
 }
