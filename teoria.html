@@ -68,8 +68,8 @@ a{color:var(--acc2)}
 <p>Ogni gruppo muscolare segue il modello di Hill: la forza dipende da attivazione, lunghezza della fibra e velocità di accorciamento. Il tendine è una molla in serie che si allunga del 4% alla forza massima. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa (Zajac 1989).</p>
 <div class="eq">F = a · F0 · f_L(l/L0) · f_V(v/vmax)        F0 = 30 N/cm² · sezione · (diametro coscia)²</div>
 <h3>Controllo a sforzo minimo</h3>
-<p>Come nell'obiettivo J1 di OpenSim Moco (Clancy et al. 2023), in ogni posizione della pedivella si cercano le attivazioni che rispettano l'equilibrio della gamba con il minimo sforzo. L'equilibrio impone che le coppie muscolari e il peso dei segmenti diano un'unica forza sul pedale; nello sforzo ogni gruppo pesa per la sua dimensione. La spinta si concentra dove costa meno.</p>
-<div class="eq">min Σ w_m · a_m²    con   Σ a_m · τ_m + Q_peso = Jᵀ · f_pedale ,   a_m ≥ 0</div>
+<p>Come nell'obiettivo J1 di OpenSim Moco (Clancy et al. 2023), in ogni posizione della pedivella si cercano le attivazioni che rispettano l'equilibrio della gamba con il minimo sforzo. L'equilibrio impone che le coppie muscolari diano un'unica forza sul pedale; nello sforzo ogni gruppo pesa per la sua dimensione. Peso e inerzia delle gambe (masse e raggi giratori di Winter) entrano poi nella forza e nella coppia sul pedale. La spinta si concentra dove costa meno.</p>
+<div class="eq">min Σ w_m · a_m²    con   Σ a_m · τ_m = Jᵀ · f_pedale ,   a_m ≥ 0</div>
 <p>Nello sprint resta una regola massimale: ogni muscolo è attivo finché si accorcia.</p>
 <h3>Soglia (FTP)</h3>
 <div class="eq">FTP = VO₂max · massa · 20,9 J/mL · efficienza lorda · frazione sostenibile</div>
@@ -103,6 +103,31 @@ a{color:var(--acc2)}
 <div class="scroll"><table>
 <thead><tr><th>Articolazione</th><th>Escursione OpenSim</th><th>Escursione modello</th></tr></thead>
 <tbody><tr><td>Anca</td><td>51° ± 3</td><td>47°</td></tr><tr><td>Ginocchio</td><td>76° ± 6 (38° → 113°)</td><td>84° (33° → 117°)</td></tr><tr><td>Caviglia</td><td>21° ± 5</td><td>32°</td></tr></tbody></table></div>
+<h3>Prima e ora: confronto numerico</h3>
+<p class="note">"Prima" = regola semplice (muscolo attivo mentre si accorcia), gambe senza massa. "Ora" = sforzo minimo + peso e inerzia delle gambe. Pedali: media dei 16 ciclisti (85 rpm, 111 W); muscoli: 6 simulazioni Moco (90 rpm).</p>
+<div class="scroll"><table>
+<thead><tr><th>Grandezza</th><th>Misurato / OpenSim</th><th>Prima</th><th>Ora</th></tr></thead>
+<tbody>
+<tr><td>Forma della coppia (r)</td><td>–</td><td>0,93</td><td class="ok">0,97</td></tr>
+<tr><td>Coppia minima in risalita</td><td>−16 N·m</td><td class="ko">−1 N·m</td><td>−11 N·m</td></tr>
+<tr><td>Power Phase</td><td>≈ 355° → 190°</td><td class="ko">345° → 325°</td><td class="ok">350° → 185°</td></tr>
+<tr><td>Indice di efficacia</td><td>24%</td><td class="ko">58%</td><td>33%</td></tr>
+<tr><td>Soleo (r attivazione)</td><td>–</td><td class="ko">0,24</td><td class="ok">0,85</td></tr>
+<tr><td>Gastrocnemio (r)</td><td>–</td><td class="ko">−0,27</td><td class="ok">0,65</td></tr>
+<tr><td>Grande gluteo (r)</td><td>–</td><td>0,51</td><td class="ok">0,68</td></tr>
+<tr><td>Tibiale anteriore (r)</td><td>–</td><td>0,49</td><td class="ko">0,25</td></tr>
+<tr><td>Quota di lavoro del soleo</td><td>3,5% (costo metabolico)</td><td class="ko">20%</td><td>12%</td></tr>
+<tr><td>Quota del grande gluteo</td><td>28% (costo metabolico)</td><td class="ko">14%</td><td>22%</td></tr>
+</tbody></table></div>
+<h3>Training con test fuori campione</h3>
+<p>Ogni ciclista è stato simulato con la sua cadenza, potenza, pedivella e massa. Su P01–P11 sono stati stimati 12 parametri: pesi di sforzo dei muscoli, anticipo del comando, pattern della caviglia. Il test è su P12–P16 e su 2 simulazioni Moco mai viste.</p>
+<div class="scroll"><table>
+<thead><tr><th>Errore sulla coppia della gamba (RMS relativo)</th><th>Training P01–P11</th><th>Test P12–P16</th></tr></thead>
+<tbody>
+<tr><td>Modello fisico (parametri da letteratura)</td><td>31% · r 0,95</td><td>38% · r 0,92</td></tr>
+<tr><td>Dopo il training</td><td>28% · r 0,96</td><td class="ko">42% · r 0,91</td></tr>
+</tbody></table></div>
+<p class="note">Il training migliora il training ma peggiora il test: è overfitting, quindi i parametri allenati non sono stati adottati. L'errore residuo viene soprattutto da dati individuali che il modello non ha ancora (altezza, cavallo, altezza sella di ogni ciclista): il prossimo passo è ricavarli dai loro marker e modelli scalati.</p>
 <h3>Profili pubblicati</h3>
 <div class="scroll"><table>
 <thead><tr><th>Profilo</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>

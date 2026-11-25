@@ -248,7 +248,7 @@ const MODEL = (() => {
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
     EB: 0.31, F0: 0.75, FII: 0.5, TAU: 0.3, TW: 0.1,
-    OPT: 1, LOPT: 0.045 }; // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -271,7 +271,7 @@ const MODEL = (() => {
   // cinematica inversa: angoli anatomici e posizioni a un angolo di pedivella th (0 = punto morto superiore)
   function pose(G, th) {
     const ped = [G.Lc * Math.sin(th), G.Lc * Math.cos(th)];
-    const sig = (18 - G.ank * Math.sin(th - 30 * D)) * D; // inclinazione della suola, punta in giù positiva: tallone giù in spinta, punta giù in risalita
+    const sig = (K.SOLE - G.ank * Math.sin(th - K.SPH * D)) * D; // inclinazione della suola, punta in giù positiva: tallone giù in spinta, punta giù in risalita
     const phi = sig + G.beta;                   // inclinazione della retta caviglia → asse del pedale
     const ank = [ped[0] - G.Lfoot * Math.cos(phi), ped[1] + G.Lfoot * Math.sin(phi)];
     let dx = ank[0] - G.hip[0], dy = ank[1] - G.hip[1];
@@ -362,7 +362,20 @@ const MODEL = (() => {
     const Ep = q => { const A1 = Math.PI + G.al + q[0], A2 = A1 - q[1], A3 = A2 + Math.PI / 2 + q[2] - G.beta;
       const ky = G.hip[1] + G.Lf * Math.sin(A1), ay = ky + G.Lt * Math.sin(A2);
       return gacc * (mTh * (G.hip[1] + 0.433 * G.Lf * Math.sin(A1)) + mSh * (ky + 0.433 * G.Lt * Math.sin(A2)) + mFt * (ay + 0.45 * G.Lfoot * Math.sin(A3))); };
-    const QG = qs.map(q => [0, 1, 2].map(k => { const a = q.slice(), b = q.slice(); a[k] += 1e-5; b[k] -= 1e-5; return -(Ep(a) - Ep(b)) / 2e-5; }));
+    const QG0 = qs.map(q => [0, 1, 2].map(k => { const a = q.slice(), b = q.slice(); a[k] += 1e-5; b[k] -= 1e-5; return -(Ep(a) - Ep(b)) / 2e-5; }));
+    // inerzia (raggi giratori di Winter: coscia 0,323, gamba 0,302, piede 0,475 della lunghezza)
+    const segs = q => { const A1 = Math.PI + G.al + q[0], A2 = A1 - q[1], A3 = A2 + Math.PI / 2 + q[2] - G.beta;
+      const kx = G.hip[0] + G.Lf * Math.cos(A1), ky = G.hip[1] + G.Lf * Math.sin(A1), ax = kx + G.Lt * Math.cos(A2), ay = ky + G.Lt * Math.sin(A2);
+      return [[G.hip[0] + 0.433 * G.Lf * Math.cos(A1), G.hip[1] + 0.433 * G.Lf * Math.sin(A1), A1], [kx + 0.433 * G.Lt * Math.cos(A2), ky + 0.433 * G.Lt * Math.sin(A2), A2],
+              [ax + 0.45 * G.Lfoot * Math.cos(A3), ay + 0.45 * G.Lfoot * Math.sin(A3), A3]]; };
+    const MS = [[mTh, mTh * (0.323 * G.Lf) ** 2], [mSh, mSh * (0.302 * G.Lt) ** 2], [mFt, mFt * (0.475 * G.Lfoot) ** 2]];
+    const SG = qs.map(segs), dth = 2 * Math.PI / N;
+    const QG = qs.map((q, i) => { if (!K.INERZIA) return QG0[i];
+      const S0 = SG[(i - 1 + N) % N], S1 = SG[i], S2 = SG[(i + 1) % N], Jq = [0, 1, 2].map(k => { const a = q.slice(), b = q.slice(); a[k] += 1e-5; b[k] -= 1e-5; const sa = segs(a), sb = segs(b); return sa.map((s, n) => s.map((v, c) => (v - sb[n][c]) / 2e-5)); });
+      return [0, 1, 2].map(k => { let Qk = QG0[i][k];
+        for (let n = 0; n < 3; n++) { const acc = [0, 1, 2].map(c => { let d = S2[n][c] - 2 * S1[n][c] + S0[n][c]; if (c === 2) d = Math.atan2(Math.sin(d), Math.cos(d)); return d / dth ** 2 * w * w; });
+          Qk += -MS[n][0] * (acc[0] * Jq[k][n][0] + acc[1] * Jq[k][n][1]) - MS[n][1] * acc[2] * Jq[k][n][2]; }
+        return Qk; }); });
     // ---- controllo a sforzo minimo (come l'obiettivo J1 di OpenSim Moco, Clancy et al. 2023) ----
     // In ogni posizione della pedivella le coppie dei muscoli devono equilibrare un'unica forza sul pedale (Q = J·f):
     // si cercano le attivazioni che lo fanno con il minimo di Σ w·a² (w = dimensione del gruppo, che vale come più muscoli);
@@ -370,7 +383,7 @@ const MODEL = (() => {
     // nello sprint resta la regola "attivo mentre si accorcia", che massimizza la potenza.
     let SHAPE = null;
     if (!opts.max && K.OPT) {
-      const wts = ms.map(m => m.A / 60), unit = [], cost = [];
+      const wts = ms.map((m, j) => m.A / 60 * (K.W ? K.W[j] : 1)), unit = [], cost = [];
       const dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
       for (let i = 0; i < N; i++) {
         const th = 2 * Math.PI * i / N, t = [Math.cos(th), -Math.sin(th)], rr = [Math.sin(th), Math.cos(th)], J = jac(G, P[i]);
