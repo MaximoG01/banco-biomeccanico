@@ -281,6 +281,32 @@ if (renderer && window.BIO && host) {
     const headG = new THREE.Group(); headG.position.copy(head); root.add(headG);
     const nose = add(new THREE.ConeGeometry(0.013 * sH, 0.032 * sH, 12), skin, headG); nose.rotation.z = -Math.PI / 2 - 0.35; nose.position.set(hr * 1.1, -0.012 * sH, 0);
     for (const s of [-1, 1]) { const ear = add(new THREE.SphereGeometry(0.02 * sH, 12, 10), skin, headG); ear.scale.set(0.8, 1.3, 0.45); ear.position.set(-0.012, -0.004, s * hr * 0.9); }
+    // ---- volto: occhi, sopracciglia, bocca, capelli, barba ----
+    const hairM = mat(lk.hairc || '#3a2a20', {roughness: 0.95}), beardM = mat(lk.beardc || lk.hairc || '#3a2a20', {roughness: 0.95});
+    const s0 = sH, eyeIn = lk.glasses === 'mascherina';
+    for (const s of [-1, 1]) {
+      const eye = add(new THREE.SphereGeometry(0.0115 * s0, 16, 12), mat('#f4f1ec', {roughness: 0.3}), headG, false); eye.position.set(0.089 * s0, 0.012 * s0, s * 0.031 * s0);
+      const iris = add(new THREE.SphereGeometry(0.0062 * s0, 14, 10), mat(lk.eyes || '#5b3b22', {roughness: 0.25}), headG, false); iris.position.set(0.0985 * s0, 0.012 * s0, s * 0.031 * s0); iris.scale.set(0.5, 1, 1);
+      const pup = add(new THREE.SphereGeometry(0.0027 * s0, 10, 8), mat('#111', {roughness: 0.2}), headG, false); pup.position.set(0.1015 * s0, 0.012 * s0, s * 0.031 * s0); pup.scale.set(0.5, 1, 1);
+      const brow = add(new THREE.BoxGeometry(0.008 * s0, 0.004 * s0, 0.026 * s0), hairM, headG, false); brow.position.set(0.096 * s0, 0.03 * s0, s * 0.031 * s0); brow.rotation.x = s * 0.12;
+      if (eyeIn) { eye.visible = iris.visible = pup.visible = false; }
+    }
+    const mouth = add(new THREE.CapsuleGeometry(0.0035 * s0, 0.022 * s0, 4, 8).rotateX(Math.PI / 2), mat('#8a4b45', {roughness: 0.5}), headG, false); mouth.position.set(0.1 * s0, -0.047 * s0, 0);
+    // capelli: calotta sotto il casco (nuca e tempie), lunghi o coda dietro
+    if (lk.hair !== 'rasati') {
+      // stesse proporzioni del cranio del corpo (0,105 × 0,108 × 0,084 dell'altezza), un po' più grandi
+      const SK = [0.112 * s0, 0.116 * s0, 0.091 * s0], capF = lk.head === 'nessuno' ? 0 : 0.2;
+      const cap = add(new THREE.SphereGeometry(1, 32, 16, -Math.PI * 0.62, Math.PI * 1.24, Math.PI * capF, Math.PI * (0.62 - capF)), hairM, headG); cap.scale.set(...SK); cap.material.side = THREE.DoubleSide;
+      if (lk.head === 'nessuno') { const top = add(new THREE.SphereGeometry(1, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.34), hairM, headG); top.scale.set(...SK); top.rotation.z = -0.25; }
+      if (lk.hair === 'lunghi') { const lh = add(new THREE.SphereGeometry(1, 24, 12, -Math.PI * 0.45, Math.PI * 0.9, Math.PI * 0.4, Math.PI * 0.42), hairM, headG); lh.scale.set(SK[0] * 1.02, SK[1] * 1.45, SK[2] * 1.03); lh.position.y = -0.02 * s0; lh.material.side = THREE.DoubleSide; }
+      if (lk.hair === 'coda' || lk.hair === 'lunghi') { const tail = add(new THREE.CapsuleGeometry(0.018 * s0, 0.09 * s0, 6, 10), hairM, headG); tail.position.set(-0.11 * s0, -0.05 * s0, 0); tail.rotation.z = 0.5; }
+    }
+    // barba e baffi
+    if (lk.beard === 'corta' || lk.beard === 'piena') { const f = lk.beard === 'piena' ? 1.16 : 1.06;
+      const bd = add(new THREE.SphereGeometry(1, 28, 16, Math.PI * 0.42, Math.PI * 1.16, Math.PI * 0.4, Math.PI * 0.6), beardM, headG); // metà anteriore (viso)
+      bd.scale.set(0.068 * s0 * f, 0.054 * s0 * f, 0.074 * s0 * f * (1 + 0.3 * fat)); bd.position.set(0.04 * s0, -0.056 * s0, 0); bd.material.side = THREE.DoubleSide; }
+    if (lk.beard === 'pizzetto') { const pz = add(new THREE.SphereGeometry(0.022 * s0, 16, 12), beardM, headG); pz.scale.set(0.8, 1.1, 1); pz.position.set(0.088 * s0, -0.082 * s0, 0); }
+    if (lk.beard === 'baffi' || lk.beard === 'corta' || lk.beard === 'piena' || lk.beard === 'pizzetto') { const bf = add(new THREE.CapsuleGeometry(0.005 * s0, 0.03 * s0, 4, 8).rotateX(Math.PI / 2), beardM, headG, false); bf.position.set(0.103 * s0, -0.035 * s0, 0); }
     // copricapo: calotte che avvolgono la testa
     const hel = new THREE.Group(); hel.rotation.z = -0.12; headG.add(hel);
     if (lk.head === 'casco') {
@@ -297,7 +323,7 @@ if (renderer && window.BIO && host) {
       const sm = add(new THREE.SphereGeometry(hr * 1.09, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.45), helmetM, hel); sm.scale.set(1.08, 1.1, 0.93);
       const kn = add(new THREE.SphereGeometry(0.022, 12, 10), helmetM, hel); kn.position.set(-hr * 1.1, 0.0, 0);
     } else {
-      const hair = add(new THREE.SphereGeometry(hr * 1.06, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.42), mat('#3a2a20', {roughness: 0.9}), hel); hair.scale.set(1.08, 1.12, 0.93); hair.position.y = 0.006;
+      // senza copricapo: i capelli sono disegnati sopra (volto)
     }
     if (lk.glasses !== 'nessuno') {
       const h = lk.glasses === 'mascherina' ? hr * 0.42 : hr * 0.3, ang = lk.glasses === 'mascherina' ? 1.9 : 1.6;
@@ -461,5 +487,7 @@ if (renderer && window.BIO && host) {
     renderer.render(scene, cam);
   }
 
-  window.BIO3D = {ok: true, render, has3DScene: true};
+  // fotografia del render per la scheda atleta: si disegna e si legge subito il buffer
+  const snapshot = (st, W, H) => { const w0 = lastW, h0 = lastH; render(st, W, H); const url = renderer.domElement.toDataURL('image/png'); if (w0 && h0) render(st, w0, h0); return url; };
+  window.BIO3D = {ok: true, render, snapshot, has3DScene: true};
 }

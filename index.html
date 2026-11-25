@@ -96,6 +96,28 @@ th:first-child,td:first-child{text-align:left;white-space:normal}
 .nav a{color:var(--mut);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
 .nav a[aria-current=page],.nav a:hover{color:var(--ink);border-bottom-color:var(--acc)}
 .cta{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:22px;background:var(--acc);color:#fff;font-weight:600;text-decoration:none}
+.cta2{border-color:var(--acc);color:var(--acc2);font-weight:600}
+.scheda{position:fixed;inset:0;z-index:60;background:rgba(10,12,16,.6);overflow:auto;padding:20px 12px}
+.sch-bar{max-width:210mm;margin:0 auto 10px;display:flex;gap:8px;justify-content:flex-end}
+.sch-bar button{background:#fff;color:#15191f}
+.sch-page{background:#fff;color:#15191f;max-width:210mm;margin:0 auto;padding:12mm 13mm;font:12.5px/1.4 Barlow,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.sch-page h1{font:700 30px/1 "Barlow Condensed",sans-serif;margin:2px 0}
+.sch-page h2{font:600 15px "Barlow Condensed",sans-serif;margin:0 0 4px;border-bottom:2px solid #15191f;padding-bottom:2px;text-transform:none}
+.sch-h{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:4px solid #e5007d;padding-bottom:6px;margin-bottom:10px}
+.sch-k{font-size:11px;color:#5c6470}
+.sch-ftp{text-align:right}.sch-ftp b{font:700 40px/1 "Barlow Condensed",sans-serif;color:#e5007d}.sch-ftp span{font:600 16px "Barlow Condensed",sans-serif;margin-left:4px}.sch-ftp small{display:block;color:#5c6470}
+.sch-row{display:grid;grid-template-columns:1.35fr 1fr;gap:10px;align-items:start}
+.sch-row img{width:100%;border-radius:6px;display:block;background:#eef1f5}
+.sch-kpi{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sch-kpi div{border-left:3px solid #e5007d;padding:2px 7px}.sch-kpi b{display:block;font:700 19px "Barlow Condensed",sans-serif}.sch-kpi span{font-size:11px;color:#5c6470}
+.sch-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.sch-page table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.sch-page td{padding:2px 0;border-bottom:1px solid #e4e6ea}.sch-page td:last-child{text-align:right;font-weight:600;white-space:nowrap}
+.sch-page .fuori{color:#b8005f}
+.sch-chart{margin-top:10px}
+.sch-foot{margin-top:8px;font-size:10.5px;color:#5c6470;display:grid;grid-template-columns:1.6fr 1fr;gap:10px}
+.sch-foot code{font-size:9.5px;word-break:break-all;color:#15191f}
+@media print{@page{size:A4;margin:9mm}body>:not(#scheda){display:none!important}#scheda{position:static;background:none;padding:0;overflow:visible}.sch-bar{display:none}.sch-page{box-shadow:none;margin:0;padding:0;max-width:none}}
 .alist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 .alist li{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
 .alist li.on{border-color:var(--acc)}
@@ -155,6 +177,9 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
       <div class="lrow"><span>Copricapo</span><select id="l-head" aria-label="Copricapo"><option value="casco">Casco da strada</option><option value="aero">Casco aero</option><option value="cappellino">Cappellino</option><option value="bandana">Bandana</option><option value="nessuno">Nessuno</option></select><input type="color" id="l-headc" aria-label="Colore copricapo"><input type="color" id="l-headc2" aria-label="Colore dettaglio casco"></div>
       <div class="lrow"><span>Occhiali</span><select id="l-glasses" aria-label="Occhiali"><option value="nessuno">Nessuno</option><option value="sportivi">Sportivi</option><option value="mascherina">A mascherina</option></select><input type="color" id="l-lens" aria-label="Colore lenti"></div>
       <div class="lrow"><span>Pantaloncini · scarpe · guanti</span><input type="color" id="l-shorts" aria-label="Colore pantaloncini"><input type="color" id="l-shoes" aria-label="Colore scarpe"><input type="color" id="l-gloves" aria-label="Colore guanti"></div>
+      <div class="lrow"><span>Capelli</span><select id="l-hair" aria-label="Capelli"><option value="corti">Corti</option><option value="lunghi">Lunghi</option><option value="coda">Coda</option><option value="rasati">Rasati</option></select><input type="color" id="l-hairc" aria-label="Colore capelli"></div>
+      <div class="lrow"><span>Barba e baffi</span><select id="l-beard" aria-label="Barba"><option value="nessuna">Nessuna</option><option value="corta">Barba corta</option><option value="piena">Barba piena</option><option value="pizzetto">Pizzetto</option><option value="baffi">Baffi</option></select><input type="color" id="l-beardc" aria-label="Colore barba"></div>
+      <div class="lrow"><span>Occhi</span><input type="color" id="l-eyes" aria-label="Colore occhi"></div>
       <div class="lrow"><span>Pelle</span><select id="l-skin" aria-label="Tono della pelle"><option value="chiara">Chiara</option><option value="media">Media</option><option value="olivastra">Olivastra</option><option value="scura">Scura</option></select></div>
     </div>
     <div data-p="bici" role="tabpanel" hidden>
@@ -189,7 +214,7 @@ pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
   </div>
   <h3 class="sub">Scarica e importa</h3>
   <p class="note">JSON reimportabile con parametri e risultati; CSV per Excel.</p>
-  <div class="btns"><button type="button" id="xcur">Scarica configurazione attuale (.json)</button><button type="button" id="xall">Scarica atleti del dispositivo (.json)</button><button type="button" id="xcsv">Scarica tabella (.csv)</button><label class="up">Importa file .json<input type="file" id="ximp" accept=".json,application/json"></label></div>
+  <div class="btns"><button type="button" id="schbtn" class="cta2">Scheda atleta (PDF, immagine, stampa)</button><button type="button" id="xcur">Scarica configurazione attuale (.json)</button><button type="button" id="xall">Scarica atleti del dispositivo (.json)</button><button type="button" id="xcsv">Scarica tabella (.csv)</button><label class="up">Importa file .json<input type="file" id="ximp" accept=".json,application/json"></label></div>
   <h3 class="sub">Condividi con un codice</h3>
   <p class="note">Il codice contiene tutta la configurazione: incollalo qui o aggiungilo al link dopo #.</p>
   <div class="savef"><label for="ccode" class="sr">Codice della configurazione attuale</label><input id="ccode" readonly><button type="button" id="ccopy">Copia codice</button></div>
@@ -247,8 +272,8 @@ const MODEL = (() => {
   // anticipo del comando di accensione/spegnimento rispetto all'inizio/fine dell'accorciamento (s): SON/SOFF nello sprint
   // (massima potenza), LON/LOFF alla soglia (massima efficienza: spegnere presto evita che il muscolo frenato si allunghi attivo)
   const K = { E0: 0.04, TACT: 0.010, TDEA: 0.040, SON: 0.020, SOFF: 0.060, LON: 0.0, LOFF: 0.150,
-    EB: 0.31, F0: 0.75, FII: 0.5, TAU: 0.3, TW: 0.1,
-    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
+    EB: 0.29, F0: 0.78, FII: 0.5, TAU: 0.3, TW: 0.1,
+    OPT: 1, LOPT: 0.045, INERZIA: 1, SOLE: 18, SPH: 30, W: null, EVW: 1.0 }; // INERZIA = inerzia delle gambe; SOLE/SPH = media e fase della suola; W = pesi di sforzo per gruppo // OPT = controllo a sforzo minimo alla soglia; LOPT = anticipo del comando sull'attivazione desiderata (s) // EB = efficienza muscolare di base; F0 = frazione sostenibile minima; FII = lattato da fibre veloci (tarate sui profili)
 
   let HO = 0.033;
   function geom(p) {
@@ -476,7 +501,7 @@ const MODEL = (() => {
       const vfm = sF ? sFv / sF : 0, fr = sF ? sFr / sF : 0, tau = K.TAU * slow;
       const wII = (1 - slow) * Math.min(1, Math.max(0, (fr - tau) / K.TW));
       // efficienza-velocità: massima a ~1/4 della velocità massima, curva larga (Barclay 1996; He et al. 2000)
-      const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / 0.6) ** 2), rv = vfm / (3.5 * vA);
+      const eV = (v, vx) => Math.max(0.3, 1 - ((v / vx - 0.25) / K.EVW) ** 2), rv = vfm / (3.5 * vA);
       const eVel = (1 - wII) * eV(vfm, 3.5 * vA) + wII * 0.8 * eV(vfm, 10 * vA);
       const eNeg = Ppos ? Math.max(0.2, (Ppos - Pneg) / (Ppos + 0.3 * Pneg)) : 1;
       const eTyp = 0.85 + 0.3 * slow;                         // efficienza di base più alta con più fibre lente (Coyle 1992)
@@ -532,7 +557,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SL = [
  ['Atleta', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['mass','Massa corporea',45,140,0.5,'kg'],['age','Età',18,80,1,'anni']]],
- ['Fisiologia', [['vo2','VO₂max',25,90,1,'mL/kg/min'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%'],['thigh','Diametro coscia',12,24,0.5,'cm']]],
+ ['Fisiologia', [['vo2','VO₂max',25,90,1,'mL/kg/min'],['mito','Densità mitocondriale',3,10,0.5,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%'],['thigh','Circonferenza a metà coscia',38,75,0.5,'cm']]],
  ['Bici e pedalata', [['saddle','Altezza sella (× cavallo)',0.84,0.92,0.001,''],['crank','Pedivella',150,185,2.5,'mm'],['trunk','Inclinazione busto',10,80,1,'°'],['cad','Cadenza',50,130,1,'rpm']]],
  ['Avanzate', [['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['sta','Angolo tubo sella',70,80,0.5,'°'],['stack','Stack pedale + suola',12,40,1,'mm'],['cleat','Tacchetta arretrata',-5,40,1,'mm'],['ankl','Ankling',0,25,1,'°'],['cc','Co-contrazione muscoli',0,20,1,'%']]],
 ];
@@ -556,11 +581,11 @@ const BIKES = {'Endurance': {p: {sta: 72.5, trunk: 55}}, 'Scalatrice': {p: {sta:
 $('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
 
 const fmt = (k, v) => k === 'sta' ? v.toFixed(1) : k === 'saddle' ? v.toFixed(3) : k === 'ratio' ? v.toFixed(2) : k === 'crank' ? v.toFixed(1) : (+v).toFixed(Number.isInteger(+v) ? 0 : 1);
-function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } i.value = p[k]; $('#o-' + k).textContent = fmt(k, +p[k]) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
+function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; if (i.type === 'checkbox') { i.checked = !!+p[k]; continue; } const v = k === 'thigh' ? Math.round(p[k] * Math.PI * 2) / 2 : p[k]; i.value = v; $('#o-' + k).textContent = fmt(k, +v) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
 
 const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
-const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna'};
-const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS), scene: ['nessuno', 'montagna', 'mare', 'citta', 'campagna']};
+const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: '', scene: 'montagna', hair: 'corti', hairc: '#3a2a20', beard: 'nessuna', beardc: '#3a2a20', eyes: '#5b3b22'};
+const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS), scene: ['nessuno', 'montagna', 'mare', 'citta', 'campagna'], hair: ['corti', 'lunghi', 'coda', 'rasati'], beard: ['nessuna', 'corta', 'piena', 'pizzetto', 'baffi']};
 const cleanLook = q => { const o = {...LOOK0}; if (!q || typeof q !== 'object') return o;
   for (const k in LOOK0) { const v = q[k]; if (typeof v !== 'string') continue;
     if (ENUM[k]) { if (ENUM[k].includes(v)) o[k] = v; }
@@ -945,7 +970,7 @@ function frame(t) {
 }
 
 let pend = false;
-$('#ctrls').addEventListener('input', e => { const k = e.target.id.slice(2); p[k] = e.target.type === 'checkbox' ? (e.target.checked ? 1 : 0) : +e.target.value; syncInputs(); if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; compute(); }); } });
+$('#ctrls').addEventListener('input', e => { const k = e.target.id.slice(2); p[k] = e.target.type === 'checkbox' ? (e.target.checked ? 1 : 0) : k === 'thigh' ? +e.target.value / Math.PI : +e.target.value; syncInputs(); if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; compute(); }); } });
 $('#bikes').addEventListener('click', e => { const b = BIKES[e.target.dataset.b]; if (!b) return; Object.assign(p, b.p); if (b.l) { LOOK = cleanLook({...LOOK, ...b.l}); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (er) {} syncLook(); } syncInputs(); compute(); });
 $('#presets').addEventListener('click', e => { const n = e.target.dataset.p; if (!n) return; p = {...DEF, ...PRE[n]}; syncInputs(); compute(); });
 $('#reset').addEventListener('click', () => { p = {...DEF}; syncInputs(); compute(); });
@@ -1002,7 +1027,7 @@ syncLook();
   let t0 = 'vista'; try { t0 = localStorage.getItem('bio-tab') || 'vista'; } catch (e) {} setTab(['vista', 'atleta', 'bici', 'sfondo'].includes(t0) ? t0 : 'vista'); }
 
 // ---- Atleti salvati: archivio condiviso (chi può scrivere), atleti sul dispositivo (tutti) e codice atleta ----
-const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma])); CB.forEach(([k]) => RANGES[k] = [0, 1]);
+const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma])); CB.forEach(([k]) => RANGES[k] = [0, 1]); RANGES.thigh = [12, 24]; // nel modello: diametro (cm)
 const clean = q => { const o = {...DEF}; for (const k in RANGES) { const v = Number(q && q[k]); if (Number.isFinite(v)) o[k] = Math.min(RANGES[k][1], Math.max(RANGES[k][0], v)); } return o; };
 const slug = n => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'atleta';
 let ATH = [], LOC = [], DB = null, USR = null, me = null, owner = false, canW = false, cur = location.hash.slice(1);
@@ -1120,6 +1145,69 @@ $('#ximp').addEventListener('change', e => { const fl = e.target.files && e.targ
 $('#cimp').addEventListener('submit', e => { e.preventDefault(); if (openCode($('#cin').value)) $('#cin').value = ''; });
 const route = h => { if (!h || h === cur) return; if (h.startsWith('cfg1-')) openCode(h); else if (!openAth(h)) { const a = LOC.find(x => x.id === h); if (a) { applyCfg(a.p, a.look); cur = h; renderAth(); } } };
 window.addEventListener('hashchange', () => route(location.hash.slice(1)));
+// ---- scheda atleta: una pagina A4 con render, numeri principali, misure, bike fit, coppia, codice e sigle ----
+function snapshotImg() {
+  try { if (window.BIO3D && window.BIO3D.ok && window.BIO3D.snapshot) return window.BIO3D.snapshot(window.BIO.state(), 960, 600); } catch (e) {}
+  try { const s = $('#bsvg'), x = new XMLSerializer().serializeToString(s).replace(/var\(--ink\)/g, '#15191f').replace(/var\(--mut\)/g, '#5c6470').replace(/var\(--line\)/g, '#e4e6ea').replace(/var\(--bg\)/g, '#ffffff').replace(/var\(--acc2?\)/g, '#e5007d');
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(x.includes('xmlns=') ? x : x.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')); } catch (e) { return ''; }
+}
+function miniTorque() {
+  const W = 680, H = 120, m = {l: 34, r: 8, t: 8, b: 18}, w = p.cad * 2 * Math.PI / 60, N = R.leg.length;
+  const one = R.leg.map(l => l.pwg / w), two = R.tq, mx = Math.max(...two, ...one) * 1.1, mn = Math.min(0, ...one) * 1.15;
+  const xs = a => m.l + a / 360 * (W - m.l - m.r), ys = v => H - m.b - (v - mn) / (mx - mn) * (H - m.t - m.b);
+  const path = arr => arr.concat([arr[0]]).map((v, i) => `${i ? 'L' : 'M'}${xs(i * 360 / N).toFixed(1)},${ys(v).toFixed(1)}`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${m.l}" x2="${W - m.r}" y1="${ys(0)}" y2="${ys(0)}" stroke="#9aa3af"/>` +
+    [0, 90, 180, 270, 360].map(a => `<text x="${xs(a)}" y="${H - 4}" font-size="10" text-anchor="middle" fill="#5c6470">${a}°</text>`).join('') +
+    `<text x="${m.l - 4}" y="${ys(0) + 3}" font-size="10" text-anchor="end" fill="#5c6470">0</text><text x="${m.l - 4}" y="${ys(Math.round(mx / 1.1)) + 3}" font-size="10" text-anchor="end" fill="#5c6470">${Math.round(mx / 1.1)}</text>` +
+    `<path d="${path(one)}" fill="none" stroke="#5c6470" stroke-width="1.5" stroke-dasharray="4 3"/><path d="${path(two)}" fill="none" stroke="#e5007d" stroke-width="2.2"/>` +
+    `<text x="${W - m.r}" y="${m.t + 10}" font-size="10" text-anchor="end" fill="#e5007d">due gambe</text><text x="${W - m.r}" y="${m.t + 22}" font-size="10" text-anchor="end" fill="#5c6470">gamba destra (con peso e inerzia)</text></svg>`;
+}
+function openScheda() {
+  const name = ($('#aname').value.trim() || (LOC.find(a => a.id === cur) || ATH.find(a => a.id === cur) || {}).name || 'Atleta').slice(0, 40);
+  const fz = R.fit, kg = p.mass, ftp = R.Pthr, img = snapshotImg(), rg = (v, a, b) => (a != null && v < a) || (b != null && v > b) ? ' class="fuori"' : '';
+  const tr = rows => rows.map(([l, v, c = '']) => `<tr><td>${l}</td><td${c}>${v}</td></tr>`).join('');
+  $('#scheda').innerHTML = `<div class="sch-bar"><button type="button" id="sch-pdf">Scarica PDF</button><button type="button" id="sch-png">Scarica immagine</button><button type="button" id="sch-print">Stampa</button><button type="button" id="sch-close">Chiudi</button><span id="sch-msg" style="color:#fff;align-self:center;font-size:14px"></span></div>
+  <article class="sch-page">
+    <header class="sch-h"><div><div class="sch-k">Banco biomeccanico · scheda atleta · ${new Date().toLocaleDateString('it')}</div><h1>${esc(name)}</h1></div>
+      <div class="sch-ftp"><b>${nf(ftp / kg, 2)}</b><span>W/kg FTP</span><small>${Math.round(ftp)} W pedalando a ${p.cad} rpm</small></div></header>
+    <div class="sch-row">${img ? `<img src="${img}" alt="Render del ciclista">` : '<div></div>'}
+      <div class="sch-kpi">
+        <div><b>${Math.round(SP[1])} W</b><span>Sprint · ${nf(SP[1] / kg, 1)} W/kg a ${SP[0]} rpm</span></div>
+        <div><b>${p.vo2}</b><span>VO₂max (mL/kg/min) · ${nf(R.VO2cen, 1)} L/min</span></div>
+        <div><b>${nf(R.GE * 100, 1)}%</b><span>GE · efficienza lorda</span></div>
+        <div><b>${Math.round(R.fthr * 100)}%</b><span>Frazione di VO₂max alla soglia</span></div>
+        <div><b>${Math.round(R.IE * 100)}%</b><span>IE · indice di efficacia</span></div>
+        <div><b>${R.lim === 'centrale' ? 'Cuore' : 'Muscolo'}</b><span>Limite dell'ossigeno</span></div>
+      </div></div>
+    <div class="sch-cols">
+      <section><h2>Atleta</h2><table>${tr([['Altezza', p.h + ' cm'], ['Cavallo', p.ins + ' cm'], ['Massa', kg + ' kg'], ['Età', p.age + ' anni'], ['Fibre lente (tipo I)', p.slow + '%'], ['Densità mitocondriale', p.mito + '%'], ['Circonferenza coscia', nf(p.thigh * Math.PI, 1) + ' cm']])}</table></section>
+      <section><h2>Bici e scarpe</h2><table>${tr([['Altezza sella', nf(fz.saddleH, 1) + ' cm (' + nf(p.saddle, 3) + ' × cavallo)'], ['Arretramento sella', nf(fz.setback, 1) + ' cm'], ['Pedivella', p.crank + ' mm (' + nf(fz.crankPct, 1) + '% gamba)'], ['Inclinazione busto', p.trunk + '°'], ['Tubo sella', p.sta + '°'], ['Stack / tacchetta', p.stack + ' / ' + p.cleat + ' mm'], ['Cadenza', p.cad + ' rpm']])}</table></section>
+      <section><h2>Bike fit</h2><table>${tr([['Ginocchio al PMI', Math.round(fz.kneeBDC) + '° (30–40)', rg(fz.kneeBDC, 30, 40)], ['Ginocchio al PMS', Math.round(fz.kneeTDC) + '° (≤ 122)', rg(fz.kneeTDC, null, 122)], ['Angolo busto–coscia', Math.round(fz.hipMin) + '° (≥ 45)', rg(fz.hipMin, 45, null)], ['Escursione caviglia', Math.round(fz.ankle) + '° (15–35)', rg(fz.ankle, 15, 35)], ['KOPS a ore 3', nf(fz.kops, 1) + ' cm (±2)', rg(fz.kops, -2, 2)], ['Ankling', p.ankl + '°'], ['Co-contrazione', p.cc + '%']])}</table></section>
+    </div>
+    <section class="sch-chart"><h2>Coppia sulla pedivella alla soglia (N·m, 0° = punto morto superiore)</h2>${miniTorque()}</section>
+    <footer class="sch-foot"><div><b>Sigle.</b> FTP = potenza di soglia funzionale · VO₂max = massimo consumo di ossigeno · GE = efficienza lorda (watt meccanici / energia spesa) · IE = indice di efficacia (forza utile / forza totale sul pedale) · PMI / PMS = punto morto inferiore / superiore · KOPS = ginocchio sulla verticale del pedale a ore 3 · W/kg = watt per kg · rpm = giri al minuto. In rosa i valori fuori dal range consigliato.<br>Stime di un modello biomeccanico validato su dati di letteratura e su 16 ciclisti (Clancy et al. 2023): non è una misura di laboratorio né una diagnosi.</div>
+      <div><b>Codice atleta</b> (incollalo nel simulatore per ricrearlo):<br><code>${esc(encode(p, LOOK))}</code><br>maximog01.github.io/banco-biomeccanico</div></footer>
+  </article>`;
+  $('#scheda').hidden = false; $('#sch-close').focus({preventScroll: true});
+  $('#sch-close').addEventListener('click', () => { $('#scheda').hidden = true; $('#schbtn').focus({preventScroll: true}); });
+  $('#sch-print').addEventListener('click', () => { try { window.print(); } catch (e) {} });
+  const fileBase = slug(name) + '-scheda-' + new Date().toISOString().slice(0, 10);
+  const msg = t => { $('#sch-msg').textContent = t; };
+  const shot = async () => { await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    return window.html2canvas($('#scheda .sch-page'), {scale: 2, backgroundColor: '#ffffff', useCORS: true}); };
+  $('#sch-png').addEventListener('click', async () => { msg("Preparo l’immagine…");
+    try { const c = await shot(); c.toBlob(b => { const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = fileBase + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); msg('Immagine scaricata.'); }, 'image/png'); }
+    catch (e) { msg("Non riesco a creare l’immagine: usa Stampa."); } });
+  $('#sch-pdf').addEventListener('click', async () => { msg('Preparo il PDF…');
+    try { const c = await shot(); await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      const doc = new window.jspdf.jsPDF({orientation: 'p', unit: 'mm', format: 'a4'}), m = 8, w = 210 - 2 * m, hh = w * c.height / c.width, s = Math.min(1, (297 - 2 * m) / hh);
+      doc.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', m + (w - w * s) / 2, m, w * s, hh * s); doc.save(fileBase + '.pdf'); msg('PDF scaricato.'); }
+    catch (e) { msg('Non riesco a creare il PDF: usa Stampa → Salva come PDF.'); } });
+}
+const LIBS = {};
+const loadLib = src => LIBS[src] || (LIBS[src] = new Promise((ok, ko) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => { delete LIBS[src]; ko(new Error('rete')); }; document.head.appendChild(s); }));
+$('#schbtn').addEventListener('click', openScheda);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#scheda').hidden) $('#scheda').hidden = true; });
 loadLocal(); setMode(); renderAth();
 if (cur.startsWith('cfg1-')) { const c = cur; cur = ''; route(c); }
 (async () => {
@@ -1141,6 +1229,7 @@ if (cur.startsWith('cfg1-')) { const c = cur; cur = ''; route(c); }
 
 }
 </script>
+<div id="scheda" class="scheda" hidden></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module" src="bike3d.js"></script>
 </body>

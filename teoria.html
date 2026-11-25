@@ -7,190 +7,270 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#12151a);--ink:light-dark(#15191f,#eef0f3);--mut:light-dark(#5c6470,#9aa3af);--line:light-dark(#e4e6ea,#2a2f37);--soft:light-dark(#f5f6f8,#1a1e24);--acc:#e5007d;--acc2:light-dark(#b8005f,#ff5aa8);--ok:light-dark(#1f7a4d,#5fd39a);--ko:light-dark(#9a5b00,#f0b050)}
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#12151a);--ink:light-dark(#15191f,#eef0f3);--mut:light-dark(#5c6470,#9aa3af);--line:light-dark(#e4e6ea,#2a2f37);--soft:light-dark(#f5f6f8,#1a1e24);--acc:#e5007d;--acc2:light-dark(#b8005f,#ff5aa8);--ok:light-dark(#1f7a4d,#5fd39a);--ko:light-dark(#9a5b00,#f0b050);--gray:light-dark(#b9bec6,#4a515c)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Barlow,system-ui,sans-serif;overflow-x:clip}
 h1,h2,h3{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;line-height:1.08;margin:0}
-h1{font-size:clamp(32px,5vw,48px)}h2{font-size:30px;margin-bottom:8px}h3{font-size:21px;margin:22px 0 6px}
+h1{font-size:clamp(32px,5vw,48px)}h2{font-size:30px;margin-bottom:8px}h3{font-size:21px;margin:24px 0 6px}
 .band{padding:clamp(22px,3.5vw,48px) max(5vw,16px)}
 .wrap{max-width:1040px;margin:0 auto}
 .soft{background:var(--soft)}
-.nav{display:flex;gap:18px;margin-bottom:14px;font:600 15px Barlow,sans-serif}
+.nav{display:flex;gap:18px;margin-bottom:14px;font:600 15px Barlow,sans-serif;flex-wrap:wrap}
 .nav a{color:var(--mut);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
 .nav a[aria-current=page],.nav a:hover{color:var(--ink);border-bottom-color:var(--acc)}
-.lede{color:var(--mut);max-width:70ch;margin:8px 0 0}
-p,li{max-width:72ch}
-.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0 4px;counter-reset:s}
+.toc{display:flex;gap:8px 16px;flex-wrap:wrap;margin-top:14px;font-size:15px}
+.lede{color:var(--mut);max-width:72ch;margin:8px 0 0}
+p,li{max-width:74ch}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0 4px}
 .flow div{border:1.5px solid var(--line);border-top:4px solid var(--acc);border-radius:10px;padding:10px 12px;background:var(--bg)}
 .flow b{display:block;font:600 18px "Barlow Condensed",sans-serif}
 .flow span{font-size:14px;color:var(--mut)}
 .eq{font:15px/1.5 ui-monospace,Consolas,monospace;background:var(--soft);border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:pre}
+.band.soft .eq{background:var(--bg)}
 .scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:8px}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th{font-size:14px;color:var(--mut);font-weight:600}
+th{font-size:14px;color:var(--mut);font-weight:600;white-space:normal}
 th:first-child,td:first-child{text-align:left;white-space:normal}
+td.t{text-align:left;white-space:normal}
 .ok{color:var(--ok);font-weight:600}.ko{color:var(--ko);font-weight:600}
 .note{font-size:14px;color:var(--mut)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
 .kpis div{border-left:4px solid var(--acc);padding:4px 12px}
 .kpis b{display:block;font:700 30px "Barlow Condensed",sans-serif}
 .kpis span{font-size:14px;color:var(--mut)}
+.bars{display:grid;gap:8px;margin-top:10px}
+.bar{display:grid;grid-template-columns:minmax(150px,1.3fr) 3fr 4.5em;gap:10px;align-items:center;font-size:15px}
+.bar i{display:block;height:16px;border-radius:4px;background:var(--acc)}
+.bar i.g{background:var(--gray)}
+.bar b{font-variant-numeric:tabular-nums;text-align:right}
+.dumb{display:grid;gap:6px;margin-top:10px}
+.dumb div{display:grid;grid-template-columns:minmax(120px,1fr) 3fr 7em;gap:10px;align-items:center;font-size:15px}
+.track{position:relative;height:18px;border-radius:9px;background:linear-gradient(90deg,var(--line) 0 80%,color-mix(in srgb,var(--ok) 25%,var(--line)) 80%)}
+.track .a,.track .b{position:absolute;top:3px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%)}
+.track .a{background:var(--gray)}.track .b{background:var(--acc)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mut);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--gray)}
+.legend span.b::before{background:var(--acc)}.legend span.n::before{display:none}
+.refs li{margin:4px 0;font-size:15px}
+sup a{text-decoration:none}
 a{color:var(--acc2)}
-@media(max-width:600px){table{font-size:13px}th,td{padding:6px 5px}}
+svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
+@media(max-width:600px){table{font-size:13px}th,td{padding:6px 5px}.bar{grid-template-columns:1fr 3.5em}.bar i{grid-column:1/-1;grid-row:2}.dumb div{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <section class="band"><div class="wrap">
 <nav class="nav" aria-label="Pagine"><a href="./">Simulatore</a><a href="teoria.html" aria-current="page">Teoria e modello</a></nav>
 <h1>Teoria e modello</h1>
-<p class="lede">Come il simulatore passa dal corpo e dalla bici alla soglia, quanto è affidabile e dove sbaglia. Ogni numero viene dagli script in <code>test/</code> del repository.</p>
+<p class="lede">Come il simulatore passa dal corpo e dalla bici alla soglia, come è stato verificato su dati reali e quanto sbaglia. Ogni numero viene dagli script nella cartella <code>test/</code> del repository.</p>
 <div class="kpis">
-  <div><b>r = 0,96</b><span>forma della coppia sul pedale contro 16 ciclisti misurati</span></div>
-  <div><b>4 su 8</b><span>muscoli con tempi simili a OpenSim (r ≥ 0,6)</span></div>
-  <div><b>±6%</b><span>FTP sui profili pubblicati (velocista −11%)</span></div>
-  <div><b>53%</b><span>delle differenze di soglia spiegate dal VO₂max</span></div>
+  <div><b>3°</b><span>errore sull'angolo del ginocchio (RMS) contro 16 ciclisti misurati</span></div>
+  <div><b>r = 0,95</b><span>forma della coppia sul pedale nel test fuori campione</span></div>
+  <div><b>7 su 8</b><span>muscoli con l'effetto della cadenza nel verso giusto (DoWhy sui dati reali)</span></div>
+  <div><b>61%</b><span>delle differenze di soglia spiegate dal VO₂max</span></div>
 </div>
+<nav class="toc" aria-label="Indice"><a href="#biomeccanica">1 Biomeccanica</a><a href="#fisiologia">2 Fisiologia</a><a href="#metodo">3 Metodo</a><a href="#errori">4 Errori prima e dopo</a><a href="#ml">5 Machine learning</a><a href="#dowhy">6 DoWhy</a><a href="#limiti">7 Limiti</a><a href="#fonti">Bibliografia</a></nav>
 </div></section>
 
-<section class="band soft"><div class="wrap">
-<h2>Il percorso del calcolo</h2>
+<section class="band soft" id="biomeccanica"><div class="wrap">
+<h2>1 · Biomeccanica: dal corpo alla forza sul pedale</h2>
 <div class="flow">
-  <div><b>1 · Corpo e bici</b><span>gamba, piede rigido, sella, pedivelle, stack, tacchetta</span></div>
-  <div><b>2 · Cinematica</b><span>72 posizioni della pedivella, angoli di anca, ginocchio, caviglia</span></div>
-  <div><b>3 · Muscoli</b><span>8 gruppi di Hill: leve variabili, tendini, attivazione con ritardo</span></div>
-  <div><b>4 · Controllo</b><span>attivazioni a sforzo minimo con equilibrio della gamba</span></div>
-  <div><b>5 · Efficienza</b><span>lavoro delle fibre, velocità, lavoro negativo, tipo di fibre</span></div>
-  <div><b>6 · Soglia</b><span>VO₂max × frazione sostenibile × efficienza</span></div>
+  <div><b>Corpo e bici</b><span>gamba, piede rigido, sella, pedivelle, stack, tacchetta</span></div>
+  <div><b>Cinematica</b><span>72 posizioni della pedivella, angoli di anca, ginocchio, caviglia</span></div>
+  <div><b>Muscoli</b><span>8 gruppi di Hill: leve variabili, tendini, attivazione</span></div>
+  <div><b>Controllo</b><span>attivazioni a sforzo minimo</span></div>
+  <div><b>Pedale</b><span>forza e coppia, con peso e inerzia delle gambe</span></div>
 </div>
-<h3>Muscoli</h3>
-<p>Ogni gruppo muscolare segue il modello di Hill: la forza dipende da attivazione, lunghezza della fibra e velocità di accorciamento. Il tendine è una molla in serie che si allunga del 4% alla forza massima. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa (Zajac 1989).</p>
-<div class="eq">F = a · F0 · f_L(l/L0) · f_V(v/vmax)        F0 = 30 N/cm² · sezione · (diametro coscia)²</div>
+<h3>Geometria e cinematica</h3>
+<p>Coscia, gamba e piede formano una catena rigida dall'anca al pedale. Il piede porta stack (pedale più suola) e tacchetta, e oscilla nel giro con un pattern di ankling. Per 72 posizioni della pedivella la cinematica inversa calcola gli angoli di anca, ginocchio e caviglia.</p>
+<h3>Muscoli (modello di Hill)</h3>
+<p>Otto gruppi: grande gluteo, ischiocrurali, vasti, retto femorale, ileopsoas, gastrocnemio, soleo e tibiale anteriore. La forza di ciascuno dipende da attivazione, lunghezza e velocità della fibra<sup><a href="#r3">[3]</a></sup>. Il braccio di leva cambia con l'angolo. Il tendine è una molla in serie che si allunga del 4% alla forza massima. L'attivazione segue il comando nervoso con 10 ms in salita e 40 ms in discesa<sup><a href="#r2">[2]</a></sup>. Sezioni e lunghezze delle fibre seguono i modelli OpenSim<sup><a href="#r18">[18]</a><a href="#r22">[22]</a></sup>.</p>
+<div class="eq">F = a · F0 · fL(l/L0) · fV(v/vmax)        F0 = 30 N/cm² · sezione · (circonferenza coscia / π)²</div>
 <h3>Controllo a sforzo minimo</h3>
-<p>Come nell'obiettivo J1 di OpenSim Moco (Clancy et al. 2023), in ogni posizione della pedivella si cercano le attivazioni che rispettano l'equilibrio della gamba con il minimo sforzo. L'equilibrio impone che le coppie muscolari diano un'unica forza sul pedale; nello sforzo ogni gruppo pesa per la sua dimensione. Peso e inerzia delle gambe (masse e raggi giratori di Winter) entrano poi nella forza e nella coppia sul pedale. La spinta si concentra dove costa meno.</p>
+<p>Come nell'obiettivo J1 di OpenSim Moco<sup><a href="#r1">[1]</a><a href="#r19">[19]</a></sup>, in ogni posizione si scelgono le attivazioni che reggono la forza sul pedale con il minimo sforzo, pesato per la dimensione di ogni gruppo. La spinta si concentra dove costa meno. Nello sprint resta una regola massimale: ogni muscolo è attivo finché si accorcia.</p>
 <div class="eq">min Σ w_m · a_m²    con   Σ a_m · τ_m = Jᵀ · f_pedale ,   a_m ≥ 0</div>
-<p>Nello sprint resta una regola massimale: ogni muscolo è attivo finché si accorcia.</p>
-<h3>Soglia (FTP)</h3>
+<h3>Peso e inerzia delle gambe</h3>
+<p>Masse e raggi giratori dei segmenti sono quelli di Winter<sup><a href="#r9">[9]</a></sup>: coscia 10% della massa corporea, gamba 4,65%, piede 1,45%. Entrano nella forza e nella coppia sul pedale: in spinta aiutano, in risalita frenano, e per questo la coppia in risalita è negativa come nei pedali misurati.</p>
+</div></section>
+
+<section class="band" id="fisiologia"><div class="wrap">
+<h2>2 · Fisiologia: dalla forza alla soglia</h2>
 <div class="eq">FTP = VO₂max · massa · 20,9 J/mL · efficienza lorda · frazione sostenibile</div>
-<ul>
-<li><b>Ossigeno:</b> il limite è il cuore (VO₂max). I muscoli possono usarne circa il doppio (Andersen e Saltin 1985), quindi il tetto muscolare conta solo in casi estremi.</li>
-<li><b>Frazione sostenibile</b> (75–94%): cresce con la densità mitocondriale e le fibre lente (Coyle; Holloszy e Coyle). Cala quando la forza per pedalata recluta fibre veloci (Henneman), che producono lattato: per questo la soglia scende a cadenze basse.</li>
-<li><b>Efficienza lorda:</b> viene dalla simulazione alla potenza di soglia. È massima con fibre vicine alla lunghezza ottimale, accorciamento a circa ¼ della velocità massima e poco lavoro negativo; è più alta con più fibre lente (Coyle 1992).</li>
-<li><b>Taratura:</b> 5 costanti globali, tarate su 13 obiettivi di letteratura: FTP di 5 profili, efficienza e frazione tipiche, cadenza di soglia, VO₂max ×2 → FTP quasi ×2, coscia quasi ininfluente.</li>
-</ul>
-</div></section>
-
-<section class="band"><div class="wrap">
-<h2>Validazione</h2>
-<h3>Forze sui pedali: 16 ciclisti misurati (Clancy et al. 2023)</h3>
-<p class="note">Media dei 16 ciclisti (85 rpm, 111 W) contro il modello alla stessa cadenza e potenza. Il centro del movimento centrale è stimato dal cerchio del pedale; 0° = pedale destro in alto.</p>
 <div class="scroll"><table>
-<thead><tr><th>Grandezza</th><th>Misurato</th><th>Modello</th><th></th></tr></thead>
+<thead><tr><th>Componente</th><th>Come è calcolata</th><th>Valori tipici</th><th>Fonti</th></tr></thead>
 <tbody>
-<tr><td>Forma della coppia nel giro (correlazione)</td><td>–</td><td>r = 0,96</td><td class="ok">buona</td></tr>
-<tr><td>Picco di coppia</td><td>96°</td><td>90°</td><td class="ok">buono</td></tr>
-<tr><td>Power Phase (coppia positiva)</td><td>≈ 355° → 190°</td><td>5° → 180°</td><td class="ok">buono</td></tr>
-<tr><td>Picco della Power Phase (sopra il 50%)</td><td>≈ 55° → 150°</td><td>35° → 155°</td><td class="ok">buono</td></tr>
-<tr><td>Coppia minima in risalita</td><td>−16 N·m</td><td>−10 N·m</td><td class="ko">un po' poco negativa</td></tr>
-<tr><td>Indice di efficacia sul giro</td><td>24%</td><td>34%</td><td class="ko">un po' alto</td></tr>
+<tr><td>Ossigeno (VO₂max)</td><td class="t">dato dell'atleta; i muscoli possono usarne circa il doppio, quindi il limite è il cuore</td><td>45–85 mL/kg/min</td><td><a href="#r8">[8]</a> <a href="#r11">[11]</a></td></tr>
+<tr><td>Frazione sostenibile</td><td class="t">cresce con mitocondri e fibre lente; cala se la forza per pedalata recluta fibre veloci, che producono lattato</td><td>75–94%</td><td><a href="#r4">[4]</a> <a href="#r6">[6]</a> <a href="#r7">[7]</a></td></tr>
+<tr><td>Efficienza lorda</td><td class="t">simulata alla potenza di soglia: lunghezza e velocità delle fibre, lavoro negativo, tipo di fibre</td><td>19–23%</td><td><a href="#r5">[5]</a> <a href="#r12">[12]</a> <a href="#r15">[15]</a> <a href="#r21">[21]</a></td></tr>
+<tr><td>Sprint</td><td class="t">potenza massimale dei muscoli tra 100 e 130 rpm</td><td>11–19 W/kg</td><td><a href="#r23">[23]</a></td></tr>
 </tbody></table></div>
-<h3>Muscoli e angoli: simulazioni OpenSim Moco (6 ciclisti, 90 rpm)</h3>
-<p class="note">OpenSim usa un modello 3D con 40 muscoli per gamba e minimizza lo sforzo seguendo le forze misurate sui pedali. I loro muscoli sono raggruppati negli 8 gruppi del nostro modello; la correlazione misura la somiglianza della forma dell'attivazione lungo il giro.</p>
+<p class="note">Cinque costanti globali (efficienza di base, frazione minima, peso del lattato, soglia e ampiezza del reclutamento) sono tarate su 13 obiettivi di letteratura: FTP di 5 profili, efficienza e frazione tipiche, cadenza di soglia, più i vincoli "VO₂max ×2 → FTP quasi ×2" e "coscia quasi ininfluente sulla soglia". Errore medio 6,7%.</p>
 <div class="scroll"><table>
-<thead><tr><th>Gruppo muscolare</th><th>Attivo in OpenSim</th><th>Attivo nel modello</th><th>Correlazione</th></tr></thead>
-<tbody><tr><td>Grande gluteo</td><td>10° → 175°</td><td>25° → 155°</td><td class="ok">0,68</td></tr><tr><td>Ischiocrurali</td><td>0° → 205°</td><td>70° → 220°</td><td class="ko">0,44</td></tr><tr><td>Vasti (quadricipite)</td><td>5° → 115°</td><td>345° → 140°</td><td class="ok">0,86</td></tr><tr><td>Retto femorale</td><td>265° → 340°</td><td>315° → 130°</td><td class="ko">0,44</td></tr><tr><td>Ileopsoas</td><td>180° → 315°</td><td>165° → 355°</td><td class="ko">0,56</td></tr><tr><td>Gastrocnemio</td><td>95° → 270°</td><td>115° → 170°</td><td class="ok">0,65</td></tr><tr><td>Soleo</td><td>35° → 165°</td><td>50° → 150°</td><td class="ok">0,85</td></tr><tr><td>Tibiale anteriore</td><td>65° → 280°</td><td>195° → 325°</td><td class="ko">0,25</td></tr></tbody></table></div>
-<div class="scroll"><table>
-<thead><tr><th>Articolazione</th><th>Escursione OpenSim</th><th>Escursione modello</th></tr></thead>
-<tbody><tr><td>Anca</td><td>51° ± 3</td><td>47°</td></tr><tr><td>Ginocchio</td><td>76° ± 6 (38° → 113°)</td><td>84° (33° → 117°)</td></tr><tr><td>Caviglia</td><td>21° ± 5</td><td>32°</td></tr></tbody></table></div>
-<h3>Prima e ora: confronto numerico</h3>
-<p class="note">"Prima" = regola semplice (muscolo attivo mentre si accorcia), gambe senza massa. "Ora" = sforzo minimo + peso e inerzia delle gambe. Pedali: media dei 16 ciclisti (85 rpm, 111 W); muscoli: 6 simulazioni Moco (90 rpm).</p>
-<div class="scroll"><table>
-<thead><tr><th>Grandezza</th><th>Misurato / OpenSim</th><th>Prima</th><th>Ora</th></tr></thead>
+<thead><tr><th>Profilo pubblicato</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>
 <tbody>
-<tr><td>Forma della coppia (r)</td><td>–</td><td>0,93</td><td class="ok">0,97</td></tr>
-<tr><td>Coppia minima in risalita</td><td>−16 N·m</td><td class="ko">−1 N·m</td><td>−11 N·m</td></tr>
-<tr><td>Power Phase</td><td>≈ 355° → 190°</td><td class="ko">345° → 325°</td><td class="ok">350° → 185°</td></tr>
-<tr><td>Indice di efficacia</td><td>24%</td><td class="ko">58%</td><td>33%</td></tr>
-<tr><td>Soleo (r attivazione)</td><td>–</td><td class="ko">0,24</td><td class="ok">0,85</td></tr>
-<tr><td>Gastrocnemio (r)</td><td>–</td><td class="ko">−0,27</td><td class="ok">0,65</td></tr>
-<tr><td>Grande gluteo (r)</td><td>–</td><td>0,51</td><td class="ok">0,68</td></tr>
-<tr><td>Tibiale anteriore (r)</td><td>–</td><td>0,49</td><td class="ko">0,25</td></tr>
-<tr><td>Quota di lavoro del soleo</td><td>3,5% (costo metabolico)</td><td class="ko">20%</td><td>12%</td></tr>
-<tr><td>Quota del grande gluteo</td><td>28% (costo metabolico)</td><td class="ko">14%</td><td>22%</td></tr>
-</tbody></table></div>
-<h3>Ogni ciclista con le sue misure</h3>
-<p>Dai marker di ciascuno dei 16 ciclisti sono stati ricavati:</p>
-<ul>
-<li>centro dell'anca (regressione di Harrington), ginocchio e caviglia, quindi lunghezza di coscia e gamba;</li>
-<li>posizione dell'anca rispetto al movimento centrale, cioè altezza e arretramento della sella;</li>
-<li>busto, pedivella e segmento caviglia → pedale lungo il giro, cioè l'ankling reale.</li>
-</ul>
-<p>Con queste misure, più massa, cadenza e potenza di ciascuno, il ginocchio del modello si discosta di soli 3° (RMS) da quello misurato.</p>
-<div class="scroll"><table>
-<thead><tr><th>Errore sulla coppia della gamba (RMS relativo)</th><th>Training P01–P11</th><th>Test P12–P16</th></tr></thead>
-<tbody>
-<tr><td>Geometria standard</td><td>31% · r 0,95</td><td>38% · r 0,92</td></tr>
-<tr><td>Misure individuali (modello fisico)</td><td class="ok">33% · r 0,93 · ginocchio 3,4°</td><td class="ok">30% · r 0,95 · ginocchio 3,2°</td></tr>
-<tr><td>Misure individuali + training di 9 parametri muscolari</td><td>33% · r 0,93</td><td class="ko">32% · r 0,95</td></tr>
-</tbody></table></div>
-<p class="note">Nel test l'indice di efficacia è 26% contro il 24% misurato e la coppia minima −12 contro −16 N·m. Il training dei pesi muscolari non migliora il test, quindi non è adottato: il miglioramento viene dalla fisica (peso e inerzia delle gambe) e dalle misure individuali. Con 16 ciclisti un modello di machine learning "a scatola nera" andrebbe in overfitting.</p>
-<h3>Interventi: la cadenza, sui dati reali (DoWhy)</h3>
-<p>Nelle simulazioni Moco 6 ciclisti hanno pedalato a cadenze imposte dal protocollo (60–120 rpm) e a 3 livelli di carico: la cadenza è un vero intervento. DoWhy stima l'effetto di +10 rpm sulla quota del costo metabolico di ogni gruppo muscolare. Ciclista e carico sono trattati come cause comuni, con aggiustamento backdoor. Il confronto è con quanto prevede il modello per lo stesso intervento.</p>
-<div class="scroll"><table>
-<thead><tr><th>Gruppo</th><th>Dati: effetto di +10 rpm</th><th>IC 95%</th><th>Modello</th><th>Esito</th></tr></thead>
-<tbody>
-<tr><td>Grande gluteo</td><td>+1,20</td><td>+0,60 … +1,73</td><td>+0,81</td><td class="ok">dentro l'intervallo</td></tr>
-<tr><td>Retto femorale</td><td>−0,46</td><td>−0,74 … −0,16</td><td>−0,39</td><td class="ok">dentro l'intervallo</td></tr>
-<tr><td>Ileopsoas</td><td>+0,15</td><td>−0,09 … +0,35</td><td>+0,04</td><td class="ok">dentro l'intervallo</td></tr>
-<tr><td>Gastrocnemio</td><td>+0,04</td><td>−0,08 … +0,18</td><td>0,00</td><td class="ok">dentro l'intervallo</td></tr>
-<tr><td>Tibiale anteriore</td><td>−0,12</td><td>−0,17 … −0,04</td><td>−0,08</td><td class="ok">dentro l'intervallo</td></tr>
-<tr><td>Ischiocrurali</td><td>−0,10</td><td>−0,31 … +0,12</td><td>−0,64</td><td class="ko">verso giusto, troppo grande</td></tr>
-<tr><td>Soleo</td><td>−0,24</td><td>−0,37 … −0,13</td><td>−0,99</td><td class="ko">verso giusto, troppo grande</td></tr>
-<tr><td>Vasti</td><td>−0,47</td><td>−1,03 … +0,14</td><td>+1,24</td><td class="ko">verso opposto</td></tr>
-</tbody></table></div>
-<p class="note">Punti percentuali della quota del costo metabolico (OpenSim) contro la quota di lavoro delle fibre (modello). Refutazioni DoWhy: con il trattamento permutato (placebo) l'effetto va a circa 0; aggiungendo una causa comune casuale o usando l'80% dei dati la stima non cambia. Esito: verso giusto in 7 gruppi su 8, dentro l'intervallo in 5 su 8.</p>
-<h3>Profili pubblicati</h3>
-<div class="scroll"><table>
-<thead><tr><th>Profilo</th><th>FTP modello</th><th>Atteso</th><th>Fonte</th></tr></thead>
-<tbody>
-<tr><td>Amatore ricreativo</td><td>2,51 W/kg</td><td>2,3–2,9</td><td>Cycling Weekly</td></tr>
-<tr><td>Amatore allenato</td><td>3,58 W/kg</td><td>3,2–3,9</td><td>tipico agonista amatore</td></tr>
-<tr><td>ProTeam</td><td>5,32 W/kg</td><td>5,1–5,7</td><td>studio Vuelta 2020 (media 5,4)</td></tr>
-<tr><td>WorldTour scalatore</td><td>5,78 W/kg</td><td>5,8–6,4</td><td>Vuelta 2020; Lucía et al.</td></tr>
-<tr><td>Velocista pro</td><td>4,61 W/kg</td><td>4,8–5,5</td><td>stima (sprint 17,4 W/kg ✓)</td></tr>
+<tr><td>Amatore ricreativo</td><td class="ok">2,67 W/kg</td><td>2,3–2,9</td><td>valori amatoriali</td></tr>
+<tr><td>Amatore allenato</td><td class="ok">3,74 W/kg</td><td>3,2–3,9</td><td>tipico agonista</td></tr>
+<tr><td>ProTeam</td><td class="ok">5,35 W/kg</td><td>5,1–5,7</td><td><a href="#r20">[20]</a></td></tr>
+<tr><td>WorldTour scalatore</td><td class="ko">5,73 W/kg</td><td>5,8–6,4</td><td><a href="#r11">[11]</a> <a href="#r20">[20]</a></td></tr>
+<tr><td>Velocista pro</td><td class="ko">4,75 W/kg (sprint 17,4 ✓)</td><td>4,8–5,5</td><td>stima</td></tr>
 </tbody></table></div>
 </div></section>
 
-<section class="band soft"><div class="wrap">
-<h2>Quanto pesa ogni variabile</h2>
-<p>Analisi di sensibilità su 1500 atleti virtuali: parametri estratti a caso da distribuzioni realistiche, poi simulati.</p>
+<section class="band soft" id="metodo"><div class="wrap">
+<h2>3 · Metodo: stima dal modello, verifica sui dati</h2>
+<p>Il simulatore è un <b>modello fisico predittivo</b>: non impara dai dati, calcola dalle equazioni. Per questo va verificato su misure indipendenti, in cinque passi.</p>
+<div class="flow">
+  <div><b>1 · Letteratura</b><span>parametri di muscoli, segmenti e fisiologia; costanti tarate su profili pubblicati</span></div>
+  <div><b>2 · Dati reali</b><span>16 ciclisti: forze sui pedali e marker; simulazioni OpenSim Moco</span></div>
+  <div><b>3 · Misure individuali</b><span>ogni ciclista simulato con le sue lunghezze, sella, busto, piede, massa, cadenza e potenza</span></div>
+  <div><b>4 · Training e test</b><span>stima di parametri su 11 ciclisti, verifica su 5 mai visti</span></div>
+  <div><b>5 · Interventi</b><span>DoWhy: l'effetto della cadenza nei dati contro quello previsto</span></div>
+</div>
 <div class="scroll"><table>
-<thead><tr><th>Parametro</th><th>Effetto per 1 deviazione standard</th><th>Quota di varianza spiegata</th></tr></thead>
-<tbody><tr><td>VO₂max</td><td>+17,8%</td><td>53%</td></tr><tr><td>Fibre lente</td><td>+8,0%</td><td>12%</td></tr><tr><td>Cadenza (75–105 rpm)</td><td>−6,5%</td><td>8%</td></tr><tr><td>Densità mitocondriale</td><td>+6,3%</td><td>8%</td></tr><tr><td>Cavallo</td><td>+6,0%</td><td>7%</td></tr><tr><td>Co-contrazione</td><td>−4,9%</td><td>5%</td></tr><tr><td>Altezza</td><td>+4,5%</td><td>6%</td></tr><tr><td>Età</td><td>−4,0%</td><td>3%</td></tr><tr><td>Diametro coscia</td><td>+2,5%</td><td>3%</td></tr><tr><td>Altezza sella</td><td>−2,3%</td><td>2%</td></tr><tr><td>Massa</td><td>−1,8%</td><td>3%</td></tr><tr><td>Pedivella</td><td>−1,6%</td><td>2%</td></tr><tr><td>Ankling, busto, tacchetta, stack, tubo sella, femore/tibia</td><td>meno dell'1%</td><td>1% ciascuno</td></tr></tbody></table></div>
-<h3>Come sono stimati gli effetti</h3>
+<thead><tr><th>Dati usati</th><th>Cosa contengono</th><th>A cosa servono</th></tr></thead>
+<tbody>
+<tr><td>Clancy et al. 2023, sperimentali<sup><a href="#r1">[1]</a></sup></td><td class="t">16 ciclisti, forze sui pedali a 450 Hz, 89 marker, modelli scalati; 40–216 W, 75–99 rpm</td><td class="t">coppia, Power Phase, indice di efficacia, misure individuali</td></tr>
+<tr><td>Clancy et al. 2023, Moco</td><td class="t">attivazioni e costo metabolico di 40 muscoli; 6 ciclisti a 60–120 rpm e 3 carichi</td><td class="t">tempi dei muscoli, interventi sulla cadenza</td></tr>
+<tr><td>Letteratura fisiologica</td><td class="t">VO₂max, FTP ed efficienza di amatori e professionisti</td><td class="t">taratura e verifica della soglia</td></tr>
+</tbody></table></div>
+<h3>Come sono state ricavate le misure individuali</h3>
 <ul>
-<li><b>È un esperimento sul modello, non sulla realtà.</b> I parametri sono estratti in modo indipendente (solo cavallo e massa dipendono dall'altezza), quindi non ci sono correlazioni tra gli ingressi da correggere: l'effetto di ogni parametro è un intervento <i>do(parametro + 1 DS)</i> sul simulatore.</li>
-<li><b>Il grafo causale di DoWhy</b> per ogni parametro ha tre rami: parametro → efficienza lorda → soglia; parametro → soglia (via ossigeno e frazione); per cavallo e massa, altezza → parametro e altezza → soglia (confondente, aggiustato con il criterio backdoor). Non ricostruisce tutta la fisiologia: quella è il simulatore stesso.</li>
-<li><b>Stima:</b> regressione lineare (effetto medio, una pendenza per parametro). La quota di varianza è un indice di Sobol del primo ordine stimato per classi, che cattura anche effetti non lineari. La mediazione (quota che passa dall'efficienza) usa una regressione a due stadi.</li>
-<li><b>Test:</b> placebo con trattamento permutato, in cui l'effetto deve sparire (sparisce). Non è stato usato un modello di machine learning per stimare i pesi.</li>
-<li><b>Limiti di questa analisi:</b> l'effetto lineare semplifica relazioni non lineari, le interazioni tra parametri non sono stimate, e i risultati valgono per il modello. Per la realtà servirebbero dati di atleti veri, dove allenamento, VO₂max, mitocondri e fibre sono correlati e confusi tra loro.</li>
-<li><b>Sui dati reali</b> DoWhy serve a validare gli interventi (vedi "Interventi: la cadenza"): lì la cadenza è assegnata dal protocollo, quindi l'effetto stimato è causale per quei ciclisti.</li>
-<li><b>Prossimi passi:</b> indici di Sobol totali con un modello sostitutivo per le interazioni; altri interventi reali (carico) e taratura bayesiana con validazione fuori campione.</li>
+<li><b>Centro dell'anca:</b> regressione di Harrington dai marker del bacino<sup><a href="#r10">[10]</a></sup>.</li>
+<li><b>Ginocchio e caviglia:</b> punti medi tra condili e tra malleoli.</li>
+<li><b>Movimento centrale e pedivella:</b> cerchio descritto dai marker del pedale; da qui la posizione dell'anca, cioè altezza e arretramento della sella.</li>
+<li><b>Piede:</b> lunghezza e angolo del segmento caviglia → pedale lungo il giro, cioè l'ankling reale.</li>
 </ul>
 </div></section>
 
-<section class="band"><div class="wrap">
-<h2>Limiti</h2>
+<section class="band" id="errori"><div class="wrap">
+<h2>4 · Errori del modello: prima, dopo, training e test</h2>
+<h3>Media dei 16 ciclisti (85 rpm, 111 W)</h3>
+<div class="scroll"><table>
+<thead><tr><th>Versione del modello</th><th>Forma coppia (r)</th><th>Coppia min (misurata −16 N·m)</th><th>Indice di efficacia (24%)</th><th>Power Phase (≈355° → 190°)</th><th>Muscoli simili a Moco</th></tr></thead>
+<tbody>
+<tr><td>1 · Regola semplice, gambe senza massa</td><td>0,93</td><td class="ko">−1</td><td class="ko">58%</td><td class="ko">345° → 325°</td><td class="ko">2 su 8</td></tr>
+<tr><td>2 · + sforzo minimo e peso delle gambe</td><td>0,96</td><td>−10</td><td>34%</td><td class="ok">5° → 180°</td><td>4 su 8</td></tr>
+<tr><td>3 · + inerzia delle gambe</td><td class="ok">0,97</td><td>−11</td><td>33%</td><td class="ok">350° → 185°</td><td>4 su 8</td></tr>
+</tbody></table></div>
+<h3>Ogni ciclista con le sue misure: training P01–P11, test P12–P16</h3>
+<div class="bars" role="img" aria-label="Errore sulla coppia nel test: geometria standard 38%, misure individuali 30%, con training 32%">
+  <div class="bar"><span>Geometria standard</span><i class="g" style="width:76%"></i><b>38%</b></div>
+  <div class="bar"><span>Misure individuali</span><i style="width:60%"></i><b>30%</b></div>
+  <div class="bar"><span>Misure + training</span><i class="g" style="width:64%"></i><b>32%</b></div>
+</div>
+<p class="note">Errore quadratico medio sulla coppia della gamba nel test, in % della coppia misurata: più corto è meglio.</p>
+<div class="scroll"><table>
+<thead><tr><th>Configurazione</th><th>Training: errore · forma · ginocchio</th><th>Test: errore · forma · ginocchio</th></tr></thead>
+<tbody>
+<tr><td>Geometria standard</td><td>31% · 0,95 · –</td><td>38% · 0,92 · –</td></tr>
+<tr><td>Misure individuali (adottata)</td><td>33% · 0,93 · 3,4°</td><td class="ok">30% · 0,95 · 3,2°</td></tr>
+<tr><td>Misure + training di 9 parametri muscolari</td><td>33% · 0,93 · 3,4°</td><td class="ko">32% · 0,95 · 3,2°</td></tr>
+</tbody></table></div>
+<h3>Attivazioni contro OpenSim Moco: prima e ora</h3>
+<div class="dumb" role="img" aria-label="Correlazione delle attivazioni prima e ora per otto muscoli">
+  <div><span>Soleo</span><div class="track"><i class="a" style="left:62%"></i><i class="b" style="left:92.5%"></i></div><span>0,24 → 0,85</span></div>
+  <div><span>Gastrocnemio</span><div class="track"><i class="a" style="left:36.5%"></i><i class="b" style="left:82.5%"></i></div><span>−0,27 → 0,65</span></div>
+  <div><span>Grande gluteo</span><div class="track"><i class="a" style="left:75.5%"></i><i class="b" style="left:84%"></i></div><span>0,51 → 0,68</span></div>
+  <div><span>Vasti</span><div class="track"><i class="a" style="left:93.5%"></i><i class="b" style="left:93%"></i></div><span>0,87 → 0,86</span></div>
+  <div><span>Retto femorale</span><div class="track"><i class="a" style="left:64%"></i><i class="b" style="left:72%"></i></div><span>0,28 → 0,44</span></div>
+  <div><span>Ileopsoas</span><div class="track"><i class="a" style="left:83.5%"></i><i class="b" style="left:78%"></i></div><span>0,67 → 0,56</span></div>
+  <div><span>Ischiocrurali</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:72%"></i></div><span>0,49 → 0,44</span></div>
+  <div><span>Tibiale anteriore</span><div class="track"><i class="a" style="left:74.5%"></i><i class="b" style="left:62.5%"></i></div><span>0,49 → 0,25</span></div>
+</div>
+<div class="legend"><span>prima (regola semplice)</span><span class="b">ora (sforzo minimo)</span><span class="n">scala da −1 a 1; in verde r ≥ 0,6</span></div>
+</div></section>
+
+<section class="band soft" id="ml"><div class="wrap">
+<h2>5 · Che tipo di machine learning, e perché</h2>
 <ul>
-<li>Modello 2D sagittale: niente movimenti laterali del ginocchio, float della tacchetta o rotazioni del bacino.</li>
-<li>Peso delle gambe incluso, inerzia no: la coppia in risalita è meno negativa del reale.</li>
-<li>8 gruppi muscolari invece di 40; tibiale anteriore e ischiocrurali hanno ancora tempi diversi da OpenSim.</li>
-<li>Lo sprint usa una regola massimale, non un'ottimizzazione; è basso negli amatori.</li>
+<li><b>Approccio a "scatola grigia".</b> Il modello fisico resta, e dai dati si stimano solo pochi parametri interpretabili: i pesi di sforzo degli 8 muscoli e l'anticipo del comando nervoso. Non è una rete neurale né un gradient boosting.</li>
+<li><b>Ottimizzazione:</b> strategia evolutiva (1+1) con passo adattivo, entro limiti fisiologici. Si minimizza l'errore quadratico relativo sulla coppia di ciascun ciclista, più la differenza di forma rispetto alle attivazioni Moco.</li>
+<li><b>Validazione:</b> divisione per persona. Training su P01–P11 e Moco 1–4, test su P12–P16 e Moco 5–6, mai usati per stimare.</li>
+<li><b>Risultato:</b> il training non migliora il test (30% → 32%), quindi è overfitting e i parametri stimati non sono adottati. Il miglioramento vero viene dalla fisica (peso, inerzia) e dalle misure individuali.</li>
+<li><b>Perché niente reti neurali:</b> con 16 persone imparerebbero il rumore, e non saprebbero rispondere a "cosa succede se alzo la sella", che è lo scopo del simulatore.</li>
+</ul>
+</div></section>
+
+<section class="band" id="dowhy"><div class="wrap">
+<h2>6 · DoWhy: due usi diversi</h2>
+<h3>a) Sul modello: quanto pesa ogni variabile</h3>
+<p>Sono stati generati 1500 atleti virtuali con parametri estratti a caso e indipendenti (cavallo e massa dipendono dall'altezza), poi simulati. Per ogni parametro DoWhy<sup><a href="#r17">[17]</a></sup> stima l'intervento <i>do(parametro + 1 DS)</i>. Il grafo ha i rami parametro → efficienza → soglia e parametro → soglia, più l'altezza come confondente per cavallo e massa. La stima è una regressione lineare e la quota di varianza un indice di Sobol del primo ordine; col placebo l'effetto sparisce. <b>Misura il comportamento del modello, non la realtà.</b></p>
+<div class="bars" role="img" aria-label="Quota delle differenze di soglia spiegata da ogni parametro">
+  <div class="bar"><span>VO₂max (+16,8% per DS)</span><i style="width:100%"></i><b>61%</b></div>
+  <div class="bar"><span>Fibre lente (+6,5%)</span><i class="g" style="width:18%"></i><b>11%</b></div>
+  <div class="bar"><span>Mitocondri (+5,2%)</span><i class="g" style="width:12.5%"></i><b>8%</b></div>
+  <div class="bar"><span>Co-contrazione (−4,9%)</span><i class="g" style="width:10.5%"></i><b>6%</b></div>
+  <div class="bar"><span>Cadenza 75–105 rpm (−3,8%)</span><i class="g" style="width:7%"></i><b>4%</b></div>
+  <div class="bar"><span>Cavallo (+3,5%)</span><i class="g" style="width:7%"></i><b>4%</b></div>
+  <div class="bar"><span>Circonferenza coscia (+3,3%)</span><i class="g" style="width:7%"></i><b>4%</b></div>
+  <div class="bar"><span>Età (−3,2%)</span><i class="g" style="width:5%"></i><b>3%</b></div>
+  <div class="bar"><span>Sella, pedivella, busto, tacchetta, stack</span><i class="g" style="width:2.5%"></i><b>≤ 2%</b></div>
+</div>
+<h3>b) Sui dati reali: le previsioni del modello sono attendibili?</h3>
+<p>Nelle simulazioni Moco la cadenza è imposta dal protocollo, quindi è un vero intervento. DoWhy stima dai dati l'effetto di +10 rpm sulla quota del costo metabolico di ogni muscolo, con ciclista e carico come cause comuni.</p>
+<svg viewBox="0 0 520 150" width="100%" style="max-width:520px;display:block;margin:8px 0" role="img" aria-label="Grafo causale: ciclista e carico influenzano la quota del costo metabolico; la cadenza è l'intervento">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e5007d"/></marker></defs>
+  <rect x="10" y="12" width="130" height="36" rx="8" fill="none" stroke="#9aa3af"/><text x="75" y="35" text-anchor="middle">ciclista</text>
+  <rect x="10" y="100" width="130" height="36" rx="8" fill="none" stroke="#9aa3af"/><text x="75" y="123" text-anchor="middle">carico</text>
+  <rect x="195" y="56" width="130" height="36" rx="8" fill="none" stroke="#e5007d" stroke-width="2"/><text x="260" y="79" text-anchor="middle">cadenza (do)</text>
+  <rect x="380" y="56" width="130" height="36" rx="8" fill="none" stroke="#9aa3af"/><text x="445" y="72" text-anchor="middle">quota costo</text><text x="445" y="87" text-anchor="middle">del muscolo</text>
+  <path d="M140 30 C260 20 330 50 378 66" fill="none" stroke="#e5007d" marker-end="url(#ar)"/><path d="M140 118 C260 128 330 100 378 84" fill="none" stroke="#e5007d" marker-end="url(#ar)"/><path d="M325 74 L378 74" stroke="#e5007d" stroke-width="2" marker-end="url(#ar)"/>
+</svg>
+<div class="scroll"><table>
+<thead><tr><th>Muscolo</th><th>Dati: +10 rpm (IC 95%)</th><th>Modello</th><th>Esito</th></tr></thead>
+<tbody>
+<tr><td>Grande gluteo</td><td>+1,20 (+0,60 … +1,73)</td><td>+0,81</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Retto femorale</td><td>−0,46 (−0,74 … −0,16)</td><td>−0,39</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Ileopsoas</td><td>+0,15 (−0,09 … +0,35)</td><td>+0,04</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Gastrocnemio</td><td>+0,04 (−0,08 … +0,18)</td><td>0,00</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Tibiale anteriore</td><td>−0,12 (−0,17 … −0,04)</td><td>−0,08</td><td class="ok">nell'intervallo</td></tr>
+<tr><td>Ischiocrurali</td><td>−0,10 (−0,31 … +0,12)</td><td>−0,64</td><td class="ko">verso giusto, troppo grande</td></tr>
+<tr><td>Soleo</td><td>−0,24 (−0,37 … −0,13)</td><td>−0,99</td><td class="ko">verso giusto, troppo grande</td></tr>
+<tr><td>Vasti</td><td>−0,47 (−1,03 … +0,14)</td><td>+1,24</td><td class="ko">verso opposto</td></tr>
+</tbody></table></div>
+<p class="note">Punti percentuali. Refutazioni: col placebo l'effetto va a circa 0; aggiungendo una causa comune casuale o usando l'80% dei dati la stima non cambia. Verso giusto in 7 muscoli su 8, nell'intervallo in 5 su 8.</p>
+</div></section>
+
+<section class="band soft" id="limiti"><div class="wrap">
+<h2>7 · Limiti</h2>
+<ul>
+<li>Modello 2D sagittale con 8 gruppi muscolari: niente movimenti laterali, core, braccia né float della tacchetta.</li>
+<li>L'ottimizzazione dei muscoli non considera peso e inerzia: la coppia in risalita è meno negativa del reale (−12 contro −16 N·m).</li>
+<li>Vasti, soleo e ischiocrurali reagiscono alla cadenza diversamente dai dati.</li>
+<li>Lo sprint è solo meccanico (forza-velocità dei muscoli) con un fattore per i muscoli non modellati. Non c'è la capacità anaerobica, e non c'è ancora un dataset di sprint per validarlo.</li>
 <li>Strumento didattico e di esplorazione: non è un bike fit né una diagnosi.</li>
 </ul>
-<h2 style="margin-top:28px">Fonti</h2>
-<p class="note">Clancy, Gatti, Ong, Maly, Delp (2023) <i>Muscle-driven simulations and experimental data of cycling</i>, Scientific Reports — dati e codice su <a href="https://simtk.org/projects/cycling_sim">simtk.org/projects/cycling_sim</a> e <a href="https://datadryad.org/dataset/doi:10.5061/dryad.p8cz8w9wx">Dryad</a>. Zajac 1989; Hill 1938; Coyle et al. 1988, 1991, 1992; Holloszy e Coyle 1984; Henneman 1957; Andersen e Saltin 1985; Winter (masse dei segmenti); Lucía et al. 2001–2002; Ericson 1988; Hug e Dorel 2009; studio Vuelta 2020 su WorldTour e ProTeam; Ferrer-Roca 2017 (pedivelle); studi sulla posizione della tacchetta (2009, 2012).</p>
+</div></section>
+
+<section class="band" id="fonti"><div class="wrap">
+<h2>Bibliografia</h2>
+<ol class="refs">
+<li id="r1">Clancy CE, Gatti AA, Ong CF, Maly MR, Delp SL. Muscle-driven simulations and experimental data of cycling. <i>Scientific Reports</i> 13 (2023). doi:10.1038/s41598-023-47945-5 · dati: <a href="https://simtk.org/projects/cycling_sim">simtk.org/projects/cycling_sim</a>, <a href="https://datadryad.org/dataset/doi:10.5061/dryad.p8cz8w9wx">Dryad</a></li>
+<li id="r2">Zajac FE. Muscle and tendon: properties, models, scaling, and application to biomechanics and motor control. <i>Crit Rev Biomed Eng</i> 17 (1989) 359–411.</li>
+<li id="r3">Hill AV. The heat of shortening and the dynamic constants of muscle. <i>Proc R Soc Lond B</i> 126 (1938) 136–195.</li>
+<li id="r4">Coyle EF et al. Determinants of endurance in well-trained cyclists. <i>J Appl Physiol</i> 64 (1988) 2622–2630.</li>
+<li id="r5">Coyle EF, Sidossis LS, Horowitz JF, Beltz JD. Cycling efficiency is related to the percentage of type I muscle fibers. <i>Med Sci Sports Exerc</i> 24 (1992) 782–788.</li>
+<li id="r6">Holloszy JO, Coyle EF. Adaptations of skeletal muscle to endurance exercise and their metabolic consequences. <i>J Appl Physiol</i> 56 (1984) 831–838.</li>
+<li id="r7">Henneman E. Relation between size of neurons and their susceptibility to discharge. <i>Science</i> 126 (1957) 1345–1347.</li>
+<li id="r8">Andersen P, Saltin B. Maximal perfusion of skeletal muscle in man. <i>J Physiol</i> 366 (1985) 233–249.</li>
+<li id="r9">Winter DA. <i>Biomechanics and Motor Control of Human Movement</i>. Wiley, 4ª ed. (2009).</li>
+<li id="r10">Harrington ME et al. Prediction of the hip joint centre in adults, children, and patients with cerebral palsy based on magnetic resonance imaging. <i>J Biomech</i> 40 (2007) 595–602.</li>
+<li id="r11">Lucía A, Hoyos J, Chicharro JL. Physiology of professional road cycling. <i>Sports Med</i> 31 (2001) 325–337.</li>
+<li id="r12">Lucía A et al. Inverse relationship between VO₂max and economy/efficiency in world-class cyclists. <i>Med Sci Sports Exerc</i> 34 (2002) 2079–2084.</li>
+<li id="r13">Ericson MO. Mechanical muscular power output and work during ergometer cycling at different work loads and speeds. <i>Eur J Appl Physiol</i> 57 (1988) 382–387.</li>
+<li id="r14">Hug F, Dorel S. Electromyographic analysis of pedaling: a review. <i>J Electromyogr Kinesiol</i> 19 (2009) 182–198.</li>
+<li id="r15">Barclay CJ. Mechanical efficiency and fatigue of fast and slow muscles of the mouse. <i>J Physiol</i> 497 (1996) 781–794.</li>
+<li id="r16">Ferrer-Roca V et al. Acute effects of small changes in crank length on gross efficiency and pedalling technique during submaximal cycling. <i>J Sports Sci</i> (2017).</li>
+<li id="r17">Sharma A, Kiciman E. DoWhy: an end-to-end library for causal inference. arXiv:2011.04216 (2020).</li>
+<li id="r18">Delp SL et al. OpenSim: open-source software to create and analyze dynamic simulations of movement. <i>IEEE Trans Biomed Eng</i> 54 (2007) 1940–1950.</li>
+<li id="r19">Dembia CL et al. OpenSim Moco: musculoskeletal optimal control. <i>PLoS Comput Biol</i> 16 (2020) e1008493.</li>
+<li id="r20">Studio sulla Vuelta a España 2020, WorldTour contro ProTeam (FTP media 5,8 e 5,4 W/kg), riportato da <a href="https://cyclingmagazine.ca/?p=72054">Canadian Cycling Magazine</a>.</li>
+<li id="r21">He ZH et al. ATP consumption and efficiency of human single muscle fibers with different myosin isoform composition. <i>Biophys J</i> 79 (2000) 945–961.</li>
+<li id="r22">Rajagopal A et al. Full-body musculoskeletal model for muscle-driven simulation of human gait. <i>IEEE Trans Biomed Eng</i> 63 (2016) 2068–2079.</li>
+<li id="r23">Martin JC, Spirduso WW. Determinants of maximal cycling power: crank length, pedaling rate and pedal speed. <i>Eur J Appl Physiol</i> 84 (2001) 413–418.</li>
+</ol>
 </div></section>
 </body>
 </html>
