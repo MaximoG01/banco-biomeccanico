@@ -62,7 +62,9 @@ Dettagli completi nella pagina **Teoria e modello** (`teoria.html`).
 - **Soglia:** 5 profili su 5 nel range (costanti ritarate, errore medio circa 6%).
 - **Sprint:** cadenza ottimale entro ±2 rpm da 4 studi di laboratorio (Martin 1997 e 2001, Dorel 2005, Gardner 2007).
 - **Curva di potenza** da 1 s a 60 min (modello omni-dominio) con i percentili di 372 ciclisti di GoldenCheetah OpenData (`test/gc_*.py`).
-- **Bici reale:** il busto si calcola da stack, reach, sterzo, attacco e manubrio; il pulsante **Trova l'assetto più efficiente** cerca sella, arretramento, pedivella e tacchetta entro i limiti di bike fit (`test/bikefit-ottimo.js`).
+- **Bici reale:** misure di bike fit in mm (altezza sella, arretramento della punta, telaio, attacco, manubrio con reach e drop, posizione delle mani); il busto si calcola dalla bici; il pulsante **Trova l'assetto più efficiente** cerca sella, arretramento, pedivella e tacchetta entro i limiti di bike fit (`test/bikefit-ottimo.js`).
+- **I tuoi dati:** dalla soglia e dallo sprint misurati il banco ricava intervalli compatibili di fibre lente, mitocondri e VO₂max.
+- **Test della pagina:** `test/ui_test.py` (Playwright, 35 controlli su desktop e telefono).
 
 ### Limiti noti
 

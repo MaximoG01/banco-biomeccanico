@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco biomeccanico ciclista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: clinico-sportivo, preciso, da laboratorio di fisiologia
+   IDEA: il banco di prova del biomeccanico: rulli, bici, gamba strumentata, letture dal vivo
+   PICTURE: ciclista in sezione sagittale che pedala, muscoli come tiranti colorati, vettore di forza sul pedale
+   COLOUR and TYPE: bianco pieno, inchiostro #15191f, rosa maglia #e5007d come unico accento; Barlow Condensed + Barlow
+   LAYOUT: figura grande + letture a destra, cursori raggruppati sotto, poi grafici, tabelle muscoli e metodo */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#12151a);--ink:light-dark(#15191f,#eef0f3);--mut:light-dark(#5c6470,#9aa3af);--line:light-dark(#e4e6ea,#2a2f37);--soft:light-dark(#f5f6f8,#1a1e24);--acc:#e5007d;--acc2:light-dark(#b8005f,#ff5aa8);--warn:light-dark(#9a5b00,#f0b050)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,.big{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(32px,5vw,48px)}h2{font-size:28px;margin-bottom:6px}
+.band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.lede{color:var(--mut);max-width:68ch;margin:8px 0 0}
+.top{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;margin-top:20px;align-items:stretch}
+.fig{position:relative;min-height:340px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+#bike{min-height:0;height:clamp(380px,42vw,560px);align-self:start;background:var(--soft);border-radius:14px}
+.read{display:flex;flex-direction:column;gap:14px}
+.res{border-top:4px solid var(--acc);padding-top:12px}
+.big{font-size:clamp(56px,9vw,96px);font-weight:700;white-space:nowrap}
+.big small{font-size:.4em;color:var(--mut);font-weight:600;margin-left:6px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 14px;border-top:1px solid var(--line);padding-top:12px}
+.kv span:nth-child(even){text-align:right;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--mut)}
+.warn{color:var(--warn);font-weight:600;font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:500 15px Barlow,sans-serif;min-height:44px;padding:0 16px;border-radius:22px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button[aria-pressed=true],button:hover{border-color:var(--acc);color:var(--acc2)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 28px;margin-top:18px}
+fieldset{border:0;border-top:2px solid var(--ink);margin:0;padding:10px 0 0}
+legend{font:600 20px "Barlow Condensed",sans-serif;padding:0 8px 0 0}
+.sl{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;margin:6px 0 10px}
+.sl label{font-size:15px}.sl output{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sl input{grid-column:1/-1;width:100%;accent-color:var(--acc);height:28px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px}
+.charts .fig{min-height:260px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-weight:600;font-size:14px;color:var(--mut)}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.bar{height:8px;border-radius:4px;background:var(--acc);display:block;margin-top:4px}
+.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px}th{white-space:normal}
+.disp{border:1.5px solid var(--line);border-radius:12px;padding:8px 12px}
+.disp summary{font:600 18px "Barlow Condensed",sans-serif;min-height:32px;display:flex;align-items:center}
+.lookp{display:grid;gap:8px;margin-top:10px}
+.lrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lrow>span{flex:1 1 100%;font-size:14px;color:var(--mut)}
+.lrow input[type=color]{width:44px;height:36px;border:1.5px solid var(--line);border-radius:8px;padding:2px;background:var(--bg)}
+.lrow select{font:15px Barlow,sans-serif;min-height:40px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.up{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:20px;border:1.5px dashed var(--acc);color:var(--acc2);cursor:pointer;font-size:14px}
+.up input{position:absolute;width:1px;height:1px;opacity:0}
+.lrow button{min-height:40px;font-size:14px}
+.rot input[type=range]{flex:1 1 160px;accent-color:var(--acc);height:28px}.rot output{min-width:3.2em;font-weight:600;font-variant-numeric:tabular-nums}
+#bike{touch-action:pan-y;cursor:grab}
+.lrow .tx{flex:1 1 140px;font:16px Barlow,sans-serif;min-height:40px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.ath{margin-top:28px;border-top:2px solid var(--ink);padding-top:14px}
+.savef{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.savef input{flex:1 1 220px;font:16px Barlow,sans-serif;min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.alist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.alist li{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.alist li.on{border-color:var(--acc)}
+.alist b{font:600 20px "Barlow Condensed",sans-serif;overflow-wrap:anywhere}
+.alist .meta{grid-column:1/-1;font-size:14px;color:var(--mut)}
+.alist .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.alist button{min-height:40px;padding:0 14px;font-size:14px}
+details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}
+.method p,.method li{max-width:72ch}
+pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
+.fitsec,.mydata{margin-top:28px;border-top:2px solid var(--ink);padding-top:14px}
+.fin{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:8px 28px;margin:12px 0 4px}
+.fin fieldset{border-top:1px solid var(--line)}.fin legend{font-size:18px}
+.nf{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin:6px 0}
+.nf label{font-size:15px}
+.nin{display:inline-flex;align-items:center;gap:6px}.nin span{color:var(--mut);font-size:14px;min-width:1.7em}
+.nin input,.nf select,.mf input[type=number]{font:600 16px Barlow,sans-serif;width:6.2em;min-height:40px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+.nf select{width:auto;text-align:left;font-weight:500}.mf input[type=number]{width:100%}
+.pri{background:var(--acc);border-color:var(--acc);color:#fff}.pri:hover{color:#fff;filter:brightness(1.08)}
+.bsel{margin-top:10px}.geos{align-items:center;margin-top:8px}.geos .note{margin-right:4px}
+.tf td:last-child{color:var(--mut);white-space:normal;text-align:left;font-size:14px;max-width:34ch}
+.tf td.bad{color:var(--warn);font-weight:600}.tf small{color:var(--mut);font-weight:500;display:block}
+.tf th.on{color:var(--acc2)}
+.mf{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 24px;align-items:end;margin:12px 0}
+.mf label{display:grid;gap:4px;font-size:15px}
+.mf .chk{display:flex;align-items:center;gap:10px;min-height:44px}.chk input{width:22px;height:22px;accent-color:var(--acc)}
+.cres{border:1.5px solid var(--line);border-radius:12px;padding:6px 16px;margin-top:12px}.cres:empty{display:none}
+.cres p,.cres li{max-width:76ch}.cres h3{font:600 20px "Barlow Condensed",sans-serif;margin:10px 0 4px}
+.fstat{min-height:1.5em}
+@media(max-width:1100px){.cols{grid-template-columns:minmax(0,1fr)}}@media(max-width:900px){.top,.cols{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){#bike{height:320px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+<body>
+<section class="band"><div class="wrap">
+<h1>Banco biomeccanico: quanta potenza esce dalla tua gamba</h1>
+<p class="lede">Modello dinamico della pedalata: proporzioni del corpo, assetto della bici, massa muscolare e mitocondri determinano angoli articolari, accorciamento delle fibre, forze sul pedale, efficienza e infine i watt, di sprint e di soglia.</p>
+<div class="top">
+  <div class="fig" id="bike" role="img" aria-label="Ciclista in vista laterale con muscoli della gamba e vettore di forza sul pedale"><svg id="bsvg"></svg></div>
+  <div class="read">
+    <div class="res"><div class="note">Sprint da seduto (picco) alla cadenza scelta</div><div class="big" id="pw">–</div><div class="big" style="font-size:clamp(34px,5vw,48px)" id="wkg">–</div></div>
+    <div class="kv">
+      <span>Soglia aerobica stimata</span><span id="ftp">–</span>
+      <span>Efficienza lorda (lunghezza · velocità fibre)</span><span id="ge">–</span>
+      <span>Muscolo delle cosce (due gambe)</span><span id="mm">–</span>
+      <span>Mitocondri attivi → O₂ che il muscolo può usare</span><span id="mi">–</span>
+      <span>O₂ che cuore e sangue portano (VO₂max)</span><span id="vc">–</span>
+      <span>Cosa limita la soglia</span><span id="lim">–</span>
+      <span>Cadenza ottimale per lo sprint</span><span id="opt">–</span>
+      <span>Indice di efficacia (forza utile / totale)</span><span id="ie">–</span>
+      <span>Ginocchio al punto morto inferiore</span><span id="kbdc">–</span>
+      <span>Velocità massima di accorciamento</span><span id="vm">–</span>
+    </div>
+    <div class="warn" id="warn" role="status"></div>
+    <div class="btns"><button id="play" aria-pressed="true">Pausa</button><button id="reset">Valori iniziali</button></div>
+    <details class="disp" id="disp" open><summary>Display</summary>
+      <div class="btns" id="views" role="group" aria-label="Vista del modello"><button data-v="muscoli">Muscoli</button><button data-v="atleta">Atleta</button><button data-v="entrambi">Atleta + muscoli</button></div>
+      <div class="lrow rot"><span>Rotazione sul piano orizzontale (o trascina la figura)</span><input type="range" id="rot" min="0" max="359" step="1" aria-label="Rotazione"><output id="rot-o"></output><button type="button" id="spin" aria-pressed="false">Gira</button><button type="button" id="rot0">Di lato</button><button type="button" id="rot90">Da dietro</button><button type="button" id="rot270">Di fronte</button></div>
+      <div id="lookp" class="lookp">
+        <div class="lrow"><span>Maglia</span><input type="color" id="l-jersey" aria-label="Colore maglia"><input type="color" id="l-jersey2" aria-label="Secondo colore maglia"><select id="l-pattern" aria-label="Motivo maglia"><option value="unita">Tinta unita</option><option value="fascia">Fascia</option><option value="righe">Righe</option><option value="fianchi">Fondo a contrasto</option></select></div>
+        <div class="lrow"><span>Logo sul petto</span><label class="up">Carica immagine<input type="file" id="l-logo" accept="image/*"></label><button type="button" id="l-nologo">Togli</button></div>
+        <div class="lrow"><span>Copricapo</span><select id="l-head" aria-label="Copricapo"><option value="casco">Casco da strada</option><option value="aero">Casco aero</option><option value="cappellino">Cappellino</option><option value="bandana">Bandana</option><option value="nessuno">Nessuno</option></select><input type="color" id="l-headc" aria-label="Colore copricapo"><input type="color" id="l-headc2" aria-label="Colore dettaglio casco"></div>
+        <div class="lrow"><span>Occhiali</span><select id="l-glasses" aria-label="Occhiali"><option value="nessuno">Nessuno</option><option value="sportivi">Sportivi</option><option value="mascherina">A mascherina</option></select><input type="color" id="l-lens" aria-label="Colore lenti"></div>
+        <div class="lrow"><span>Pantaloncini · scarpe · guanti</span><input type="color" id="l-shorts" aria-label="Colore pantaloncini"><input type="color" id="l-shoes" aria-label="Colore scarpe"><input type="color" id="l-gloves" aria-label="Colore guanti"></div>
+        <div class="lrow"><span>Telaio</span><input type="color" id="l-frame" aria-label="Colore telaio"><input type="color" id="l-frame2" aria-label="Secondo colore telaio"><select id="l-fstyle" aria-label="Stile verniciatura"><option value="unita">Tinta unita</option><option value="sfumata">Sfumata</option><option value="bicolore">Carro a contrasto</option></select></div>
+        <div class="lrow"><span>Scritta sul tubo obliquo · logo sul tubo sterzo</span><input id="l-ftext" maxlength="18" placeholder="Scritta telaio" class="tx"><label class="up">Logo telaio<input type="file" id="l-flogo" accept="image/*"></label><button type="button" id="l-noflogo">Togli</button></div>
+        <div class="lrow"><span>Ruote: profilo, colore cerchio, scritta</span><select id="l-wheels" aria-label="Profilo ruote"><option value="basso">Basso profilo (30 mm)</option><option value="medio">Medio profilo (50 mm)</option><option value="alto">Alto profilo (80 mm)</option><option value="lenticolare">Lenticolare dietro</option></select><input type="color" id="l-rim" aria-label="Colore cerchio"><input id="l-wtext" maxlength="18" placeholder="Scritta cerchio" class="tx"></div>
+        <div class="lrow"><span>Pelle</span><select id="l-skin" aria-label="Tono della pelle"><option value="chiara">Chiara</option><option value="media">Media</option><option value="olivastra">Olivastra</option><option value="scura">Scura</option></select></div>
+        <p class="note" id="lnote">L'aspetto si salva insieme all'atleta.</p>
+      </div>
+    </details>
+    <div class="btns" id="presets"></div>
+  </div>
+</div>
+<div class="ctrls" id="ctrls"></div>
+<section class="fitsec" aria-labelledby="fit-h">
+  <h2 id="fit-h">La tua bici: misure di bike fit e confronto A/B</h2>
+  <p class="note">Scrivi le misure della tua bici in millimetri e gradi. Figura e watt usano la bici selezionata. «Bike fit suggerito» parte dalla bici A e mette il risultato nella B, così vedi le differenze.</p>
+  <div class="btns bsel" role="group" aria-label="Bici mostrata e modificata"><button type="button" data-sel="A">Bici A</button><button type="button" data-sel="B">Bici B</button><button type="button" id="copyab">Copia A in B</button><button type="button" id="sugg" class="pri">Bike fit suggerito</button><button type="button" id="lem">Sella da formula LeMond</button></div>
+  <div class="btns geos" id="geos" role="group" aria-label="Geometrie tipo"><span class="note">Geometria tipo, taglia 56 (indicativa):</span></div>
+  <div class="fin" id="fin"></div>
+  <p class="note fstat" id="fstat" role="status"></p>
+  <div class="scroll"><table id="tf" class="tf stack"><thead><tr><th>Misura</th><th data-b="A">Bici A</th><th data-b="B">Bici B</th><th>Riferimento e fonte</th></tr></thead><tbody></tbody></table></div>
+  <details><summary>Come prendere le misure sulla tua bici</summary><ul>
+  <li><b>Altezza sella</b>: dal centro del movimento centrale alla superficie della sella, lungo l'asse del tubo sella. Formula di partenza di LeMond: 0,883 × cavallo.</li>
+  <li><b>Arretramento punta sella</b>: filo a piombo dalla punta della sella; distanza orizzontale fino al centro del movimento centrale (positivo = sella dietro).</li>
+  <li><b>Stack, reach, angoli</b>: dalla tabella geometrie del produttore, per la tua taglia.</li>
+  <li><b>Spessori</b>: somma degli anelli sotto l'attacco più la calotta della serie sterzo (di solito 10–15 mm).</li>
+  <li><b>Attacco</b>: lunghezza e angolo sono stampati sull'attacco (es. 100 mm, −6°; montato rovesciato diventa +6°).</li>
+  <li><b>Manubrio reach e drop</b>: dalla scheda del manubrio (tipici 70–90 e 115–135 mm).</li>
+  <li><b>Scarpa + tacchetta + pedale</b>: dalla pianta del piede al centro del perno del pedale (circa 20–30 mm con pedali da strada).</li>
+  <li><b>Circonferenza della coscia</b> (cursore in alto): in piedi, muscoli rilassati, a metà tra la piega dell'inguine e il bordo alto della rotula.</li></ul></details>
+</section>
+<section class="mydata" aria-labelledby="my-h">
+  <h2 id="my-h">I tuoi dati: il modello si calibra su di te</h2>
+  <p class="note">Prima metti altezza, cavallo, massa, età e circonferenza della coscia ai tuoi valori (cursori in alto). Poi scrivi quello che sai: il banco cerca fibre lente, mitocondri e, se manca, VO₂max che riproducono i tuoi watt. Li dà come intervalli, perché con i soli watt non si possono conoscere con precisione.</p>
+  <div class="mf">
+    <label>Soglia o FTP (W)<input type="number" id="m-ftp" min="50" max="600" step="1" inputmode="numeric" placeholder="es. 273"></label>
+    <label>Potenza massima di sprint (W)<input type="number" id="m-pmax" min="200" max="2500" step="1" inputmode="numeric" placeholder="es. 1350"></label>
+    <label class="chk"><input type="checkbox" id="m-stand"> Sprint fatto in piedi</label>
+    <label>VO₂max misurato (mL/kg/min)<input type="number" id="m-vo2" min="25" max="95" step="0.5" inputmode="decimal" placeholder="se lo conosci"></label>
+  </div>
+  <div class="btns"><button type="button" id="calib" class="pri">Calibra sui miei dati</button><button type="button" id="apply" disabled>Applica al modello</button></div>
+  <div class="cres" id="cres" role="status"></div>
+</section>
+<section class="ath" aria-labelledby="ath-h">
+  <h2 id="ath-h">Atleti salvati</h2>
+  <form id="savef" class="savef"><label for="aname" class="sr">Nome atleta</label><input id="aname" maxlength="40" placeholder="Nome atleta, es. Jean" autocomplete="off"><button type="submit">Salva atleta</button></form>
+  <p class="note" id="astat">Collegamento all'archivio condiviso…</p>
+  <ul class="alist" id="alist"></ul>
+  <p class="note">Per condividere: apri un atleta, poi usa Condividi → Copia link: il link si apre già su quella configurazione.</p>
+</section>
+</div></section>
+
+<section class="band" style="background:var(--soft)"><div class="wrap">
+<h2>Dove nasce la potenza nel giro di pedale</h2>
+<p class="lede" style="margin-bottom:16px">A sinistra la coppia sul movimento centrale (le due gambe sommate); a destra come cambia lo sprint con la cadenza: troppo lenta manca velocità, troppo veloce le fibre non fanno in tempo a generare forza.</p>
+<div class="charts"><div class="fig" id="ctq"><svg></svg></div><div class="fig" id="ccad"><svg></svg></div></div>
+</div></section>
+
+<section class="band"><div class="wrap cols">
+<div><h2>Muscoli: chi lavora e quanto si accorcia</h2>
+<p class="note">Accorciamento = escursione della fibra nel giro, in % della sua lunghezza ottimale. Oltre il 40–50% la fibra lavora lontano dalla zona di forza massima.</p>
+<div class="scroll"><table class="stack" id="tm"><thead><tr><th>Muscolo</th><th>Sezione (cm²)</th><th>Forza max (N)</th><th>Accorciamento</th><th>Potenza (W)</th><th>Quota</th></tr></thead><tbody></tbody></table></div></div>
+<div><h2>Escursione articolare (ROM)</h2>
+<p class="note">Angoli nel giro completo. Anca: flessione rispetto al busto; ginocchio: 0° = gamba tesa; caviglia: positivo = punta verso l'alto.</p>
+<table id="tr"><thead><tr><th>Articolazione</th><th>Min</th><th>Max</th><th>Escursione</th></tr></thead><tbody></tbody></table></div>
+</div></section>
+
+<section class="band method" style="background:var(--soft)"><div class="wrap">
+<h2>Come calcola il modello e dove sbaglia</h2>
+<details open><summary>Il metodo in 5 passaggi</summary><ol>
+<li><b>Geometria dalla tua bici.</b> Dal cavallo e dall'altezza ricava la gamba (anca → caviglia), divisa in femore e tibia secondo il rapporto scelto. Le misure di bike fit (altezza e arretramento della sella, pedivelle, scarpa, stack, reach, attacco, manubrio) danno la posizione della sella e delle mani. Stime dichiarate: le ossa su cui ti siedi stanno 15 cm dietro la punta della sella; il centro dell'anca è 2,2% dell'altezza sopra la sella (valore scelto perché con la sella di LeMond il ginocchio in basso torni a ~33°); busto 0,30 × altezza e braccio 0,38 × altezza. L'inclinazione del busto viene da dove arrivano le mani.</li>
+<li><b>Cinematica inversa.</b> Per 72 posizioni della pedivella calcola dove stanno ginocchio e caviglia (con un movimento di caviglia tipico) e quindi gli angoli di anca, ginocchio e caviglia.</li>
+<li><b>Muscoli di Hill.</b> 8 gruppi muscolari, ognuno con braccio di leva, lunghezza ottimale della fibra e sezione trasversale. La forza dipende da quanto è lunga la fibra (curva forza-lunghezza) e da quanto velocemente si accorcia (curva forza-velocità). Il diametro della coscia scala la sezione di tutti i muscoli (al quadrato), le fibre lente abbassano la velocità massima (3,5 contro 10 lunghezze/s), l'età riduce forza (−0,6%/anno) e velocità (−0,4%/anno) dopo i 30.</li>
+<li><b>Potenza di sprint.</b> Ogni muscolo spinge al massimo solo mentre si accorcia (sforzo massimale, nessuna co-contrazione). Potenza = forza × velocità di accorciamento, sommata sulle due gambe sfasate di 180°.</li>
+<li><b>Soglia aerobica.</b> Diametro coscia → sezione muscolare (70% della sezione totale) → × lunghezza del femore × 0,6 = volume di muscolo per coscia; i muscoli attivi nella pedalata valgono 1,5 volte le due cosce. Volume × densità mitocondriale = mitocondri; ogni mL consuma al massimo circa 4,5 mL di O₂ al minuto. Il VO₂max (× massa corporea) è l'ossigeno che cuore e sangue riescono a portare: vale il più basso dei due, e la pagina dice quale dei due limita. L'ossigeno diventa watt meccanici attraverso l'efficienza lorda, che è massima quando le fibre lavorano vicino alla loro lunghezza ottimale (ROM corretto) e le fibre lente si accorciano a circa un quarto della loro velocità massima (cadenza adatta). La soglia è l'82% della potenza al VO₂max.</li>
+<li><b>Vettori.</b> Le coppie alle articolazioni vengono convertite nella forza sul pedale (minimi quadrati sullo jacobiano della gamba). L'indice di efficacia è la parte di forza che spinge davvero la pedivella.</li></ol></details>
+<details><summary>Limiti da tenere presenti</summary><ul>
+<li>Modello 2D sagittale: niente movimenti laterali del ginocchio né rotazioni del bacino.</li>
+<li>Bracci di leva costanti e tendine rigido (con un rapporto fisso fibra/muscolo-tendine): nella realtà cambiano con l'angolo.</li>
+<li>Bike fit: le misure di controllo (ginocchio, anca, busto) sono calcolate dal modello, non misurate su di te; i riferimenti 25–35° per il ginocchio vengono da studi, quelli di anca e busto dall'esperienza dei bike fitter. La posizione da cronometro non è modellata in questa versione. Il «bike fit suggerito» cambia solo sella e, se serve, attacco: non sostituisce un bike fit fatto da una persona.</li>
+<li>Calibrazione: un fattore 1,45 porta un amatore di 72 kg a circa 1000 W di sprint, per compensare muscoli non modellati (adduttori, tensore della fascia lata, tronco e braccia).</li>
+<li>Soglia: la densità mitocondriale va da circa 3–4% (sedentario) a 8–10% (endurance d'élite); il consumo per mL di mitocondri e il fattore 1,5 per glutei e polpacci sono stime medie. Il confronto tra VO₂max e capacità dei mitocondri è un minimo secco: nella realtà i due limiti si sovrappongono.</li>
+<li>Il ROM sposta l'efficienza solo di pochi decimi di punto finché il ginocchio resta tra 25° e 40°: le fibre restano comunque nella parte alta della curva forza-lunghezza. Il riferimento per la lunghezza ottimale è la posizione standard (sella 0,883 × cavallo).</li>
+<li>Lo sprint è solo da seduto. Se inserisci uno sprint fatto in piedi, il banco lo divide per 1,03–1,07 (negli studi in piedi si fa il 3–7% in più). Con un atleta reale, senza circonferenza della coscia misurata, il banco aveva sottostimato lo sprint di circa il 27%: da ricontrollare con la misura.</li>
+<li>Con i soli watt fibre lente e mitocondri non si conoscono con precisione: la calibrazione dà intervalli compatibili. Se la soglia è limitata dal cuore, i mitocondri hanno solo un minimo; se è limitata dai mitocondri, il VO₂max ha solo un minimo. La soglia è calibrata a 90 rpm.</li>
+<li>Strumento didattico e di esplorazione, non un bike fit né una diagnosi.</li></ul></details>
+<details><summary>Fonti dei parametri</summary><p>Struttura: modello muscolare di Hill (curva forza-lunghezza e forza-velocità). Confermati da fonti: tensione specifica nel range della letteratura, densità mitocondriale (Hoppeler 1973), consumo di O₂ dei mitocondri (Hoppeler e Lindstedt 1985), percentuali di fibre lente. <b>Stime ancora da sostituire</b>: sezioni, lunghezze delle fibre e bracci di leva dei singoli muscoli (da prendere da Ward 2009 e Arnold 2010), effetto dell'età, efficienza e soglia. Bike fit: ginocchio 25–35° in statica (Holmes 1994; Peveler e colleghi; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9219349/">review su PMC</a>), misurato pedalando 33–43° a bassa e 30–40° ad alta intensità (<a href="https://doi.org/10.1249/JSR.0000000000000665">Swart e Holliday 2019</a>); busto e anca da raccomandazioni di bike fitter; KOPS senza base fisiologica. Sella di partenza 0,883 × cavallo (formula di LeMond). Dettagli, sensibilità e confronto con dati reali nel documento <a href="https://claude.ai/artifact/JJKHGY3XwoQeyJe2JwgUHi">Metodo e validazione</a>. Per simulazioni complete: OpenSim + Moco, progetto <a href="https://simtk.org/projects/cycling_sim">cycling_sim</a> di Stanford.</p></details>
+</div></section>
+
+<script>
+/*MODEL*/
+{
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SL = [
+ ['Antropometria', [['h','Altezza',150,205,1,'cm'],['ins','Cavallo',65,100,0.5,'cm'],['ratio','Rapporto femore/tibia',0.9,1.4,0.01,''],['mass','Massa corporea',45,110,0.5,'kg'],['thc','Circonferenza a metà coscia',38,75,0.5,'cm']]],
+ ['Muscolo e mitocondri', [['mito','Densità mitocondriale',3,10,0.25,'%'],['slow','Fibre lente (tipo I)',10,90,1,'%']]],
+ ['Atleta e gesto', [['age','Età',18,80,1,'anni'],['vo2','VO₂max',25,90,1,'mL/kg/min'],['cad','Cadenza',40,160,1,'rpm']]],
+];
+const FIN = [
+ ['Sella e pedivelle', [['sh','Altezza sella',550,950,1,'mm'],['setback','Arretramento punta sella',-30,150,1,'mm'],['crank','Pedivelle',150,185,2.5,'mm'],['shoe','Scarpa + tacchetta + pedale',5,40,1,'mm']]],
+ ['Telaio', [['stack','Stack',450,700,1,'mm'],['reach','Reach',330,460,1,'mm'],['staF','Angolo tubo sella',70,78,0.1,'°'],['ha','Angolo sterzo',69,75,0.1,'°']]],
+ ['Attacco e manubrio', [['spacer','Spessori sotto l\'attacco',0,80,1,'mm'],['stem','Attacco: lunghezza',60,150,1,'mm'],['stemAng','Attacco: angolo',-20,20,1,'°'],['barReach','Manubrio: reach',60,110,1,'mm'],['barDrop','Manubrio: drop',100,150,1,'mm']]],
+];
+const DEF = {h:178,ins:84,mass:72,ratio:1.15,thc:55,mito:6,slow:50,age:35,vo2:50,cad:95};
+const FIT0 = {sh:742,setback:65,crank:172.5,shoe:25,staF:73.5,stack:560,reach:390,ha:73,spacer:20,stem:100,stemAng:-6,barReach:80,barDrop:125,hand:'hoods'};
+const PRE = {'Amatore':{},'Scalatore':{h:172,ins:81,mass:60,slow:70,thc:50,mito:8.5,vo2:68,cad:90},'Velocista':{h:180,ins:84,mass:85,slow:25,thc:66,mito:5,vo2:55,cad:120},'Master 60':{age:60,mass:75,slow:60,thc:52,mito:5.5,vo2:40,cad:85}};
+// geometrie tipo, taglia 56 circa: valori indicativi, non di un modello reale
+const GEO = {'Endurance': {f: {stack: 590, reach: 380, staF: 73.5, ha: 72.5, spacer: 30, stem: 90, stemAng: -6}}, 'Race': {f: {stack: 565, reach: 390, staF: 73.5, ha: 73, spacer: 20, stem: 100, stemAng: -6}}, 'Aero': {f: {stack: 550, reach: 395, staF: 73.5, ha: 73.3, spacer: 10, stem: 110, stemAng: -10}, l: {wheels: 'alto'}}};
+const RANGES = {}; SL.forEach(([, it]) => it.forEach(([k,, mi, ma]) => RANGES[k] = [mi, ma]));
+const FRANGES = {}; FIN.forEach(([, it]) => it.forEach(([k,, mi, ma]) => FRANGES[k] = [mi, ma]));
+const HANDS = ['hoods', 'drops', 'tops'];
+const clampR = (v, r) => Math.min(r[1], Math.max(r[0], v));
+const cleanP = q => { const o = {...DEF}; for (const k in RANGES) { const v = Number(q && q[k]); if (q && q[k] !== '' && q[k] != null && Number.isFinite(v)) o[k] = clampR(v, RANGES[k]); } return o; };
+const cleanF = q => { const o = {...FIT0}; for (const k in FRANGES) { const v = Number(q && q[k]); if (q && q[k] !== '' && q[k] != null && Number.isFinite(v)) o[k] = clampR(v, FRANGES[k]); } if (q && HANDS.includes(q.hand)) o.hand = q.hand; return o; };
+const cleanMy = q => { q = q || {}; const r = (v, a, b) => { const n = Number(v); return v !== '' && v != null && Number.isFinite(n) && n >= a && n <= b ? n : ''; }; return {ftp: r(q.ftp, 50, 600), pmax: r(q.pmax, 200, 2500), stand: q.stand === true, vo2m: r(q.vo2m, 25, 95)}; };
+const lemond = ins => Math.round(0.883 * ins * 10);
+// dati salvati con la versione precedente: sella in × cavallo, tubo sella, diametro della coscia
+const migrate = q => { q = q || {}; const p2 = cleanP({...q, thc: q.thc != null ? q.thc : Number(q.thigh) * Math.PI}); const F = cleanF({...q, sh: q.sh != null ? q.sh : Number(q.saddle) * p2.ins * 10, staF: q.staF != null ? q.staF : q.sta}); return {p: p2, F}; };
+const normAth = x => { x = x || {}; let pp, bikes; if (x.bikes && typeof x.bikes === 'object') { pp = cleanP(x.p); bikes = {A: cleanF(x.bikes.A), B: cleanF(x.bikes.B)}; } else { const g = migrate(x.p); pp = g.p; bikes = {A: g.F, B: {...g.F}}; } return {p: pp, bikes, my: cleanMy(x.my), look: x.look ? cleanLook(x.look) : null}; };
+let p = {...DEF}, FIT = {A: {...FIT0}, B: {...FIT0}}, SEL = 'A', MY = cleanMy();
+const mp = (f, q = p) => ({...q, ...f, fit: true, thigh: q.thc / Math.PI});
+
+$('#ctrls').innerHTML = SL.map(([g, items]) => `<fieldset><legend>${g}</legend>${items.map(([k,l,mi,ma,st,u]) =>
+ `<div class="sl"><label for="s-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="s-${k}" min="${mi}" max="${ma}" step="${st}" data-u="${u}"></div>`).join('')}</fieldset>`).join('');
+$('#fin').innerHTML = FIN.map(([g, items], gi) => `<fieldset><legend>${g}</legend>${items.map(([k,l,mi,ma,st,u]) =>
+ `<div class="nf"><label for="f-${k}">${l}</label><span class="nin"><input type="number" id="f-${k}" min="${mi}" max="${ma}" step="${st}" inputmode="decimal"><span>${u}</span></span></div>`).join('')}${gi === 2 ? '<div class="nf"><label for="f-hand">Posizione delle mani</label><select id="f-hand"><option value="hoods">Sulle leve</option><option value="drops">Presa bassa</option><option value="tops">Parte alta</option></select></div>' : ''}</fieldset>`).join('');
+$('#geos').insertAdjacentHTML('beforeend', Object.keys(GEO).map(n => `<button type="button" data-g="${n}">${n}</button>`).join(''));
+$('#presets').innerHTML = Object.keys(PRE).map(n => `<button data-p="${n}">${n}</button>`).join('');
+
+const fmt = (k, v) => k === 'ratio' ? v.toFixed(2) : String(+(+v).toFixed(2));
+function syncInputs() { for (const k in p) { const i = $('#s-' + k); if (!i) continue; i.value = p[k]; $('#o-' + k).textContent = fmt(k, +p[k]) + (i.dataset.u ? ' ' + i.dataset.u : ''); } }
+function syncFit() {
+  const f = FIT[SEL];
+  for (const k in FRANGES) { const i = $('#f-' + k); if (i && document.activeElement !== i) i.value = f[k]; }
+  $('#f-hand').value = f.hand;
+  document.querySelectorAll('[data-sel]').forEach(b => b.setAttribute('aria-pressed', b.dataset.sel === SEL));
+  document.querySelectorAll('#fin legend').forEach((l, i) => l.textContent = `${FIN[i][0]} · bici ${SEL}`);
+}
+const syncMy = () => { $('#m-ftp').value = MY.ftp; $('#m-pmax').value = MY.pmax; $('#m-stand').checked = MY.stand; $('#m-vo2').value = MY.vo2m; };
+
+const SKINS = {chiara: '#efc4a4', media: '#d9a17f', olivastra: '#b98560', scura: '#7a4e34'};
+const LOOK0 = {jersey: '#e5007d', jersey2: '#15191f', pattern: 'unita', logo: '', head: 'casco', headc: '#1b1f26', glasses: 'sportivi', lens: '#3a6df0', shorts: '#1b1f26', shoes: '#f2f2f2', gloves: '#1b1f26', skin: 'media', headc2: '#e5007d', frame: '#15191f', frame2: '#e5007d', fstyle: 'unita', ftext: '', flogo: '', wheels: 'medio', rim: '#15191f', wtext: ''};
+const ENUM = {pattern: ['unita', 'fascia', 'righe', 'fianchi'], head: ['casco', 'aero', 'cappellino', 'bandana', 'nessuno'], fstyle: ['unita', 'sfumata', 'bicolore'], wheels: ['basso', 'medio', 'alto', 'lenticolare'], glasses: ['nessuno', 'sportivi', 'mascherina'], skin: Object.keys(SKINS)};
+const cleanLook = q => { const o = {...LOOK0}; if (!q || typeof q !== 'object') return o;
+  for (const k in LOOK0) { const v = q[k]; if (typeof v !== 'string') continue;
+    if (ENUM[k]) { if (ENUM[k].includes(v)) o[k] = v; }
+    else if (k === 'ftext' || k === 'wtext') o[k] = v.replace(/[^\p{L}\p{N} .\-]/gu, '').slice(0, 18);
+    else if (k === 'logo' || k === 'flogo') { if (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) && v.length < 200000) o[k] = v; }
+    else if (/^#[0-9a-f]{6}$/i.test(v)) o[k] = v; }
+  return o; };
+const contrast = c => { const n = [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)); return (n[0] * 0.299 + n[1] * 0.587 + n[2] * 0.114) > 150 ? '#15191f' : '#ffffff'; };
+const shade = (c, f) => '#' + [1, 3, 5].map(i => Math.round(parseInt(c.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+let LOOK = LOOK0; try { LOOK = cleanLook(JSON.parse(localStorage.getItem('bio-look'))); } catch (e) {}
+let ROT = 0, SPIN = false; try { ROT = +localStorage.getItem('bio-rot') || 0; } catch (e) {}
+let VIEW = 'muscoli'; try { VIEW = localStorage.getItem('bio-vista') || 'muscoli'; } catch (e) {}
+try { const s3 = JSON.parse(localStorage.getItem('bio-cicl3'));
+  if (s3) { p = cleanP(s3.p); FIT = {A: cleanF(s3.A), B: cleanF(s3.B)}; SEL = s3.sel === 'B' ? 'B' : 'A'; MY = cleanMy(s3.my); }
+  else { const s2 = JSON.parse(localStorage.getItem('bio-cicl2')); if (s2) { const g = migrate(s2); p = g.p; FIT = {A: g.F, B: {...g.F}}; } } } catch (e) {}
+const store = () => { try { localStorage.setItem('bio-cicl3', JSON.stringify({p, A: FIT.A, B: FIT.B, sel: SEL, my: MY})); } catch (e) {} };
+let PM = null, RA = null, RB = null;
+let R = null, CUR = null, th = 0, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches, last = 0;
+function compute() {
+  PM = mp(FIT[SEL]); R = MODEL.run(PM); CUR = MODEL.curve(PM);
+  RA = SEL === 'A' ? R : MODEL.run(mp(FIT.A)); RB = SEL === 'B' ? R : MODEL.run(mp(FIT.B));
+  store();
+  const P = R.Pavg, best = CUR.reduce((a, x) => x[1] > a[1] ? x : a);
+  $('#pw').innerHTML = `${Math.round(P)}<small>W</small>`;
+  $('#wkg').innerHTML = `${(P / p.mass).toFixed(1)}<small>W/kg</small>`;
+  const f = R.Pthr;
+  $('#ftp').textContent = `${Math.round(f)} W · ${(f / p.mass).toFixed(1)} W/kg`;
+  $('#ge').textContent = `${(R.GE * 100).toFixed(1)}% (${Math.round(R.eLen * 100)}% · ${Math.round(R.eVel * 100)}%)`;
+  $('#mm').textContent = `${(2 * R.volT * 1.06 / 1000).toFixed(1)} kg · circ. coscia ${fmt('thc', p.thc)} cm`;
+  $('#mi').textContent = `${Math.round(R.volMito)} mL → ${R.VO2mus.toFixed(1)} L/min`;
+  $('#vc').textContent = `${R.VO2cen.toFixed(1)} L/min`;
+  $('#lim').textContent = R.lim === 'centrale' ? 'trasporto di O₂ (cuore)' : 'muscolo (mitocondri)';
+  $('#opt').textContent = `${best[0]} rpm (${Math.round(best[1])} W)`;
+  $('#ie').textContent = `${Math.round(R.IE * 100)}%`;
+  $('#kbdc').textContent = `${Math.round(R.rom[1][0])}° di flessione`;
+  $('#vm').textContent = `${R.vmax.toFixed(1)} lunghezze/s`;
+  const w = [], r = p.ins / p.h;
+  if (R.over) w.push('Sella troppo alta: la gamba arriva tesa e il bacino dovrebbe oscillare.');
+  else if (R.rom[1][0] < 25) w.push('Ginocchio quasi teso in basso (< 25°): sella al limite alto.');
+  else if (R.rom[1][0] > 40) w.push('Ginocchio molto flesso in basso (> 40°): sella bassa, più carico sulla rotula.');
+  if (R.G.reachFlag === 'lungo') w.push('Manubrio troppo lontano per le braccia stimate: accorcia attacco o reach.');
+  if (R.G.reachFlag === 'corto') w.push('Manubrio molto vicino: posizione raccolta.');
+  if (r < 0.42 || r > 0.52) w.push(`Cavallo/altezza = ${r.toFixed(2)}: proporzione insolita (tipico 0,44–0,49).`);
+  $('#warn').textContent = w.join(' ');
+  renderFit();
+  const tot = R.mpow.reduce((a, b) => a + b, 0), mx = Math.max(...R.short);
+  $('#tm tbody').innerHTML = R.ms.map((m, k) => `<tr><td><span class="sw" style="background:${m.col}"></span>${m.n}</td><td>${(m.F0 / 30 / 1.45).toFixed(0)}</td><td>${Math.round(m.F0).toLocaleString('it')}</td><td>${Math.round(R.short[k] * 100)}%<span class="bar" style="width:${R.short[k] / mx * 100}%;background:${m.col}"></span></td><td>${Math.round(R.mpow[k])}</td><td>${Math.round(R.mpow[k] / tot * 100)}%</td></tr>`).join('');
+  const J = ['Anca', 'Ginocchio', 'Caviglia'];
+  $('#tr tbody').innerHTML = R.rom.map((r, k) => `<tr><td>${J[k]}</td><td>${Math.round(r[0])}°</td><td>${Math.round(r[1])}°</td><td>${Math.round(r[1] - r[0])}°</td></tr>`).join('');
+  drawTq(); drawCad(); drawBike();
+}
+
+const REACHT = {ok: 'sì', lungo: 'troppo lontano', corto: 'troppo vicino'};
+const sgn = (v, d = 0) => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d);
+const fitVals = r => ({knee: r.rom[1][0], hip: r.hipMin, trunk: r.G.al * 180 / Math.PI, kops: r.kops, drop: r.G.drop * 1000, s2b: r.G.s2b * 1000, reach: r.G.reachFlag, sp: r.Pavg, th: r.Pthr});
+const trunkCat = v => v < 30 ? 'molto basso' : v <= 45 ? 'da agonista' : v <= 55 ? 'da amatore' : 'turistico';
+const FLAB = {sh: 'sella', setback: 'arretramento', crank: 'pedivelle', shoe: 'scarpa', stack: 'stack', reach: 'reach', staF: 'tubo sella', ha: 'sterzo', spacer: 'spessori', stem: 'attacco', stemAng: 'angolo attacco', barReach: 'reach manubrio', barDrop: 'drop manubrio'};
+function diffAB() { const d = []; for (const k in FLAB) { const x = FIT.B[k] - FIT.A[k]; if (Math.abs(x) > 1e-9) d.push(`${FLAB[k]} ${sgn(x, Number.isInteger(x) ? 0 : 1)}${k === 'staF' || k === 'ha' || k === 'stemAng' ? '°' : ' mm'}`); } if (FIT.A.hand !== FIT.B.hand) d.push('posizione delle mani'); return d; }
+function renderFit() {
+  const a = fitVals(RA), b = fitVals(RB), dW = (x, y) => `<small>${sgn(y - x)} W (${sgn((y - x) / x * 100, 1)}%)</small>`;
+  const kOk = v => v >= 25 && v <= 35;
+  const rows = [
+    ['Ginocchio in basso (flessione minima)', `${a.knee.toFixed(0)}°`, `${b.knee.toFixed(0)}°`, '25–35° in statica (Holmes 1994; Peveler). Misurato pedalando: 33–43° a bassa intensità, 30–40° ad alta (Swart e Holliday 2019).', kOk(a.knee), kOk(b.knee)],
+    ['Angolo busto–coscia più chiuso (pedale in alto)', `${a.hip.toFixed(0)}°`, `${b.hip.toFixed(0)}°`, 'Sotto ~55° l\'anca è molto chiusa. Indicazione dei bike fitter, non da studi.', a.hip >= 55, b.hip >= 55],
+    ['Busto sull\'orizzontale', `${a.trunk.toFixed(0)}° <small>${trunkCat(a.trunk)}</small>`, `${b.trunk.toFixed(0)}° <small>${trunkCat(b.trunk)}</small>`, '30–45° agonisti, 45–55° amatori, 50–60° turistico. Indicazione dei bike fitter.', true, true],
+    ['Ginocchio rispetto al perno del pedale a ore 3', `${sgn(a.kops)} mm`, `${sgn(b.kops)} mm`, 'Solo informativo: la regola del «piombo dalla rotula» (KOPS) è una tradizione senza base fisiologica. È il centro del ginocchio; la rotula sta circa 4–5 cm più avanti (stima).', true, true],
+    ['Dislivello sella–manubrio', `${Math.round(a.drop)} mm`, `${Math.round(b.drop)} mm`, 'Nessun valore giusto: dipende da flessibilità e obiettivi.', true, true],
+    ['Punta della sella → centro del manubrio', `${Math.round(a.s2b)} mm`, `${Math.round(b.s2b)} mm`, 'Misura di controllo da riportare sulla bici.', true, true],
+    ['Manubrio a portata delle braccia', REACHT[a.reach], REACHT[b.reach], 'Stima con braccio = 0,38 × altezza.', a.reach === 'ok', b.reach === 'ok'],
+    ['Sprint da seduto', `${Math.round(a.sp)} W`, `${Math.round(b.sp)} W ${dW(a.sp, b.sp)}`, 'Stima del modello alla cadenza scelta.', true, true],
+    ['Soglia', `${Math.round(a.th)} W`, `${Math.round(b.th)} W ${dW(a.th, b.th)}`, 'Stima del modello: l\'assetto la sposta poco.', true, true],
+  ];
+  $('#tf tbody').innerHTML = rows.map(([n, va, vb, ref, oa, ob]) => `<tr><td>${n}</td><td${oa ? '' : ' class="bad"'}>${va}</td><td${ob ? '' : ' class="bad"'}>${vb}</td><td>${ref}</td></tr>`).join('');
+  document.querySelectorAll('#tf th[data-b]').forEach(t => { const on = t.dataset.b === SEL; t.classList.toggle('on', on); t.textContent = `Bici ${t.dataset.b}${on ? ' (in figura)' : ''}`; });
+  if (!SUGMSG) { const d = diffAB(); $('#fstat').textContent = d.length ? `B rispetto ad A: ${d.join(', ')}.` : 'Le bici A e B sono uguali.'; }
+}
+let SUGMSG = '';
+
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ln = (a, b, c, w, o = 1, d = '') => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" opacity="${o}" ${d}/>`;
+
+function drawBike() {
+  const s = $('#bsvg'), W = s.clientWidth, H = s.clientHeight; if (!W || !R) return;
+  const G = R.G, sc = Math.min(W / 1.85, (H - 24) / 1.68), oy = H - 0.30 * sc - 12;
+  const ps = (VIEW === 'muscoli' ? 0 : ROT) * Math.PI / 180, c = Math.cos(ps), sn = Math.sin(ps), cx = 0.1, ox = W / 2 - 0.0 * sc;
+  // proiezione: rotazione attorno all'asse verticale passante per il centro bici
+  const T = q => [ox + ((q[0] - cx) * c + (q[2] || 0) * sn) * sc, oy - q[1] * sc];
+  const mix = (a, b, f) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, (a[2] || 0) * (1 - f) + (b[2] || 0) * f];
+  const Z = (q, z) => [q[0], q[1], z];
+  const ink = 'var(--ink)', mut = 'var(--mut)', ac = Math.abs(c), fx = (c < 0 ? -1 : 1) * Math.max(ac, 0.25);
+  const sH = G.H / 1.78, bf = Math.sqrt(p.mass / (G.H * G.H) / 22.7), zl = 0.11 * sH, za = 0.19 * bf * sH;
+  const i = Math.round(th / (2 * Math.PI) * 72) % 72, L = R.leg[i];
+  const ZP = (Q, z) => ({hip: Z(Q.hip, z * 0.85), knee: Z(Q.knee, z), ank: Z(Q.ank, z), ped: Z(Q.ped, z * 1.05)});
+  const PR = ZP(R.P[i], zl), PL = ZP(R.P[(i + 36) % 72], -zl), rightNear = c >= 0, PN = rightNear ? PR : PL, PF = rightNear ? PL : PR, zs = rightNear ? 1 : -1;
+  // geometria dalla bici selezionata (misure di bike fit)
+  const wr = 0.335, deg = 180 / Math.PI, staR = (PM.staF || 73.5) / deg, haR = (PM.ha || 73) / deg, upH = [-Math.cos(haR), Math.sin(haR)];
+  const ht = [G.ht[0], G.ht[1], 0], hb = [G.ht[0] - upH[0] * 0.14, G.ht[1] - upH[1] * 0.14, 0];
+  const ra = [-0.41, 0.07, 0], fa = [G.ht[0] + (G.ht[1] - 0.07) / Math.tan(haR) + 0.045 / Math.sin(haR), 0.07, 0];
+  const top = Z(G.top, 0), bar = Z(G.bar, 0), hnd = Z(G.hands, 0), brR = (PM.barReach || 80) / 1000, brD = (PM.barDrop || 125) / 1000;
+  const hip0 = Z(G.hip, 0), clampP = [-(G.seatY - 0.035) / Math.tan(staR), G.seatY - 0.035, 0];
+  const u = [Math.cos(G.al), Math.sin(G.al)], sh = Z(G.shoulder, 0), head = [sh[0] + u[0] * 0.13 + 0.03, sh[1] + u[1] * 0.13, 0];
+  const UA = 0.186 * G.H, FA = 0.19 * G.H; // braccio e avambraccio+mano (stime antropometriche)
+  const elbow = (S, Hn) => { const dx = Hn[0] - S[0], dy = Hn[1] - S[1], n = Math.hypot(dx, dy) || 1, d = Math.min(n, UA + FA - 1e-4), a = (UA * UA - FA * FA + d * d) / (2 * d), hh = Math.sqrt(Math.max(UA * UA - a * a, 0));
+    return [S[0] + dx / n * a + dy / n * hh, S[1] + dy / n * a - dx / n * hh]; };
+  const EL = elbow(sh, hnd);
+  const arm = z => ({S: Z(sh, z * 0.9), E: Z(EL, z), Hn: Z(hnd, z * 1.05)});
+  const barPath = (z, col, w) => { const q = [bar, [bar[0] + brR, bar[1]], [bar[0] + brR + 0.03, bar[1] - brD * 0.4], [bar[0] + brR - 0.005, bar[1] - brD], [bar[0] + brR - 0.06, bar[1] - brD + 0.01]].map(x => T(Z(x, z)));
+    return `<path d="M${q[0][0]},${q[0][1]} L${q[1][0]},${q[1][1]} Q${q[2][0]},${q[2][1]} ${q[3][0]},${q[3][1]} L${q[4][0]},${q[4][1]}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`; };
+  const cockpit = (col, w) => ln(T(ht), T(top), col, w * 1.1) + ln(T(top), T(bar), col, w) + barPath(-0.20, col, w * 0.8) + barPath(0.20, col, w * 0.8) + ln(T(Z(bar, -0.21)), T(Z(bar, 0.21)), col, w * 0.9);
+  const AN = arm(za * zs), AF = arm(-za * zs);
+  const bodyV = VIEW !== 'muscoli', musc = VIEW !== 'atleta', LK = LOOK;
+  const fw = Math.max(4, sc * 0.018), st = [-Math.cos(staR) * PM.sh / 1000 * 0.70, Math.sin(staR) * PM.sh / 1000 * 0.70, 0];
+  const ell = (q, r, attrs) => { const a = T(q); return `<ellipse cx="${a[0]}" cy="${a[1]}" rx="${Math.max(r * sc * ac, 1)}" ry="${r * sc}" ${attrs}/>`; };
+  const cap = (A, B, rA, rB, fill, extra = '') => { const a = T(A), b = T(B), d = [b[0] - a[0], b[1] - a[1]], n = Math.hypot(...d) || 1, q = [-d[1] / n, d[0] / n], ra = rA * sc, rb = rB * sc;
+    return `<g fill="${fill}" ${extra}><path d="M${a[0] + q[0] * ra},${a[1] + q[1] * ra}L${b[0] + q[0] * rb},${b[1] + q[1] * rb}L${b[0] - q[0] * rb},${b[1] - q[1] * rb}L${a[0] - q[0] * ra},${a[1] - q[1] * ra}Z"/><circle cx="${a[0]}" cy="${a[1]}" r="${ra}"/><circle cx="${b[0]}" cy="${b[1]}" r="${rb}"/></g>`; };
+  const eff = (r, w) => Math.hypot(r * c, w * sn); // raggio apparente del busto (profondità vs larghezza)
+  const flip = (q, inner) => { const a = T(q); return `<g transform="translate(${a[0]} ${a[1]}) scale(${fx} 1) translate(${-a[0]} ${-a[1]})">${inner}</g>`; };
+  let o = `<line x1="0" y1="${T([0, 0.07 - wr])[1]}" x2="${W}" y2="${T([0, 0.07 - wr])[1]}" stroke="var(--line)" stroke-width="2"/>`;
+  o += '<!--FRAME-->';
+  const crank = (Q, col, w, op) => ln(T([0, 0, Q.ped[2] * 0.6]), T(Q.ped), col, w, op) + `<circle cx="${T(Q.ped)[0]}" cy="${T(Q.ped)[1]}" r="5" fill="${col}" opacity="${op}"/>`;
+  if (!bodyV) {
+    for (const a of [ra, fa]) o += ell(a, wr, `fill="none" stroke="${mut}" stroke-width="${Math.max(3, sc * 0.012)}" opacity=".45"`) + ell(a, wr * 0.88, 'fill="none" stroke="var(--line)" stroke-width="1"');
+    o += ln(T([0, 0, 0]), T(st), ink, fw, .9) + ln(T(st), T(ht), ink, fw, .9) + ln(T([0, 0, 0]), T(hb), ink, fw, .9) + ln(T(ht), T(hb), ink, fw, .9) + ln(T([0, 0, 0]), T(ra), ink, fw, .9) + ln(T(st), T(ra), ink, fw, .9) + ln(T(hb), T(fa), ink, fw, .9) + cockpit(ink, fw * 0.8);
+  } else {
+    const prof = {basso: 0.03, medio: 0.05, alto: 0.08, lenticolare: 0.08}, tyre = 0.025;
+    [[ra, 'r'], [fa, 'f']].forEach(([a, w]) => { const C = T(a), pr = LK.wheels === 'lenticolare' && w === 'f' ? 'alto' : LK.wheels, d = prof[pr], rIn = wr - tyre - d;
+      let s2 = ell(a, wr - tyre / 2, `fill="none" stroke="#1b1f26" stroke-width="${tyre * sc}"`);
+      if (pr === 'lenticolare') s2 += ell(a, wr - tyre, `fill="${LK.rim}" opacity=".92"`);
+      else { const n = {basso: 24, medio: 20, alto: 18}[pr]; for (let k = 0; k < n; k++) { const an = k / n * 2 * Math.PI + th * 0.6, e2 = T([a[0] + Math.cos(an) * rIn, a[1] + Math.sin(an) * rIn, 0]); s2 += `<line x1="${C[0]}" y1="${C[1]}" x2="${e2[0]}" y2="${e2[1]}" stroke="${mut}" stroke-width="1" opacity=".55"/>`; }
+        s2 += ell(a, wr - tyre - d / 2, `fill="none" stroke="${LK.rim}" stroke-width="${d * sc}"`);
+        if (LK.wtext && ac > 0.45) { const id = 'wt' + w, rr = (wr - tyre - d / 2) * sc, rx = rr * ac; s2 += `<path id="${id}" d="M${C[0] - rx},${C[1]} A${rx},${rr} 0 0 1 ${C[0] + rx},${C[1]}" fill="none"/><text font-size="${Math.min(d * sc * 0.62, 18)}" font-weight="700" fill="${contrast(LK.rim)}" dominant-baseline="central" letter-spacing="1"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(LK.wtext)}</textPath></text>`; } }
+      s2 += `<circle cx="${C[0]}" cy="${C[1]}" r="${0.02 * sc}" fill="${mut}"/>`;
+      o += s2; });
+    const A0 = T([0, 0, 0]), Bh = T(ht), Hb = T(hb);
+    o += `<defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="${T(ra)[0]}" y1="0" x2="${Bh[0] === T(ra)[0] ? Bh[0] + 1 : Bh[0]}" y2="0"><stop offset="0" stop-color="${LK.frame}"/><stop offset="1" stop-color="${LK.frame2}"/></linearGradient></defs>`;
+    const fc = LK.fstyle === 'sfumata' ? 'url(#fgrad)' : LK.frame, rc = LK.fstyle === 'bicolore' ? LK.frame2 : fc, W2 = fw * 1.15;
+    o += ln(A0, T(ra), rc, W2 * 0.8) + ln(T(st), T(ra), rc, W2 * 0.7) + ln(Hb, T(fa), fc, W2 * 0.9);
+    o += ln(A0, T(st), fc, W2) + ln(T(st), Bh, fc, W2) + ln(Bh, Hb, fc, W2 * 1.4) + ln(A0, Hb, fc, W2 * 1.9);
+    o += cockpit('#1b1f26', fw);
+    if (LK.ftext && ac > 0.45) { const m = T([0.27, 0.21, 0]), ang = Math.atan2(Hb[1] - A0[1], Hb[0] - A0[0]) * 180 / Math.PI, a2 = c < 0 ? ang + 180 : ang;
+      o += `<text x="${m[0]}" y="${m[1]}" transform="rotate(${a2} ${m[0]} ${m[1]}) scale(${ac} 1)" transform-origin="${m[0]} ${m[1]}" text-anchor="middle" dominant-baseline="central" font-size="${Math.min(W2 * 1.35, 20)}" font-weight="700" letter-spacing="1.5" fill="${contrast(LK.frame)}">${esc(LK.ftext)}</text>`; }
+    if (LK.flogo && ac > 0.3) { const m = T(mix(ht, hb, 0.5)), s3 = 0.05 * sc; o += flip(mix(ht, hb, 0.5), `<image href="${LK.flogo}" x="${m[0] - s3 / 2}" y="${m[1] - s3 / 2}" width="${s3}" height="${s3}" preserveAspectRatio="xMidYMid meet"/>`); }
+  }
+  o += ln(T(st), T(clampP), ink, 4) + ln(T([G.nose[0] - 0.27, G.seatY - 0.006, 0]), T([G.nose[0], G.seatY - 0.012, 0]), ink, Math.max(5, sc * 0.022));
+  o += ell([0, 0, 0], 0.10, `fill="none" stroke="${mut}" stroke-width="3" stroke-dasharray="3 3"`);
+  const pt = (a, b, f, off) => { const d = [b[0] - a[0], b[1] - a[1]], n = Math.hypot(...d), q = [-d[1] / n, d[0] / n]; return [a[0] + d[0] * f + q[0] * off, a[1] + d[1] * f + q[1] * off, (a[2] || 0) * (1 - f) + (b[2] || 0) * f]; };
+  const bk = [-u[1], u[0]], pel = (a, b) => [G.hip[0] + u[0] * a + bk[0] * b, G.hip[1] + u[1] * a + bk[1] * b, zl * 0.8];
+  const tR = PM.thigh / 200, cR = 0.058 * PM.thigh / 17.5 * Math.sqrt(sH);
+  const lk = LK, skin = SKINS[lk.skin] || SKINS.media, dk = q => shade(q, 0.72);
+  const legBody = (Q, dark) => { const sk = dark ? dk(skin) : skin, sho = dark ? dk(lk.shorts) : lk.shorts, shoe = dark ? dk(lk.shoes) : lk.shoes;
+    const fd = [Q.ped[0] - Q.ank[0], Q.ped[1] - Q.ank[1]], fl = Math.hypot(...fd), fu = [fd[0] / fl, fd[1] / fl];
+    const heel = [Q.ank[0] - fu[0] * 0.05, Q.ank[1] - fu[1] * 0.05 - 0.02, Q.ank[2]], toe = [Q.ped[0] + fu[0] * 0.07, Q.ped[1] + fu[1] * 0.07, Q.ped[2]], mc = mix(Q.knee, Q.ank, 0.33);
+    return cap(Q.knee, mc, 0.05 * sH, cR, sk) + cap(mc, Q.ank, cR, 0.03 * sH, sk) + cap(Q.hip, Q.knee, tR * 1.04, 0.05 * sH, sk) + cap(Q.hip, mix(Q.hip, Q.knee, 0.55), tR * 1.08, tR * 0.86, sho) + cap(heel, toe, 0.028, 0.02, shoe, `stroke="${dark ? '#000' : '#9aa3af'}" stroke-width="1"`); };
+  const armBody = (Ar, dark) => { const sk = dark ? dk(skin) : skin, je = dark ? dk(lk.jersey) : lk.jersey, gl = dark ? dk(lk.gloves) : lk.gloves;
+    return cap(Ar.S, Ar.E, 0.05 * sH, 0.042 * sH, sk) + cap(Ar.S, mix(Ar.S, Ar.E, 0.45), 0.055 * sH, 0.05 * sH, je) + cap(Ar.E, Ar.Hn, 0.04 * sH, 0.032 * sH, sk) + `<circle cx="${T(Ar.Hn)[0]}" cy="${T(Ar.Hn)[1]}" r="${0.04 * sc}" fill="${gl}"/>`; };
+  if (bodyV) {
+    o = o.replace('<!--FRAME-->', legBody(PF, true) + crank(PF, ink, 5, .7) + armBody(AF, true) + '<!--FRAME-->');
+    const chest = mix(hip0, sh, 0.62), jf = lk.pattern === 'righe' ? 'url(#jstripe)' : lk.pattern === 'unita' ? lk.jersey : 'url(#jband)';
+    const g0 = T(hip0), g1 = T(sh), bnd = lk.pattern === 'fascia' ? [0.48, 0.66] : [0, 0.3];
+    o += `<defs><linearGradient id="jband" gradientUnits="userSpaceOnUse" x1="${g0[0]}" y1="${g0[1]}" x2="${g1[0]}" y2="${g1[1]}"><stop offset="${bnd[0]}" stop-color="${lk.pattern === 'fianchi' ? lk.jersey2 : lk.jersey}"/><stop offset="${bnd[0]}" stop-color="${lk.jersey2}"/><stop offset="${bnd[1]}" stop-color="${lk.jersey2}"/><stop offset="${bnd[1]}" stop-color="${lk.jersey}"/></linearGradient></defs>`;
+    o += `<defs><pattern id="jstripe" patternUnits="userSpaceOnUse" width="${0.06 * sc}" height="${0.06 * sc}" patternTransform="rotate(${Math.atan2(g0[1] - g1[1], g1[0] - g0[0]) * 180 / Math.PI})"><rect width="100%" height="100%" fill="${lk.jersey}"/><rect width="100%" height="${0.025 * sc}" fill="${lk.jersey2}"/></pattern></defs>`;
+    o += cap(hip0, chest, eff(0.125 * bf * sH, 0.17 * bf * sH), eff(0.14 * bf * sH, 0.19 * bf * sH), jf) + cap(chest, sh, eff(0.14 * bf * sH, 0.19 * bf * sH), eff(0.10 * sH, 0.17 * bf * sH), jf);
+    if (lk.logo && ac > 0.3) { const q = mix(hip0, sh, 0.55), C = T(q), s2 = 0.13 * sc * bf; o += flip(q, `<image href="${lk.logo}" x="${C[0] - s2 / 2}" y="${C[1] - s2 / 2}" width="${s2}" height="${s2}" preserveAspectRatio="xMidYMid meet" transform="rotate(${-G.al * deg + 45} ${C[0]} ${C[1]})"/>`); }
+    o += cap(sh, [head[0] - 0.04, head[1] - 0.06, 0], 0.05, 0.045, skin);
+    const hcx = T(head), rH = 0.10 * sc * sH;
+    let hd = `<circle cx="${hcx[0]}" cy="${hcx[1]}" r="${rH}" fill="${skin}"/>`;
+    const hc = [hcx[0] - 0.01 * sc, hcx[1] - 0.02 * sc], hr = 0.118 * sc * sH;
+    if (lk.head === 'aero') hd += `<path d="M${hc[0] - hr * 1.9},${hc[1] + hr * 0.55} Q${hc[0] - hr * 1.2},${hc[1] - hr * 0.6} ${hc[0] - hr * 0.1},${hc[1] - hr * 0.95} Q${hc[0] + hr * 1.0},${hc[1] - hr * 0.9} ${hc[0] + hr * 1.08},${hc[1] + hr * 0.3} Z" fill="${lk.headc}"/><path d="M${hc[0] - hr * 1.6},${hc[1] + hr * 0.3} Q${hc[0] - hr * 0.6},${hc[1] - hr * 0.55} ${hc[0] + hr * 0.7},${hc[1] - hr * 0.6}" stroke="${lk.headc2}" stroke-width="${Math.max(2, hr * 0.14)}" fill="none"/>`;
+    if (lk.head === 'casco') hd += `<path d="M${hc[0] - hr * 1.15},${hc[1] + hr * 0.15} A${hr * 1.15},${hr} 0 0 1 ${hc[0] + hr * 1.05},${hc[1] + hr * 0.25} Z" fill="${lk.headc}"/><path d="M${hc[0] - hr * 0.9},${hc[1] - hr * 0.1} L${hc[0] + hr * 0.8},${hc[1] + hr * 0.05}" stroke="${lk.headc2}" stroke-width="${Math.max(2, hr * 0.12)}"/>`;
+    if (lk.head === 'cappellino') hd += `<path d="M${hcx[0] - rH * 1.02},${hcx[1] - rH * 0.05} A${rH * 1.02},${rH * 0.95} 0 0 1 ${hcx[0] + rH * 0.9},${hcx[1] - rH * 0.35} Z" fill="${lk.headc}"/><path d="M${hcx[0] + rH * 0.55},${hcx[1] - rH * 0.48} L${hcx[0] + rH * 1.45},${hcx[1] - rH * 0.2} L${hcx[0] + rH * 0.85},${hcx[1] - rH * 0.2} Z" fill="${lk.headc}"/>`;
+    if (lk.head === 'bandana') hd += `<path d="M${hcx[0] - rH},${hcx[1] - rH * 0.1} A${rH},${rH} 0 0 1 ${hcx[0] + rH * 0.95},${hcx[1] - rH * 0.3} L${hcx[0] + rH * 0.9},${hcx[1] - rH * 0.12} L${hcx[0] - rH},${hcx[1] + rH * 0.12} Z" fill="${lk.headc}"/><path d="M${hcx[0] - rH},${hcx[1]} l${-rH * 0.5},${rH * 0.35} l${rH * 0.15},${-rH * 0.45}Z" fill="${lk.headc}"/>`;
+    const ey = [hcx[0] + 0.06 * sc, hcx[1] + 0.005 * sc];
+    if (lk.glasses === 'nessuno') hd += `<circle cx="${ey[0]}" cy="${ey[1]}" r="${Math.max(1.5, rH * 0.08)}" fill="#1b1f26"/>`;
+    if (lk.glasses === 'sportivi') hd += `<path d="M${hcx[0] + rH * 0.1},${ey[1] - rH * 0.1} L${ey[0] + rH * 0.42},${ey[1] - rH * 0.14} Q${ey[0] + rH * 0.45},${ey[1] + rH * 0.22} ${ey[0] + rH * 0.05},${ey[1] + rH * 0.2} Q${ey[0] - rH * 0.25},${ey[1] + rH * 0.12} ${ey[0] - rH * 0.3},${ey[1] - rH * 0.02} Z" fill="${lk.lens}" stroke="#1b1f26" stroke-width="1.5"/><path d="M${hcx[0] - rH * 0.9},${ey[1] - rH * 0.05} L${hcx[0] + rH * 0.2},${ey[1] - rH * 0.1}" stroke="#1b1f26" stroke-width="${Math.max(1.5, rH * 0.07)}"/>`;
+    if (lk.glasses === 'mascherina') hd += `<path d="M${hcx[0] + rH * 0.05},${ey[1] - rH * 0.32} L${ey[0] + rH * 0.5},${ey[1] - rH * 0.3} Q${ey[0] + rH * 0.55},${ey[1] + rH * 0.3} ${ey[0] + rH * 0.1},${ey[1] + rH * 0.32} L${hcx[0] + rH * 0.1},${ey[1] + rH * 0.2} Z" fill="${lk.lens}" stroke="${lk.headc}" stroke-width="2"/><path d="M${hcx[0] - rH * 0.95},${ey[1] - rH * 0.15} L${hcx[0] + rH * 0.1},${ey[1] - rH * 0.15}" stroke="${lk.headc}" stroke-width="${Math.max(2, rH * 0.1)}"/>`;
+    o += flip(head, hd);
+    o += legBody(PN, false) + armBody(AN, false);
+  } else {
+    o += [[PF.hip, PF.knee], [PF.knee, PF.ank], [PF.ank, PF.ped]].map(([a, b]) => ln(T(a), T(b), mut, sc * 0.05, .13)).join('') + crank(PF, mut, 5, .5);
+    o += ln(T(hip0), T(sh), ink, sc * 0.09, .85) + ln(T(AN.S), T(AN.E), ink, sc * 0.04, .85) + ln(T(AN.E), T(AN.Hn), ink, sc * 0.035, .85) + `<circle cx="${T(head)[0]}" cy="${T(head)[1]}" r="${0.10 * sc}" fill="${ink}" opacity=".85"/>`;
+    o += [[PN.hip, PN.knee, 0.075], [PN.knee, PN.ank, 0.055], [PN.ank, PN.ped, 0.035]].map(([a, b, w]) => ln(T(a), T(b), mut, sc * w, .32)).join('');
+    o += [[PN.hip, PN.knee], [PN.knee, PN.ank], [PN.ank, PN.ped]].map(([a, b]) => ln(T(a), T(b), mut, 3)).join('');
+  }
+  if (musc) {
+    const P = PR, dim = rightNear ? 1 : 0.35;
+    const heel = pt(P.ank, P.ped, -0.35, -0.01);
+    const att = {glut: [pel(0.05, 0.08), pt(P.hip, P.knee, 0.25, -0.035)], hams: [pel(-0.02, 0.05), pt(P.knee, P.ank, 0.12, -0.03)], vast: [pt(P.hip, P.knee, 0.3, 0.035), pt(P.knee, P.ank, 0.08, 0.03)], rf: [pel(0.06, -0.03), pt(P.knee, P.ank, 0.06, 0.04)], ilio: [pel(0.14, -0.01), pt(P.hip, P.knee, 0.1, 0.03)], gast: [pt(P.hip, P.knee, 0.93, -0.03), heel], sol: [pt(P.knee, P.ank, 0.3, -0.03), heel], ta: [pt(P.knee, P.ank, 0.2, 0.03), pt(P.ank, P.ped, 0.5, 0.02)]};
+    R.ms.forEach((m, k) => { const a = att[m.id], F = L.mf[k].F / m.F0; o += ln(T(a[0]), T(a[1]), m.col, Math.max(2, Math.sqrt(m.A) * sc * 0.0016), dim * ((bodyV ? 0.45 : 0.3) + (bodyV ? 0.55 : 0.7) * Math.min(F * 1.6, 1))); });
+    if (rightNear) for (const j of [P.hip, P.knee, P.ank]) o += `<circle cx="${T(j)[0]}" cy="${T(j)[1]}" r="5" fill="var(--bg)" stroke="${ink}" stroke-width="2.5"/>`;
+  }
+  // pedivella vicina e vettore di forza (gamba destra)
+  o += crank(PN, ink, 6, 1);
+  const k = 0.00022, f = L.f, P = PR, e = [P.ped[0] + f[0] * k, P.ped[1] + f[1] * k, P.ped[2]];
+  const tv = [Math.cos(th), -Math.sin(th)], ft = f[0] * tv[0] + f[1] * tv[1], et = [P.ped[0] + tv[0] * ft * k, P.ped[1] + tv[1] * ft * k, P.ped[2]];
+  if (Math.hypot(...f) > 20) {
+    o += `<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>`;
+    o += ln(T(P.ped), T(et), 'var(--acc)', 3, .55, 'stroke-dasharray="5 4"') + ln(T(P.ped), T(e), 'var(--acc)', 5, 1, 'marker-end="url(#ah)"');
+  }
+  o += `<text x="12" y="24" font-size="15" font-weight="600" fill="${mut}">Bici ${SEL}</text>`;
+  o += `<text x="12" y="${H - 12}" font-size="13" fill="${mut}">${W > 520 ? 'Freccia piena: forza sul pedale destro · tratteggio: componente utile' : 'Forza sul pedale'} · ${Math.round(Math.hypot(...f))} N</text>`;
+  s.innerHTML = o;
+}
+
+function axes(W, H, m, xs, ys, xl, yl, xt, yt) {
+  let o = `<line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" stroke="var(--line)"/>`;
+  for (const v of yt) o += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)" stroke-dasharray="2 4"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end" font-size="12" fill="var(--mut)">${v}</text>`;
+  for (const v of xt) o += `<text x="${xs(v)}" y="${H - m.b + 18}" text-anchor="middle" font-size="12" fill="var(--mut)">${v}</text>`;
+  o += `<text x="${m.l}" y="14" font-size="13" fill="var(--mut)">${yl}</text><text x="${W - m.r}" y="${H - 4}" text-anchor="end" font-size="13" fill="var(--mut)">${xl}</text>`;
+  return o;
+}
+const nice = mx => { const s = mx > 400 ? 200 : mx > 150 ? 50 : mx > 60 ? 20 : 10; const t = []; for (let v = 0; v <= mx * 1.05; v += s) t.push(v); return t; };
+
+function drawTq() {
+  const s = $('#ctq svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
+  const m = {l: 46, r: 12, t: 26, b: 34}, N = R.tq.length, w = p.cad * 2 * Math.PI / 60;
+  const one = R.leg.map(l => l.pw / w), mx = Math.max(...R.tq) * 1.08;
+  const xs = a => m.l + a / 360 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
+  const path = arr => arr.concat([arr[0]]).map((v, i) => `${i ? 'L' : 'M'}${xs(i * 360 / N).toFixed(1)},${ys(v).toFixed(1)}`).join('');
+  let o = axes(W, H, m, xs, ys, W < 520 ? 'angolo (°)' : 'angolo pedivella (°, 0 = punto morto superiore)', 'Coppia (N·m)', W < 520 ? [0, 180, 360] : [0, 90, 180, 270, 360], nice(mx));
+  o += `<path d="${path(one)}" fill="none" stroke="var(--mut)" stroke-width="2" stroke-dasharray="4 3"/><path d="${path(R.tq)}" fill="none" stroke="var(--acc)" stroke-width="3"/>`;
+  o += `<text x="${W - m.r}" y="${m.t + 4}" text-anchor="end" font-size="12" fill="var(--acc2)">due gambe</text><text x="${W - m.r}" y="${m.t + 20}" text-anchor="end" font-size="12" fill="var(--mut)">gamba destra</text>`;
+  o += `<line id="cur" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s.innerHTML = o; s.dataset.x0 = m.l; s.dataset.x1 = W - m.r;
+}
+function drawCad() {
+  const s = $('#ccad svg'), W = s.clientWidth, H = s.clientHeight; if (!W) return;
+  const m = {l: 52, r: 14, t: 26, b: 34}, mx = Math.max(...CUR.map(x => x[1])) * 1.1;
+  const xs = c => m.l + (c - 40) / 120 * (W - m.l - m.r), ys = v => H - m.b - v / mx * (H - m.t - m.b);
+  let o = axes(W, H, m, xs, ys, 'cadenza (rpm)', 'Potenza di sprint (W)', W < 520 ? [40, 100, 160] : [40, 60, 80, 100, 120, 140, 160], nice(mx));
+  o += `<path d="${CUR.map((x, i) => `${i ? 'L' : 'M'}${xs(x[0]).toFixed(1)},${ys(x[1]).toFixed(1)}`).join('')}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+  const b = CUR.reduce((a, x) => x[1] > a[1] ? x : a);
+  o += `<circle cx="${xs(b[0])}" cy="${ys(b[1])}" r="5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/><text x="${xs(b[0])}" y="${ys(b[1]) - 10}" text-anchor="middle" font-size="12" fill="var(--mut)">ottimo ${b[0]}</text>`;
+  o += `<circle cx="${xs(p.cad)}" cy="${ys(R.Pavg)}" r="7" fill="var(--acc)"/>`;
+  s.innerHTML = o;
+}
+
+function frame(t) {
+  const dt = last ? (t - last) / 1000 : 0; last = (playing || SPIN) ? t : 0;
+  if (SPIN) { ROT = (ROT + dt * 30) % 360; syncRot(false); if (VIEW === 'muscoli') setView('atleta'); }
+  if (playing) th = (th + dt * p.cad / 60 * 2 * Math.PI) % (2 * Math.PI);
+  drawBike();
+  const s = $('#ctq svg'), c = s.querySelector('#cur');
+  if (c) { const x = +s.dataset.x0 + th / (2 * Math.PI) * (s.dataset.x1 - s.dataset.x0); c.setAttribute('x1', x); c.setAttribute('x2', x); }
+  requestAnimationFrame(frame);
+}
+
+let pend = false;
+$('#ctrls').addEventListener('input', e => { const k = e.target.id.slice(2); p[k] = +e.target.value; syncInputs(); later(); });
+const later = () => { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; compute(); }); } };
+const fitChanged = () => { SUGMSG = ''; syncFit(); compute(); };
+$('#fin').addEventListener('input', e => { const k = e.target.id.slice(2);
+  if (k === 'hand') { if (HANDS.includes(e.target.value)) { FIT[SEL].hand = e.target.value; SUGMSG = ''; later(); } return; }
+  const v = Number(e.target.value), r = FRANGES[k]; if (!r || e.target.value === '' || !Number.isFinite(v) || v < r[0] || v > r[1]) return;
+  FIT[SEL][k] = v; SUGMSG = ''; later(); });
+$('#fin').addEventListener('change', e => { const k = e.target.id.slice(2), r = FRANGES[k]; if (!r) return; const v = Number(e.target.value);
+  FIT[SEL][k] = e.target.value !== '' && Number.isFinite(v) ? clampR(v, r) : FIT[SEL][k]; e.target.value = FIT[SEL][k]; fitChanged(); });
+document.querySelector('.bsel').addEventListener('click', e => { const b = e.target.dataset.sel; if (b) { SEL = b; fitChanged(); } });
+$('#copyab').addEventListener('click', () => { FIT.B = {...FIT.A}; fitChanged(); $('#fstat').textContent = 'Bici B = bici A: ora puoi modificare la B e confrontare.'; });
+$('#lem').addEventListener('click', () => { FIT[SEL].sh = lemond(p.ins); fitChanged(); $('#fstat').textContent = `Sella della bici ${SEL} a 0,883 × cavallo = ${FIT[SEL].sh} mm (formula di LeMond: un punto di partenza, non un valore ottimale).`; });
+$('#geos').addEventListener('click', e => { const g = GEO[e.target.dataset.g]; if (!g) return; Object.assign(FIT[SEL], g.f); if (g.l) { LOOK = cleanLook({...LOOK, ...g.l}); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (er) {} syncLook(); } fitChanged(); });
+$('#presets').addEventListener('click', e => { const n = e.target.dataset.p; if (!n) return; p = {...DEF, ...PRE[n]}; FIT.A.sh = lemond(p.ins); SUGMSG = ''; syncInputs(); syncFit(); compute(); });
+$('#reset').addEventListener('click', () => { p = {...DEF}; FIT = {A: {...FIT0}, B: {...FIT0}}; SEL = 'A'; SUGMSG = ''; syncInputs(); syncFit(); compute(); });
+
+// ---- Bike fit suggerito: piccola ricerca su altezza e arretramento della sella (e attacco, se il manubrio è fuori portata) ----
+function suggest() {
+  const A = FIT.A, r0 = MODEL.run(mp(A)), sc = r => 0.7 * r.Pthr / r0.Pthr + 0.3 * r.Pavg / r0.Pavg;
+  const valid = r => !r.over && r.rom[1][0] >= 25 && r.rom[1][0] <= 35 && r.G.reachFlag === 'ok';
+  const stems = [A.stem]; for (let d = 10; d <= 60; d += 10) for (const s2 of [A.stem - d, A.stem + d]) if (s2 >= 60 && s2 <= 150) stems.push(s2);
+  let cands = [];
+  for (const stem of stems) {
+    for (let dh = -40; dh <= 40; dh += 2.5) for (let db = -40; db <= 40; db += 5) {
+      const f = {...A, stem, sh: clampR(A.sh + dh, FRANGES.sh), setback: clampR(A.setback + db, FRANGES.setback)}, r = MODEL.run(mp(f));
+      if (valid(r)) cands.push({f, r, s: sc(r), d: Math.hypot((f.sh - A.sh) / 10, (f.setback - A.setback) / 10, (f.stem - A.stem) / 10)});
+    }
+    if (cands.length) break;
+  }
+  if (!cands.length) { SUGMSG = 'Nessuna combinazione di sella (±40 mm) e attacco porta il ginocchio tra 25° e 35° con il manubrio a portata: controlla le misure inserite.'; $('#fstat').textContent = SUGMSG; return; }
+  const best = Math.max(...cands.map(c => c.s)), keep = valid(r0) && best - 1 < 0.01; // bici già valida e guadagno sotto l'1%: non cambiare
+  const pick = keep ? {f: {...A}} : cands.filter(c => c.s >= best - 0.005).sort((x, y) => x.d - y.d)[0];
+  FIT.B = {...pick.f}; SEL = 'B'; syncFit(); compute();
+  const d = diffAB(), dt = RB.Pthr - RA.Pthr, ds = RB.Pavg - RA.Pavg;
+  SUGMSG = d.length ? `Suggerimento nella bici B: ${d.join(', ')}. Stima: soglia ${sgn(dt)} W, sprint ${sgn(ds)} W. È la modifica più piccola che porta il ginocchio tra 25° e 35° con il manubrio a portata; tra soluzioni che differiscono meno dello 0,5% sceglie quella più vicina alla tua bici. Se la bici A è già entro i riferimenti, cambia solo per guadagni sopra l'1%.`
+    : `La bici A è già entro i riferimenti e la migliore modifica di sella darebbe solo ${sgn((best - 1) * 100, 1)}% (sotto l'1%, meno dell'incertezza del modello): il suggerimento è non cambiare niente (B = A).`;
+  $('#fstat').textContent = SUGMSG;
+}
+$('#sugg').addEventListener('click', () => { $('#fstat').textContent = 'Calcolo in corso…'; setTimeout(suggest, 30); });
+
+// ---- Calibrazione sui dati dell'atleta (problema inverso) ----
+let CALV = null;
+const n0 = v => Math.round(v), r25 = v => Math.round(v * 4) / 4;
+function calibrate() {
+  MY = cleanMy({ftp: $('#m-ftp').value, pmax: $('#m-pmax').value, stand: $('#m-stand').checked, vo2m: $('#m-vo2').value}); store();
+  const {ftp, pmax, stand, vo2m} = MY, f = FIT[SEL], box = $('#cres'); CALV = null; $('#apply').disabled = true;
+  if (!ftp && !pmax) { box.innerHTML = '<p>Scrivi almeno la soglia (FTP) o la potenza massima di sprint.</p>'; return; }
+  const H = [], sure = [];
+  // 1) fibre lente: il picco della curva potenza-cadenza deve tornare con lo sprint misurato (±5%)
+  let slows = [p.slow], sprintErr = null, peakAt = null;
+  if (pmax) {
+    const lo = stand ? pmax / 1.07 : pmax, hi = stand ? pmax / 1.03 : pmax, tgt = (lo + hi) / 2, pk = [];
+    for (let s2 = 10; s2 <= 90; s2 += 5) { let b = 0, bc = 0; for (let c = 60; c <= 150; c += 10) { const P = MODEL.run(mp(f, {...p, slow: s2, cad: c})).Pavg; if (P > b) { b = P; bc = c; } } pk.push({s: s2, b, bc}); }
+    const ok = pk.filter(x => x.b >= lo * 0.95 && x.b <= hi * 1.05);
+    if (ok.length) { slows = ok.map(x => x.s); H.push(`<li><b>Fibre lente: ${Math.min(...slows)}–${Math.max(...slows)}%</b>. Con questi valori il picco di sprint da seduto del modello è entro ±5% del tuo${stand ? ' (sprint in piedi diviso per 1,03–1,07: in piedi negli studi si fa il 3–7% in più)' : ''}.</li>`); }
+    else { const c = pk.reduce((a, x) => Math.abs(x.b - tgt) < Math.abs(a.b - tgt) ? x : a); slows = [c.s]; sprintErr = (c.b - tgt) / tgt;
+      H.push(`<li><b>Fibre lente: nessun valore riproduce il tuo sprint.</b> Il più vicino (${c.s}%) dà ${n0(c.b)} W da seduto contro ${n0(tgt)} W: il modello ${sprintErr < 0 ? 'sottostima' : 'sovrastima'} del ${Math.abs(sprintErr * 100).toFixed(0)}%. Cause possibili: circonferenza della coscia non misurata, muscoli non modellati (tronco, braccia), parametri muscolari ancora stimati.</li>`); }
+  } else H.push('<li><b>Fibre lente: non stimabili</b> senza uno sprint. Per misurarlo: 2–3 sprint massimali di 8–10 secondi con potenziometro, ben recuperati (da seduto, o spunta «in piedi»).</li>');
+  const sC = slows.length > 1 ? Math.round((Math.min(...slows) + Math.max(...slows)) / 2 / 5) * 5 : slows[0];
+  // 2) mitocondri e VO2max: la soglia a 90 rpm deve tornare con la FTP (±5%)
+  let mitoC = p.mito, vo2C = vo2m || p.vo2;
+  const req = s2 => { const r = MODEL.run(mp(f, {...p, slow: s2, cad: 90})), k = 20.9 * 1000 / 60 * r.GE * 0.82; return {k, need: ftp / k, m: ftp / k * 1000 / (4.5 * r.volAct) * 100, v: ftp / k * 1000 / p.mass}; };
+  if (ftp) {
+    const rs = slows.map(req), mLo = Math.min(...rs.map(x => x.m)) * 0.95, mHi = Math.max(...rs.map(x => x.m)) * 1.05, vLo = Math.min(...rs.map(x => x.v)) * 0.95, vHi = Math.max(...rs.map(x => x.v)) * 1.05, rc = req(sC);
+    const mTxt = `${mLo.toFixed(1)}–${mHi.toFixed(1)}%`, vTxt = `${n0(vLo)}–${n0(vHi)} mL/kg/min`;
+    mitoC = rc.m; vo2C = vo2m || rc.v;
+    if (vo2m) {
+      const cen = vo2m * p.mass / 1000;
+      if (cen < rc.need * 0.95) { const pmaxT = rc.k * cen; H.push(`<li><b>Il tuo VO₂max non basta, nel modello, per la tua soglia</b>: al massimo ${n0(pmaxT)} W contro ${ftp} W (${((pmaxT - ftp) / ftp * 100).toFixed(0)}%). Il modello sottostima l'efficienza o la frazione di VO₂max che sostieni alla soglia (fissata all'82%).</li>`); mitoC = rc.m; }
+      else if (cen <= rc.need * 1.05) H.push(`<li><b>Mitocondri: almeno ${mTxt}</b>. Il tuo VO₂max basta appena: nel modello è il cuore a limitare la soglia.</li>`);
+      else H.push(`<li><b>Mitocondri: circa ${mTxt}</b>. Il tuo VO₂max avanza: nel modello sono i mitocondri a limitare la soglia.</li>`);
+    } else H.push(`<li><b>Per la tua soglia servono, nel modello, mitocondri almeno ${mTxt} e VO₂max almeno ${vTxt}</b>. Quale dei due limiti davvero non si ricava dai watt: con un VO₂max misurato il dubbio si scioglie.</li>`);
+    if (mLo > 10) H.push('<li>Servirebbe una densità mitocondriale sopra il 10%, oltre i valori misurati negli atleti d\'élite: il modello sottostima la tua soglia.</li>');
+    if (!vo2m) H.push(`<li><b>VO₂max stimato: almeno ${n0(vLo)} mL/kg/min.</b> Per misurarlo: test incrementale con analisi dei gas (ergospirometria) in un centro di medicina dello sport.</li>`);
+  } else {
+    H.push('<li><b>Soglia non inserita.</b> Per misurarla: test di 20 minuti a tutta con potenziometro (FTP ≈ 95% della media) o test a rampa.' + (vo2m ? ` Con il tuo VO₂max il modello consente al massimo circa ${n0(req(sC).k * vo2m * p.mass / 1000)} W di soglia, se i mitocondri non limitano.` : '') + '</li>');
+  }
+  CALV = {slow: clampR(sC, RANGES.slow), mito: clampR(r25(mitoC), RANGES.mito), vo2: clampR(Math.round(vo2C), RANGES.vo2)};
+  // anteprima: quanto sbaglia il modello sui tuoi dati con i valori proposti
+  const q = {...p, ...CALV}; let chk = '';
+  if (pmax) { let b = 0; for (let c = 60; c <= 150; c += 5) b = Math.max(b, MODEL.run(mp(f, {...q, cad: c})).Pavg); const t = stand ? pmax / 1.05 : pmax; chk += `<li>Sprint (picco da seduto): modello ${n0(b)} W, tuo ${n0(t)} W${stand ? ' (in piedi ÷ 1,05)' : ''} → errore ${sgn((b - t) / t * 100, 0)}%.</li>`; }
+  if (ftp) { const th2 = MODEL.run(mp(f, {...q, cad: 90})).Pthr; chk += `<li>Soglia a 90 rpm: modello ${n0(th2)} W, tua ${ftp} W → errore ${sgn((th2 - ftp) / ftp * 100, 0)}%.</li>`; }
+  box.innerHTML = `<h3>Cosa si ricava dai tuoi dati</h3><ul>${H.join('')}</ul><h3>Valori da applicare</h3><p>Fibre lente ${CALV.slow}% · mitocondri ${CALV.mito}% · VO₂max ${CALV.vo2} mL/kg/min${vo2m ? ' (il tuo)' : ' (il minimo compatibile)'}. Errore del modello con questi valori:</p><ul>${chk}</ul><p class="note">In breve: il banco sceglie i valori più semplici che rifanno i tuoi watt. Sono compatibili con i tuoi dati, non misurati: fibre e mitocondri si sanno con certezza solo con una biopsia.</p>`;
+  $('#apply').disabled = false;
+}
+$('#calib').addEventListener('click', () => { $('#cres').innerHTML = '<p>Calcolo in corso…</p>'; setTimeout(calibrate, 30); });
+$('#apply').addEventListener('click', () => { if (!CALV) return; Object.assign(p, CALV); syncInputs(); compute(); $('#apply').disabled = true; $('#cres').insertAdjacentHTML('beforeend', '<p><b>Applicati.</b> Cursori aggiornati: fibre lente, mitocondri e VO₂max.</p>'); });
+document.querySelector('.mf').addEventListener('change', () => { MY = cleanMy({ftp: $('#m-ftp').value, pmax: $('#m-pmax').value, stand: $('#m-stand').checked, vo2m: $('#m-vo2').value}); store(); });
+$('#play').addEventListener('click', e => { playing = !playing; last = 0; e.target.textContent = playing ? 'Pausa' : 'Avvia'; e.target.setAttribute('aria-pressed', playing); });
+$('#play').textContent = playing ? 'Pausa' : 'Avvia'; $('#play').setAttribute('aria-pressed', playing);
+const ro = new ResizeObserver(() => { if (R) { drawTq(); drawCad(); drawBike(); } });
+['#bsvg', '#ctq svg', '#ccad svg'].forEach(q => ro.observe($(q)));
+syncInputs(); syncFit(); syncMy(); compute(); requestAnimationFrame(frame);
+const setView = v => { VIEW = v; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); try { localStorage.setItem('bio-vista', v); } catch (e) {} drawBike(); };
+$('#views').addEventListener('click', e => { if (e.target.dataset.v) setView(e.target.dataset.v); });
+setView(VIEW);
+
+const syncRot = (store = true) => { $('#rot').value = Math.round(ROT); $('#rot-o').textContent = Math.round(ROT) + '°'; if (store) { try { localStorage.setItem('bio-rot', String(Math.round(ROT))); } catch (e) {} } };
+const goRot = v => { ROT = ((v % 360) + 360) % 360; syncRot(); if (VIEW === 'muscoli' && ROT !== 0) setView('atleta'); drawBike(); };
+$('#rot').addEventListener('input', e => goRot(+e.target.value));
+$('#rot0').addEventListener('click', () => goRot(0)); $('#rot90').addEventListener('click', () => goRot(90)); $('#rot270').addEventListener('click', () => goRot(270));
+$('#spin').addEventListener('click', e => { SPIN = !SPIN; last = 0; e.target.setAttribute('aria-pressed', SPIN); e.target.textContent = SPIN ? 'Ferma' : 'Gira'; if (!SPIN) syncRot(); });
+{ let dx = null, r0 = 0; const fig = $('#bike');
+  fig.addEventListener('pointerdown', e => { if (VIEW === 'muscoli') return; dx = e.clientX; r0 = ROT; fig.setPointerCapture(e.pointerId); fig.style.cursor = 'grabbing'; });
+  fig.addEventListener('pointermove', e => { if (dx === null) return; goRot(r0 - (e.clientX - dx) * 0.6); });
+  const up = () => { dx = null; fig.style.cursor = ''; }; fig.addEventListener('pointerup', up); fig.addEventListener('pointercancel', up); }
+syncRot(false);
+
+const syncLook = () => { for (const k in LOOK0) { const el = $('#l-' + k); if (el && el.type !== 'file' && document.activeElement !== el) el.value = LOOK[k]; } $('#l-nologo').disabled = !LOOK.logo; $('#l-noflogo').disabled = !LOOK.flogo; };
+const lookChanged = () => { try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} syncLook(); if (VIEW === 'muscoli') setView('atleta'); else drawBike(); };
+$('#lookp').addEventListener('input', e => { const k = e.target.id.slice(2); if (k in LOOK0 && e.target.type !== 'file') { LOOK = cleanLook({...LOOK, [k]: e.target.value}); lookChanged(); } });
+$('#l-nologo').addEventListener('click', () => { LOOK = {...LOOK, logo: ''}; lookChanged(); });
+const upLogo = (inp, key) => $(inp).addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { const img = new Image(); img.onload = () => { const m = 160, k = Math.min(1, m / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k)); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      try { LOOK = cleanLook({...LOOK, [key]: c.toDataURL('image/png')}); $('#lnote').textContent = 'Immagine caricata. L\'aspetto si salva insieme all\'atleta.'; lookChanged(); } catch (err) { $('#lnote').textContent = 'Immagine non utilizzabile.'; } };
+    img.onerror = () => { $('#lnote').textContent = 'Formato immagine non letto: prova PNG o JPG.'; }; img.src = rd.result; };
+  rd.readAsDataURL(f); e.target.value = '';
+});
+upLogo('#l-logo', 'logo'); upLogo('#l-flogo', 'flogo');
+$('#l-noflogo').addEventListener('click', () => { LOOK = {...LOOK, flogo: ''}; lookChanged(); });
+syncLook();
+
+// ---- Atleti salvati (archivio condiviso, con ripiego locale) ----
+const slug = n => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'atleta';
+let ATH = [], DB = null, USR = null, me = null, owner = false, cur = location.hash.slice(1);
+const stat = m => $('#astat').textContent = m;
+async function renderAth() {
+  const names = {};
+  if (USR) { try { const ids = [...new Set(ATH.map(a => a.by).filter(Boolean))]; const ps = ids.length ? await USR.profiles(ids) : {}; for (const id of ids) names[id] = (ps[id] && ps[id].name) || 'Qualcuno'; } catch (e) {} }
+  $('#alist').innerHTML = ATH.map(a => { const r = MODEL.run(mp(a.bikes.A, a.p)); const mine = !DB || owner || (a.by && a.by === me);
+    return `<li class="${a.id === cur ? 'on' : ''}"><b>${esc(a.name)}</b><span>${(r.Pthr / a.p.mass).toFixed(1)} W/kg</span><span class="meta">${a.p.h} cm · ${a.p.mass} kg · sprint ${Math.round(r.Pavg)} W · soglia ${Math.round(r.Pthr)} W${a.by ? ' · di ' + esc(names[a.by] || '') : ''}</span><span class="acts"><button data-load="${esc(a.id)}">Apri</button>${mine ? `<button data-del="${esc(a.id)}">Elimina</button>` : ''}</span></li>`; }).join('');
+  if (!ATH.length) $('#alist').innerHTML = '<li><span class="meta">Nessun atleta salvato: imposta i cursori, scrivi un nome e premi Salva atleta.</span></li>';
+}
+function openAth(id) {
+  const a = ATH.find(x => x.id === id); if (!a) return;
+  p = {...a.p}; FIT = {A: {...a.bikes.A}, B: {...a.bikes.B}}; SEL = 'A'; MY = {...a.my}; SUGMSG = ''; syncFit(); syncMy(); if (a.look) { LOOK = cleanLook(a.look); try { localStorage.setItem('bio-look', JSON.stringify(LOOK)); } catch (e) {} syncLook(); } cur = id; syncInputs(); compute(); renderAth();
+  try { if (location.hash.slice(1) !== id) location.hash = id; } catch (e) {}
+}
+const LKEY = 'bio-atleti';
+const loadLocal = () => { try { ATH = (JSON.parse(localStorage.getItem(LKEY)) || []).filter(a => a && a.id).map(a => ({id: String(a.id), name: String(a.name || a.id).slice(0, 40), at: a.at, ...normAth(a)})); } catch (e) { ATH = []; } };
+const saveLocal = () => { try { localStorage.setItem(LKEY, JSON.stringify(ATH)); return true; } catch (e) { return false; } };
+$('#savef').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#aname').value.trim(); if (!name) { stat('Scrivi un nome per l\'atleta.'); return; }
+  const id = slug(name), doc = {name, p: {...p}, bikes: {A: {...FIT.A}, B: {...FIT.B}}, my: {...MY}, look: {...LOOK}, at: Date.now()};
+  if (DB) {
+    if (me) doc.by = me;
+    try { await DB.collection('athletes').doc(id).set(doc); cur = id; try { location.hash = id; } catch (e2) {} stat(`Salvato «${name}» nell'archivio condiviso.`); $('#aname').value = ''; }
+    catch (err) { stat(err && err.code === 'invalid_argument' ? 'Non hai i permessi per salvare in questa pagina condivisa.' : err && err.code === 'quota_exceeded' ? 'Archivio pieno: elimina qualche atleta.' : 'Salvataggio non riuscito, riprova.'); }
+  } else {
+    ATH = ATH.filter(a => a.id !== id).concat([{id, ...doc}]).sort((a, b) => a.name.localeCompare(b.name));
+    stat(saveLocal() ? `Salvato «${name}» solo su questo dispositivo.` : 'Questo browser non permette di salvare.');
+    cur = id; $('#aname').value = ''; renderAth();
+  }
+});
+$('#alist').addEventListener('click', async e => {
+  const l = e.target.dataset.load, d = e.target.dataset.del;
+  if (l) openAth(l);
+  if (d) {
+    if (DB) { try { await DB.collection('athletes').doc(d).delete(); } catch (err) { stat('Eliminazione non riuscita.'); } }
+    else { ATH = ATH.filter(a => a.id !== d); saveLocal(); renderAth(); }
+  }
+});
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== cur) openAth(h); });
+(async () => {
+  let db = null;
+  try { db = window.claude && claude.use ? await claude.use('db') : null; } catch (e) {}
+  if (!db) { loadLocal(); stat('Archivio condiviso non disponibile qui: gli atleti si salvano solo su questo dispositivo.'); renderAth(); if (cur) openAth(cur); return; }
+  DB = db;
+  try { USR = await claude.use('user'); if (USR) { me = await USR.id(); owner = (await USR.isOwner()) || false; } } catch (e) {}
+  const timer = setTimeout(() => stat('L\'archivio non risponde ancora: gli atleti potrebbero non essere aggiornati.'), 10000);
+  let first = true;
+  DB.collection('athletes').orderBy('name').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) { clearTimeout(timer); stat(snap.empty ? 'Archivio condiviso pronto.' : `${snap.size} atleti nell'archivio condiviso.`); }
+    ATH = snap.docs.filter(d => d.exists).map(d => { const x = d.data() || {}; return {id: d.id, name: String(x.name || d.id).slice(0, 40), ...normAth(x), by: typeof x.by === 'string' ? x.by : null}; });
+    renderAth();
+    if (first && cur && ATH.some(a => a.id === cur)) { first = false; openAth(cur); }
+  }, err => { clearTimeout(timer); stat('Archivio condiviso non raggiungibile: ricarica la pagina più tardi.'); });
+})();
+
+}
+</script>
+</body>
+</html>

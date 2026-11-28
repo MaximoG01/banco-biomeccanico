@@ -392,13 +392,15 @@ if (renderer && window.BIO && host) {
     }
     // ---- braccia: cinematica inversa spalla → gomito → polso (omero 0,186 e avambraccio 0,155 dell'altezza, Winter) ----
     const La = 0.186 * G.H, Lfa = 0.155 * G.H, hoodA = V(Math.sin(1.2), Math.cos(1.2)), hoodN = V(-Math.cos(1.2), Math.sin(1.2)); // asse e normale della leva
+    const hp = p.hand ?? 0, bdep = (p.bard ?? 125) / 1000;
     const armSide = s => {
+      const gA = hp === 1 ? V(1, 0) : hoodA, gN = hp === 1 ? V(0, 1) : hoodN; // asse e normale del tubo impugnato
       const S = V(sh.x, sh.y, s * 0.165 * dep);
       let E, Wr, Hc = null;
       if (tt) { E = V(sh.x + 0.05, sh.y - 0.26, s * 0.11); Wr = V(E.x + 0.30, E.y + 0.05, s * 0.07); }
       else {
-        Hc = V(hoodX, bar.y + 0.005, s * 0.21);                                     // centro della leva (cappuccio)
-        Wr = Hc.clone().addScaledVector(hoodN, 0.034 * sH).addScaledVector(hoodA, -0.05 * sH); Wr.z = s * 0.2; // polso: dietro e sopra la presa
+        Hc = hp === 1 ? V(bar.x + barR - 0.015, bar.y - bdep, s * 0.21) : hp === 2 ? V(bar.x + 0.02, bar.y + 0.012, s * 0.13) : V(hoodX, bar.y + 0.005, s * 0.21); // leva, presa bassa o parte alta                                     // centro della leva (cappuccio)
+        Wr = Hc.clone().addScaledVector(gN, 0.034 * sH).addScaledVector(gA, -0.05 * sH); Wr.z = s * 0.2; // polso: dietro e sopra la presa
         const d = S.distanceTo(Wr), e1 = Wr.clone().sub(S).normalize();
         if (d >= La + Lfa - 1e-4) E = S.clone().addScaledVector(e1, La);
         else { const a = (La * La - Lfa * Lfa + d * d) / (2 * d), hh = Math.sqrt(Math.max(0, La * La - a * a));
@@ -410,16 +412,17 @@ if (renderer && window.BIO && host) {
       const sl = add(limbGeo(S.distanceTo(E) * 0.42, [[0, 0.054 * sH * fa1], [1, 0.05 * sH * fa1]]), sleeve); orient(sl, S, E);
       add(new THREE.SphereGeometry(0.036 * sH * fa2, 16, 12), skin).position.copy(E);                       // gomito
       const fa = add(limbGeo(E.distanceTo(Wr), [[0, 0.036 * sH * fa2], [0.3, 0.04 * sH * fa2], [1, 0.025 * sH]], [[0.05, 0.5, 0.1, 1]]), skin); orient(fa, E, Wr);
+      if (hp === 2 && Hc) { const hand = add(new THREE.CapsuleGeometry(0.028 * sH, 0.05 * sH, 6, 12), gloves); orient(hand, Hc.clone().add(V(-0.02, 0.012)), Hc.clone().add(V(0.035, -0.012))); hand.scale.set(1.15, 1, 0.85); seg(Wr, Hc.clone().add(V(-0.02, 0.012)), 0.025 * sH, gloves); return; }
       if (!Hc) { const hand = add(new THREE.CapsuleGeometry(0.03 * sH, 0.05 * sH, 6, 12), gloves); orient(hand, Wr.clone().add(V(-0.03, 0.01)), Wr.clone().add(V(0.03, -0.02))); hand.scale.set(1.15, 1, 0.85); return; }
       // guanto: dorso e palmo sopra la leva, dita che la avvolgono, pollice all'interno
-      const palmC = Hc.clone().addScaledVector(hoodN, 0.024 * sH).addScaledVector(hoodA, -0.006 * sH); palmC.z = s * 0.208;
+      const palmC = Hc.clone().addScaledVector(gN, 0.024 * sH).addScaledVector(gA, -0.006 * sH); palmC.z = s * 0.208;
       seg(Wr, palmC, 0.026 * sH, gloves);
-      const palm = add(new THREE.SphereGeometry(1, 20, 14), gloves); palm.scale.set(0.05 * sH, 0.021 * sH, 0.04 * sH); palm.position.copy(palmC); palm.rotation.z = Math.atan2(hoodA.y, hoodA.x);
+      const palm = add(new THREE.SphereGeometry(1, 20, 14), gloves); palm.scale.set(0.05 * sH, 0.021 * sH, 0.04 * sH); palm.position.copy(palmC); palm.rotation.z = Math.atan2(gA.y, gA.x);
       const Lf = 1.3 * Math.PI, fg = new THREE.TorusGeometry(0.02 * sH, 0.0088 * sH, 8, 18, Lf).rotateZ(-(Lf + (2 * Math.PI - Lf) / 2));
-      const fingers = add(fg, gloves); const a3 = hoodA.clone(), n3 = hoodN.clone();
-      fingers.quaternion.setFromRotationMatrix(_m.makeBasis(n3, new THREE.Vector3().crossVectors(a3, n3), a3)); fingers.position.copy(Hc).addScaledVector(hoodA, 0.012 * sH); fingers.position.z = s * 0.21;
+      const fingers = add(fg, gloves); const a3 = gA.clone(), n3 = gN.clone();
+      fingers.quaternion.setFromRotationMatrix(_m.makeBasis(n3, new THREE.Vector3().crossVectors(a3, n3), a3)); fingers.position.copy(Hc).addScaledVector(gA, 0.012 * sH); fingers.position.z = s * 0.21;
       const tIn = V(0, 0, -s * 0.026 * sH);
-      seg(palmC.clone().addScaledVector(hoodA, -0.012 * sH).add(tIn), Hc.clone().addScaledVector(hoodA, 0.018 * sH).addScaledVector(hoodN, -0.004 * sH).add(tIn).setZ(s * 0.21 - s * 0.022 * sH), 0.0085 * sH, gloves);
+      seg(palmC.clone().addScaledVector(gA, -0.012 * sH).add(tIn), Hc.clone().addScaledVector(gA, 0.018 * sH).addScaledVector(gN, -0.004 * sH).add(tIn).setZ(s * 0.21 - s * 0.022 * sH), 0.0085 * sH, gloves);
     };
     armSide(1); armSide(-1);
 
@@ -447,7 +450,7 @@ if (renderer && window.BIO && host) {
     else tube(ht, bar, 0.013, dark);
     tube(V(bar.x, bar.y, -0.21), V(bar.x, bar.y, 0.21), 0.012, dark);
     for (const s of [-1, 1]) {
-      const c = new THREE.CatmullRomCurve3([V(bar.x, bar.y, s * 0.21), V(bar.x + barR * 0.85, bar.y - 0.01, s * 0.21), V(bar.x + barR + 0.015, bar.y - 0.08, s * 0.21), V(bar.x + barR - 0.03, bar.y - 0.13, s * 0.21), V(bar.x - 0.03, bar.y - 0.125, s * 0.21)]);
+      const c = new THREE.CatmullRomCurve3([V(bar.x, bar.y, s * 0.21), V(bar.x + barR * 0.85, bar.y - 0.01, s * 0.21), V(bar.x + barR + 0.015, bar.y - bdep * 0.64, s * 0.21), V(bar.x + barR - 0.03, bar.y - bdep * 1.04, s * 0.21), V(bar.x - 0.03, bar.y - bdep, s * 0.21)]);
       add(new THREE.TubeGeometry(c, 40, 0.012, 10), dark);
       const hood = add(new THREE.CapsuleGeometry(0.016, 0.04, 6, 10).rotateZ(-1.2), dark); hood.position.set(hoodX, bar.y + 0.005, s * 0.21);
       const lever = add(new THREE.CapsuleGeometry(0.008, 0.09, 4, 8).translate(0, 0.045, 0), dark); orient(lever, V(hoodX + 0.022, bar.y + 0.01, s * 0.21), V(hoodX + 0.03, bar.y - 0.09, s * 0.205)); // leva del freno

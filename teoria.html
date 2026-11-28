@@ -278,6 +278,7 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <section class="band" id="bici"><div class="wrap">
 <h2>8 · Bici reale e bike fit</h2>
 <p>Dalla geometria pubblicata dal costruttore (stack, reach, angolo di sterzo) e dal cockpit (spessori, lunghezza e angolo dell'attacco, reach del manubrio) si calcola dove stanno le mani sulle leve. Dalla statura si ricavano busto (0,288 × altezza) e braccia con il gomito piegato di 20° (segmenti di Winter<sup><a href="#r9">[9]</a></sup>). L'inclinazione del busto è quella per cui le spalle arrivano alle mani, ed entra nel modello. Esempio: Canyon Ultimate CF SLX M<sup><a href="#r32">[32]</a></sup> (stack 560, reach 393 mm), attacco 100 mm, atleta di 178 cm: busto 47°, dislivello sella–manubrio 8,8 cm.</p>
+<p>La sella si inserisce con le misure del bike fit: altezza lungo il tubo sella dal centro del movimento centrale, arretramento della punta e angolo del tubo sella del telaio. Le ossa ischiatiche si considerano 150 mm dietro la punta (stima dichiarata). Le mani possono stare sulle leve, in presa bassa (conta il drop del manubrio) o sulla parte alta: per l'atleta predefinito il busto passa da 50° sulle leve a 37° in presa bassa e 54° sulla parte alta.</p>
 <h3>Assetto più efficiente</h3>
 <ul>
 <li><b>Cosa si cerca:</b> altezza e arretramento della sella, pedivella e tacchetta, con una ricerca coordinata (circa 50 simulazioni).</li>
@@ -286,6 +287,8 @@ svg text{font:13px Barlow,sans-serif;fill:var(--ink)}
 <li><b>Busto:</b> resta quello di partenza (per la sola efficienza il modello sceglierebbe sempre la posizione più alta, meno aerodinamica); attacco e spessori vengono ricalcolati per mantenerlo.</li>
 <li><b>Quanto vale:</b> nel modello il bike fit sposta la soglia di pochi punti percentuali. Serve soprattutto a pedalare nei limiti sicuri.</li>
 </ul>
+<h3>Calibrazione sui dati dell'atleta</h3>
+<p>Dalla soglia e dallo sprint misurati il banco cerca i valori interni compatibili. Le fibre lente vengono dallo sprint: lo sprint da seduto del modello deve stare entro ±5% del tuo, e uno sprint in piedi si divide per 1,03–1,07. I mitocondri vengono dalla soglia se il VO₂max è misurato. Senza VO₂max misurato si mostra il VO₂max necessario per alcune densità mitocondriali, perché con i soli watt i due non si separano. Se la soglia non si raggiunge con nessuna combinazione, il banco lo dice: di solito mancano le misure vere di coscia e massa. Sono sempre intervalli, non misure.</p>
 </div></section>
 
 <section class="band soft" id="limiti"><div class="wrap">
